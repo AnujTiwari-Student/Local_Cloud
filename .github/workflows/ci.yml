@@ -1,0 +1,68 @@
+name: LocalCloud CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit and contract tests
+        run: python -m unittest discover -s tests -v
+      - name: Live backend and HTTP smoke tests
+        run: python -m localcloud.ci --artifacts artifacts/localcloud
+      - name: Keep diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localcloud-${{ matrix.python }}
+          path: artifacts/localcloud
+          if-no-files-found: ignore
+          retention-days: 7
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t localcloud:ci .
+      - name: Container smoke checks
+        run: |
+          set -euo pipefail
+          docker run -d --name localcloud-ci -p 127.0.0.1:4566:4566 localcloud:ci
+          trap 'docker logs localcloud-ci; docker rm -f localcloud-ci' EXIT
+          python scripts/container_smoke.py
+  kubernetes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: helm/kind-action@v1
+        with:
+          cluster_name: localcloud-ci
+      - name: Build and load image
+        run: |
+          docker build -t localcloud:ci .
+          kind load docker-image localcloud:ci --name localcloud-ci
+      - name: Operator and pod executor integration
+        run: python scripts/kubernetes_smoke.py --image localcloud:ci
+      - name: Keep cluster diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localcloud-kubernetes
+          path: artifacts/kubernetes
+          if-no-files-found: ignore
+          retention-days: 7

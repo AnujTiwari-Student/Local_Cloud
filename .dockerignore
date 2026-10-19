@@ -1,0 +1,4 @@
+*
+!localcloud/
+!localcloud/**
+localcloud/__pycache__/

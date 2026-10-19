@@ -1,0 +1,5 @@
+[project]
+name = "localcloud-emulator"
+version = "0.1.0"
+description = "Independent local AWS development emulator with persistence, snapshots and policy testing"
+requires-python = ">=3.11"

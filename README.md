@@ -1,0 +1,181 @@
+# LocalCloud
+
+An independent, dependency-free Python development emulator. This implementation provides SQS and S3 subsets, durable state, named snapshots, state portability, IAM policy proposals, request inspection, fault injection and a resource dashboard. It is a starting project for adding the specific services you need, not full AWS or LocalStack Pro parity.
+
+For command-by-command instructions, see [service usage](docs/USAGE.md), [Kubernetes setup and execution](docs/KUBERNETES.md), and [CI/CD usage](docs/CI_CD.md).
+
+## Run
+
+Requires Python 3.11 or newer. No pip dependencies.
+
+```bash
+python3 -m localcloud
+```
+
+Open **http://127.0.0.1:4566/_local**. Data persists in `.localcloud/state.sqlite3`.
+
+```bash
+python3 -m localcloud --port 4566 --data .localcloud/state.sqlite3 --iam soft
+# Reject unauthorized service operations instead of only logging them:
+python3 -m localcloud --iam enforce
+```
+
+Stop the first process before starting another. The default bind address is loopback. This is a trusted local testing tool: management APIs support an optional bearer token (required for Kubernetes execution), identities are supplied through `X-Local-Principal`, and AWS signatures are not validated. Do not expose it as a shared or public service. One process owns each database.
+
+## Implemented features
+
+| Feature            | Behavior                                                                                                                                                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Persistence        | Each successful state operation commits to SQLite; state survives process restart.                                                                                                                                      |
+| Named snapshots    | Capture all queues, messages, bucket contents, policies and audit entries. Restore replaces current state atomically. Duplicate names are rejected. Snapshots remain available after restore.                           |
+| IAM testing        | Off, soft or enforce mode. Policies attached to local principal names support Action/Resource wildcards and Allow/Deny. Explicit deny wins; otherwise an allow is required. Unsupported policy constructs are rejected. |
+| SQS                | Create/List/Get/Delete queues; attributes; send, receive, delete messages; purge; change visibility. Receipts rotate on delivery.                                                                                       |
+| S3                 | Path-style create/list/delete buckets; put/get/delete binary objects; list objects with XML responses.                                                                                                                  |
+| Dashboard          | Connection status, resource search/counts, snapshots, state transfer, policies, request inspector and fault controls.                                                                                                   |
+| State transfer     | Validated versioned JSON export/import and startup seeding.                                                                                                                                                             |
+| Request inspection | Bounded durable request metadata, outcomes, timings and IAM decisions.                                                                                                                                                  |
+| Policy proposals   | Generate action/resource statements from successful calls or violations.                                                                                                                                                |
+| Fault injection    | Service/operation rules, probability, error injection and latency.                                                                                                                                                      |
+
+## Try SQS
+
+```bash
+curl http://127.0.0.1:4566/ \
+  -H 'X-Amz-Target: AmazonSQS.CreateQueue' \
+  -H 'Content-Type: application/x-amz-json-1.0' \
+  -d '{"QueueName":"jobs"}'
+
+curl http://127.0.0.1:4566/ \
+  -H 'X-Amz-Target: AmazonSQS.SendMessage' \
+  -H 'Content-Type: application/x-amz-json-1.0' \
+  -d '{"QueueUrl":"http://127.0.0.1:4566/000000000000/jobs","MessageBody":"hello"}'
+
+curl http://127.0.0.1:4566/ \
+  -H 'X-Amz-Target: AmazonSQS.ReceiveMessage' \
+  -H 'Content-Type: application/x-amz-json-1.0' \
+  -d '{"QueueUrl":"http://127.0.0.1:4566/000000000000/jobs","MaxNumberOfMessages":1}'
+```
+
+Delete a delivered message using its `ReceiptHandle` in `AmazonSQS.DeleteMessage`. Receive hides messages for 30 seconds by default. Unacknowledged messages become available again.
+
+## Try S3 and snapshots
+
+```bash
+curl -X PUT http://127.0.0.1:4566/assets
+curl -X PUT http://127.0.0.1:4566/assets/hello.txt --data-binary 'hello world'
+curl http://127.0.0.1:4566/assets/hello.txt
+
+curl http://127.0.0.1:4566/_local/snapshots \
+  -H 'Content-Type: application/json' -d '{"name":"baseline"}'
+
+curl -X DELETE http://127.0.0.1:4566/assets/hello.txt
+
+# Replaces the entire current emulator state, including policies:
+curl http://127.0.0.1:4566/_local/snapshots/restore \
+  -H 'Content-Type: application/json' -d '{"name":"baseline"}'
+```
+
+## Try IAM
+
+Start with `--iam enforce`, then attach a policy through the dashboard or management endpoint:
+
+```bash
+curl http://127.0.0.1:4566/_local/policies \
+  -H 'Content-Type: application/json' \
+  -d '{"principal":"alice","policy":{"Statement":[{"Effect":"Allow","Action":"s3:*","Resource":"*"},{"Effect":"Deny","Action":"s3:DeleteBucket","Resource":"*"}]}}'
+
+curl -X PUT http://127.0.0.1:4566/assets -H 'X-Local-Principal: alice'
+# This operation returns AccessDenied:
+curl -X DELETE http://127.0.0.1:4566/assets -H 'X-Local-Principal: alice'
+```
+
+The default principal is `test`. Native AWS credentials do not map to principals. Soft/enforced violations retain the most recent 200 audit records.
+
+## Tests and verification
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+52 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+
+## Compatibility limits
+
+- Fixed account `000000000000` and region `us-east-1`; no multi-account or region isolation.
+- SQS JSON protocol only; no Query protocol, FIFO, long polling, batching, message attributes, retention scheduler, DLQs or production delivery guarantees.
+- S3 path-style only; no signing verification, presigned URL validation, multipart upload, versioning, encryption, object metadata, pagination or bucket policies. Object data lives as base64 inside JSON state; requests are limited to 8 MiB. SDK compatibility has not been verified.
+- IAM supports only identity policies containing Sid, Effect, Action and Resource. No Condition, Principal, resource policies, roles, STS, SCPs, permissions boundaries or signature validation.
+- Named snapshots are local database records. No Cloud Pods integration, remote sharing, merge or cross-version migration. Portable resource-state export/import is available separately.
+- Dashboard lists queue/bucket counts; individual object/message editors and the other service screens are not implemented.
+- SQLite state is serialized as one JSON document. This favors small deterministic development workloads over throughput. Queue timing uses the host wall clock.
+- No RDS, Cognito, Lambda, DynamoDB, API Gateway, CloudFormation or extensions yet.
+
+## Evidence and next services
+
+See [the evidence ledger](docs/EVIDENCE.md) for observed facts, official references and implementation choices. Supply the next feature's inputs, API operations, expected responses/errors and state changes to extend this project with a defined compatibility target.
+
+## Request inspection and IAM policy proposals
+
+Open Request Inspector in the dashboard, or use:
+
+```bash
+curl http://127.0.0.1:4566/_local/traces
+curl 'http://127.0.0.1:4566/_local/traces?principal=alice'
+curl 'http://127.0.0.1:4566/_local/policy-stream?principal=alice&source=successful'
+curl 'http://127.0.0.1:4566/_local/policy-stream?principal=alice&source=violations'
+```
+
+The latest 1,000 engine calls retain service, operation, resource, principal, timing, error and IAM evaluation. Request/response payloads and credentials are not captured. Management calls and malformed requests rejected before reaching the engine are not traced. The bounded history survives restart, but is excluded from state bundles and snapshot restoration. Traces include resource names, so treat the local database as development data.
+
+Generated policies are proposals, not proof of complete least privilege. They preserve each observed action/resource pair rather than combining unrelated resources. Violations may reflect deliberately forbidden operations: review before using the normal policy-save endpoint. Nothing is granted automatically.
+
+## Portable state and startup seeding
+
+```bash
+curl http://127.0.0.1:4566/_local/state -o baseline.json
+curl http://127.0.0.1:4566/_local/state/import \
+  -H 'Content-Type: application/json' --data-binary @baseline.json
+
+# Or operate on a stopped instance's database without starting an HTTP server:
+python3 -m localcloud --export-state baseline.json
+python3 -m localcloud --data .localcloud/seeded.sqlite3 --load-state baseline.json
+```
+
+The versioned JSON bundle includes a SHA-256 checksum for corruption detection (not authenticity), queue/message state, objects, policies and audit records. Import validates the complete schema before replacing live state. Canonical state is limited to 6 MiB for portability; larger local environments can still use named snapshots. No merging occurs. Existing named snapshots, trace history and fault rules remain on the destination instance. Message visibility uses absolute timestamps, so elapsed time during transfer counts toward visibility expiry. Queue URLs are rebuilt using the destination endpoint.
+
+## Fault injection
+
+Configure and remove rules through the dashboard, or:
+
+```bash
+curl http://127.0.0.1:4566/_local/faults \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"s3-outage","service":"s3","operation":"PutObject","probability":1,"latency_ms":200,"error":{"code":"ServiceUnavailable","status":503}}'
+
+curl http://127.0.0.1:4566/_local/faults
+curl http://127.0.0.1:4566/_local/faults/delete \
+  -H 'Content-Type: application/json' -d '{"name":"s3-outage"}'
+```
+
+Services: `s3`, `sqs`, or `*`; operations accept `*`/`?` patterns. Probability is 0–1. Latency is 0–5,000 ms. Omit `error` for latency only. Rules are evaluated in name order; the first rule whose service/operation match and probability triggers wins. Latency occurs outside the state lock. Errors happen before authorization and mutation, so injected failures have no IAM evaluation. Management endpoints bypass faults so rules can always be removed. Rules persist across restart, but are deliberately not transferred or reverted with resource state.
+
+For the full guide-to-code mapping, see [feature coverage](docs/FEATURES.md). Public cloud sandbox hosting, expanded AWS providers and enterprise controls remain open work. Private Kubernetes previews and Job execution are available; see the guides above.
+
+## Kubernetes and CI quick start
+
+Run an isolated backend with live HTTP smoke checks and diagnostics:
+
+```bash
+python3 -m localcloud.ci
+# Or run your own test command against the temporary endpoint:
+python3 -m localcloud.ci -- python3 -m unittest discover -s tests -v
+```
+
+Build and generate installation manifests for a development cluster:
+
+```bash
+docker build -t localcloud:dev .
+python3 -m localcloud.operator --namespace localcloud manifests --image localcloud:dev > /tmp/localcloud-install.json
+```
+
+Follow [Kubernetes usage](docs/KUBERNETES.md) to load the image into your cluster, install the operator, create its token Secret, launch instances and execute Jobs. Follow [CI/CD usage](docs/CI_CD.md) for fixtures, tokens, artifacts, workflow jobs and previews. Neither guide requires a LocalStack subscription. Live Docker/cluster validation could not run in the authoring sandbox; workflows are provided for a capable runner.
