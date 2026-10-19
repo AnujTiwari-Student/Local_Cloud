@@ -163,6 +163,18 @@ localcloud ec2 terminate-instances --instance-ids i-REPLACE --timeout 60
 
 Stopping makes the app unavailable; starting keeps its configured port mapping; terminating removes the container and releases its ports. Localhost refers to the Docker host: a remote Docker daemon or a backend running on another machine requires access to that host. Kubernetes Service port-forwarding to LocalCloud does not forward these application ports.
 
+## Modify an instance type
+
+Stop an instance before changing its local resource preset:
+
+```bash
+localcloud ec2 stop-instances --name my-web --timeout 60
+localcloud ec2 modify-instance-attribute --name my-web --instance-type t3.small --timeout 60
+localcloud ec2 start-instances --name my-web --timeout 60
+```
+
+Only `t3.micro`, `t3.small` and `t3.medium` are supported. Docker mode applies the documented memory limit and a swap limit of twice that amount through `docker update`, after ownership and stopped-state checks. A runtime failure leaves the recorded type unchanged. Other attributes are not supported. The dashboard offers the same control in instance details.
+
 ## APIs and access
 
 Supported operations:
@@ -171,6 +183,7 @@ Supported operations:
 - `DescribeInstances`: optional `InstanceIds` or one LocalCloud selector (`InstanceName`, `ContainerId`, `ContainerName`, `HostPort`).
 - `StartInstances`, `StopInstances`, `TerminateInstances`: `InstanceIds` or one LocalCloud selector.
 - `NameInstance`: exactly one selected instance and the new `Name` (LocalCloud extension).
+- `ModifyInstanceAttribute`: exactly one selected stopped instance and an `InstanceType` preset. Local JSON accepts the type as a string; other AWS attribute shapes are unsupported.
 
 The LocalCloud CLI uses JSON at `POST /_local/ec2`, protected by the management token when configured. The backend also accepts EC2 Query protocol form POST requests at `/` with `Action`, `Version=2016-11-15` and `InstanceId.N` fields, returning XML. Docker mode requires the management bearer token on Query requests too. Normal AWS clients do not automatically send that custom token, so use the LocalCloud CLI for Docker mode. Full AWS SDK interoperability has not been validated. Unsupported parameters and operations fail explicitly.
 

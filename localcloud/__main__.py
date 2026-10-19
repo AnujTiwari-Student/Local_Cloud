@@ -1,4 +1,5 @@
 import argparse
+import base64
 import errno
 import hmac
 import os
@@ -34,6 +35,10 @@ class Handler(BaseHTTPRequestHandler):
             raise Error('RequestTooLarge', 'Maximum request size is 8 MiB', 413)
         body = self.rfile.read(size)
         principal = self.headers.get('X-Local-Principal', 'test')
+        if path in ('/_local/dashboard.js', '/_local/dashboard.css') and self.command == 'GET':
+            filename = path.rsplit('/', 1)[1]
+            kind = 'text/javascript' if filename.endswith('.js') else 'text/css'
+            return self.send(200, Path(__file__).with_name(filename).read_bytes(), kind + '; charset=utf-8')
         if path == '/_local' and self.command == 'GET':
             return self.send(200, Path(__file__).with_name('dashboard.html').read_bytes(), 'text/html; charset=utf-8')
         if path.startswith('/_local/'):
@@ -72,6 +77,10 @@ class Handler(BaseHTTPRequestHandler):
             if self.command == 'GET' and path == '/_local/resources':
                 overview = engine.overview()
                 executor = getattr(self.server, 'executor', None)
+                overview['instanceName'] = getattr(self.server, 'instance_name', 'localcloud')
+                overview['services'] = ['ec2', 's3', 'sqs']
+                overview['ec2Backend'] = 'docker' if engine.ec2.images else 'mock'
+                overview['ec2Images'] = [{'ImageId': ami, 'DockerImage': image} for ami, image in sorted(engine.ec2.images.items())]
                 overview['executor'] = executor is not None
                 overview['workloadImages'] = sorted(executor.images) if executor is not None else []
                 return self.send(200, overview)
@@ -82,6 +91,32 @@ class Handler(BaseHTTPRequestHandler):
                 if self.headers.get('Content-Type', '').split(';')[0] != 'application/json':
                     raise Error('InvalidRequest', 'Management requests require application/json', 415)
                 data = json.loads(body or b'{}')
+                if not isinstance(data, dict):
+                    raise Error('InvalidRequest', 'Expected a JSON object')
+                if path == '/_local/sqs':
+                    operation = data.pop('Action')
+                    return self.send(200, engine.sqs(operation, data, principal))
+                if path == '/_local/s3':
+                    operation = data.get('Action')
+                    methods = {'ListBuckets': 'GET', 'CreateBucket': 'PUT', 'DeleteBucket': 'DELETE', 'ListObjects': 'GET', 'PutObject': 'PUT', 'GetObject': 'GET', 'DeleteObject': 'DELETE'}
+                    if operation not in methods or set(data) - {'Action', 'Bucket', 'Key', 'ContentBase64'}:
+                        raise Error('UnsupportedOperation', 'Unsupported S3 dashboard operation or fields', 501)
+                    bucket, key = data.get('Bucket', ''), data.get('Key', '')
+                    if not isinstance(bucket, str) or not isinstance(key, str):
+                        raise Error('InvalidRequest', 'Bucket and Key must be strings')
+                    if operation == 'ListBuckets' and (bucket or key):
+                        raise Error('InvalidRequest', 'ListBuckets does not accept Bucket or Key')
+                    if operation != 'ListBuckets' and not bucket:
+                        raise Error('InvalidRequest', 'Bucket is required')
+                    if operation.endswith('Object') and not key:
+                        raise Error('InvalidRequest', 'Key is required')
+                    if operation in ('ListBuckets', 'CreateBucket', 'DeleteBucket', 'ListObjects') and key:
+                        raise Error('InvalidRequest', 'This operation does not accept an object key')
+                    content = base64.b64decode(data.get('ContentBase64', ''), validate=True) if operation == 'PutObject' else b''
+                    result = engine.s3(methods[operation], bucket, key, content, principal)
+                    if isinstance(result, bytes):
+                        result = {'ContentBase64': base64.b64encode(result).decode(), 'ContentLength': len(result)}
+                    return self.send(200, result)
                 if path == '/_local/ec2':
                     operation = data.pop('Action')
                     return self.send(200, engine.ec2.call(operation, data, principal))
@@ -215,6 +250,7 @@ def main(argv=None):
                 'and connect with `localcloud configure --endpoint-url http://127.0.0.1:4567`.'
             )
         parser.error(f'Cannot listen on {args.host}:{args.port}: {error}')
+    server.instance_name = args.instance_name
     server.engine = engine
     server.management_token = management_token
     server.executor = None

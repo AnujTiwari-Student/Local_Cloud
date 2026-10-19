@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from .engine import Error, integer, valid_name
 
 CODES = {'running': 16, 'stopped': 80, 'terminated': 48}
-OPERATIONS = {'RunInstances', 'DescribeInstances', 'StartInstances', 'StopInstances', 'TerminateInstances', 'NameInstance'}
+OPERATIONS = {'RunInstances', 'DescribeInstances', 'StartInstances', 'StopInstances', 'TerminateInstances', 'NameInstance', 'ModifyInstanceAttribute'}
 
 
 def state(name):
@@ -40,7 +40,7 @@ class EC2:
     def call(self, operation, args, principal):
         if operation not in OPERATIONS:
             raise Error('UnsupportedOperation', operation, 501)
-        allowed = {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name'} if operation == 'RunInstances' else {'InstanceIds', 'InstanceName', 'ContainerId', 'ContainerName', 'HostPort'} | ({'Name'} if operation == 'NameInstance' else set())
+        allowed = {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name'} if operation == 'RunInstances' else {'InstanceIds', 'InstanceName', 'ContainerId', 'ContainerName', 'HostPort'} | ({'Name'} if operation == 'NameInstance' else {'InstanceType'} if operation == 'ModifyInstanceAttribute' else set())
         if not isinstance(args, dict) or set(args) - allowed:
             raise Error('UnsupportedOperation', 'Unsupported EC2 parameters', 501)
         ids = args.get('InstanceIds', [])
@@ -111,6 +111,23 @@ class EC2:
                     raise Error('InvalidParameterValue', 'Naming requires one instance and a Name')
                 instances[ids[0]]['Name'] = args['Name']
                 return {'Instance': self.public(instances[ids[0]])}
+            if operation == 'ModifyInstanceAttribute':
+                kind = args.get('InstanceType')
+                if len(ids) != 1 or kind not in ('t3.micro', 't3.small', 't3.medium'):
+                    raise Error('InvalidParameterValue', 'Select one instance and a supported InstanceType')
+                item = instances[ids[0]]
+                if item['State']['Name'] != 'stopped':
+                    raise Error('IncorrectInstanceState', 'Stop the instance before modifying its type')
+                if item['Backend'] == 'docker':
+                    if not self.images:
+                        raise Error('RuntimeUnavailable', 'Docker EC2 mode is required', 503)
+                    name = self.container(item)
+                    if self.docker('inspect', '--format', '{{.State.Running}}', name) == 'true':
+                        raise Error('IncorrectInstanceState', 'Docker container is still running; refresh its state and stop it')
+                    memory = {'t3.micro': 128, 't3.small': 256, 't3.medium': 512}[kind]
+                    self.docker('update', '--memory', str(memory) + 'm', '--memory-swap', str(memory * 2) + 'm', name)
+                item['InstanceType'] = kind
+                return {'Return': True, 'Instance': self.public(item)}
             if operation == 'RunInstances':
                 image = args.get('ImageId', '')
                 if not isinstance(image, str) or not re.fullmatch(r'ami-[a-zA-Z0-9-]{1,80}', image):

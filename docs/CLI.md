@@ -316,3 +316,21 @@ localcloud ec2 terminate-instances --name renamed-web
 ```
 
 Choose one selector per command. Full EC2 IDs remain supported. Docker ID prefixes require at least 12 hex characters and must match exactly one managed instance. See [recovery and naming rules](EC2.md#names-and-other-instance-identifiers).
+
+## Verify an instance connection
+
+```bash
+cat ~/.config/localcloud/server-token | localcloud connect --endpoint-url http://127.0.0.1:4566 --token-stdin
+localcloud resources
+```
+
+The server must already be running. Connection is verified before saving the profile; use `--profile dev` for a named profile and on subsequent commands. See [the full CLI/dashboard connection workflow](DASHBOARD.md).
+
+Supported resource settings can be modified through either interface:
+
+```bash
+localcloud ec2 modify-instance-attribute --name my-web --instance-type t3.small
+localcloud sqs set-queue-attributes --queue-name app-jobs --attributes VisibilityTimeout=60
+```
+
+EC2 type changes require a stopped instance; only the three documented local presets are supported. SQS settings currently support only `VisibilityTimeout`.

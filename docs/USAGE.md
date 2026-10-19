@@ -2,6 +2,8 @@
 
 Use the `localcloud` command for the implemented services and developer tools. No curl or AWS CLI installation is required.
 
+For the connect-first workflow and browser resource editors, see [Dashboard and instance connection](DASHBOARD.md).
+
 ## Enable the command
 
 From the project checkout:

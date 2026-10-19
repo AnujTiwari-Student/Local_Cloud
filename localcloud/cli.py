@@ -87,6 +87,8 @@ def parser():
         groups.add_parser(name, help=help)
     groups.add_parser('status', help='Check backend health', parents=[common], allow_abbrev=False)
     groups.add_parser('resources', help='List resources and instance settings', parents=[common], allow_abbrev=False)
+    connect = groups.add_parser('connect', help='Verify a running instance and save its connection profile', parents=[common], allow_abbrev=False)
+    connect.add_argument('--token-stdin', action='store_true', help='Read and verify a management token before saving')
     configure = groups.add_parser('configure', help='Save endpoint and caller to a profile', parents=[common], allow_abbrev=False)
     configure.add_argument('--list', action='store_true', help='Show effective settings without revealing the token')
     auth = group('auth', 'Manage the management bearer token')
@@ -105,7 +107,7 @@ def parser():
     launch.add_argument('--instance-type', default='t3.micro')
     launch.add_argument('--count', type=int, default=1)
     launch.add_argument('--publish', action='append', default=[], metavar='HOST_PORT:CONTAINER_PORT', help='Publish a Docker TCP port on 127.0.0.1; repeatable')
-    for name in ('describe-instances', 'start-instances', 'stop-instances', 'terminate-instances', 'name-instance'):
+    for name in ('describe-instances', 'start-instances', 'stop-instances', 'terminate-instances', 'name-instance', 'modify-instance-attribute'):
         op = operation(ec2, name)
         selector = op.add_mutually_exclusive_group(required=name != 'describe-instances')
         selector.add_argument('--instance-ids', nargs='+')
@@ -115,6 +117,8 @@ def parser():
         selector.add_argument('--host-port', type=int, help='Published host TCP port')
         if name == 'name-instance':
             op.add_argument('--new-name', required=True)
+        if name == 'modify-instance-attribute':
+            op.add_argument('--instance-type', required=True, choices=['t3.micro', 't3.small', 't3.medium'])
 
     s3 = group('s3', 'High-level S3 commands')
     for name in ('mb', 'rb', 'rm'):
@@ -143,9 +147,11 @@ def parser():
     listing = operation(sqs, 'list-queues')
     listing.add_argument('--queue-name-prefix')
     operation(sqs, 'get-queue-url').add_argument('--queue-name', required=True)
-    for name in ('get-queue-attributes', 'delete-queue', 'purge-queue', 'send-message', 'receive-message', 'delete-message', 'change-message-visibility'):
+    for name in ('get-queue-attributes', 'set-queue-attributes', 'delete-queue', 'purge-queue', 'send-message', 'receive-message', 'delete-message', 'change-message-visibility'):
         op = operation(sqs, name)
         queue(op)
+        if name == 'set-queue-attributes':
+            op.add_argument('--attributes', required=True)
         if name == 'get-queue-attributes':
             op.add_argument('--attribute-names', nargs='+', default=['All'])
         if name == 'send-message':
@@ -266,6 +272,8 @@ def execute(args, client):
                     payload[key] = value
             if op == 'name-instance':
                 payload['Name'] = args.new_name
+            if op == 'modify-instance-attribute':
+                payload['InstanceType'] = args.instance_type
         return client.request('POST', '/_local/ec2', payload)
     if group == 's3api':
         if op == 'list-buckets':
@@ -293,7 +301,7 @@ def execute(args, client):
             if getattr(args, 'queue_name', None):
                 valid_name(args.queue_name)
             payload['QueueUrl'] = args.queue_url or client.endpoint + '/000000000000/' + args.queue_name
-        if op == 'create-queue':
+        if op in ('create-queue', 'set-queue-attributes'):
             payload['Attributes'] = attributes(args.attributes)
         if op == 'send-message':
             payload['MessageBody'] = Path(args.message_body[7:]).expanduser().read_text() if args.message_body.startswith('file://') else args.message_body
@@ -391,6 +399,26 @@ def main(argv=None):
             raise ValueError('--timeout must be positive')
         client = Client(endpoint, principal, token, timeout)
         output = getattr(args, 'output', None)
+        if args.group == 'connect':
+            if args.token_stdin:
+                token = sys.stdin.read(65537).strip()
+                if not token or len(token) > 65536:
+                    raise ValueError('Management token is empty or too long')
+                client = Client(endpoint, principal, token, timeout)
+            health = client.request('GET', '/_local/health')
+            if not isinstance(health, dict) or health.get('status') != 'running':
+                raise ValueError('Endpoint is not a running LocalCloud instance')
+            resources = client.request('GET', '/_local/resources')
+            if not isinstance(resources, dict) or 'endpoint' not in resources:
+                raise ValueError('Endpoint did not return LocalCloud instance details')
+            changes = {'endpoint_url': client.endpoint, 'principal': principal}
+            if args.token_stdin:
+                changes['token'] = client.token
+            profiles.update(name, changes)
+            if args.token_stdin and os.environ.get('LOCALCLOUD_MANAGEMENT_TOKEN') and os.environ['LOCALCLOUD_MANAGEMENT_TOKEN'].strip() != client.token:
+                print('LOCALCLOUD_MANAGEMENT_TOKEN overrides the saved token; unset it to use this connection.', file=sys.stderr)
+            emit({'connected': True, 'profile': name, 'instance': resources.get('instanceName', 'localcloud'), 'endpoint_url': client.endpoint, 'services': resources.get('services', health.get('services', []))}, output or 'json')
+            return 0
         if args.group == 'configure':
             if not args.list:
                 profiles.update(name, {'endpoint_url': client.endpoint, 'principal': principal})

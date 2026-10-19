@@ -1,8 +1,10 @@
 # LocalCloud
 
-An independent, dependency-free Python development emulator. This implementation provides SQS and S3 subsets, durable state, named snapshots, state portability, IAM policy proposals, request inspection, fault injection and a resource dashboard. It is a starting project for adding the specific services you need, not full AWS or LocalStack Pro parity.
+An independent, dependency-free Python development emulator. This implementation provides EC2, SQS and S3 subsets, durable state, named snapshots, state portability, IAM policy proposals, request inspection, fault injection and a resource dashboard. It is a starting project for adding the specific services you need, not full AWS or LocalStack Pro parity.
 
 Use the [AWS-style CLI guide](docs/CLI.md) for every supported service and tool. Also see [getting started](docs/USAGE.md), [Kubernetes setup](docs/KUBERNETES.md), and [CI/CD usage](docs/CI_CD.md).
+
+For browser-based creation, details and lifecycle controls, follow the [dashboard and instance connection guide](docs/DASHBOARD.md). Start a named server, connect, then manage EC2, S3 and SQS from the same endpoint.
 
 ## Run
 
@@ -80,7 +82,7 @@ Use `localcloud <service> <operation> --help` for flags, such as `localcloud sqs
 python3 -m unittest discover -s tests -v
 ```
 
-109 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+121 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
 
 ## Compatibility limits
 

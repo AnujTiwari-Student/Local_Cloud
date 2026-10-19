@@ -82,6 +82,41 @@ class CommandsTests(unittest.TestCase):
         self.assertEqual(code, 0, err)
         return out
 
+    def test_connect_verifies_and_saves_a_named_profile(self):
+        self.server.management_token = 'private'
+        self.server.instance_name = 'dev-server'
+        result = json.loads(self.success('connect', '--profile', 'dev', '--endpoint-url', 'http://127.0.0.1:4567', '--token-stdin', stdin='private'))
+        self.assertTrue(result['connected'])
+        self.assertEqual(result['instance'], 'dev-server')
+        self.assertNotIn('private', json.dumps(result))
+        self.assertEqual(Profiles().get('dev')['endpoint_url'], 'http://127.0.0.1:4567')
+        self.success('resources', '--profile', 'dev')
+
+    def test_connect_failure_does_not_replace_working_profile(self):
+        Profiles().update('default', {'endpoint_url': 'http://127.0.0.1:4566', 'token': 'private'})
+        self.server.management_token = 'private'
+        code, output, error = self.cli('connect', '--endpoint-url', 'http://127.0.0.1:9999', '--token-stdin', stdin='wrong')
+        self.assertEqual(code, 1)
+        self.assertNotIn('wrong', output + error)
+        self.assertEqual(Profiles().get('default')['endpoint_url'], 'http://127.0.0.1:4566')
+        self.assertEqual(Profiles().get('default')['token'], 'private')
+
+    def test_connect_offline_does_not_save_profile(self):
+        with patch.object(self.transport, 'open', side_effect=urllib.error.URLError('Connection refused')):
+            code, _, error = self.cli('connect', '--profile', 'offline')
+        self.assertEqual(code, 1)
+        self.assertIn('Cannot reach', error)
+        self.assertEqual(Profiles().get('offline'), {})
+
+    def test_cli_modifies_ec2_type_and_queue_settings(self):
+        self.success('ec2', 'run-instances', '--image-id', 'ami-local', '--name', 'resize')
+        self.success('ec2', 'stop-instances', '--name', 'resize')
+        result = json.loads(self.success('ec2', 'modify-instance-attribute', '--name', 'resize', '--instance-type', 't3.small'))
+        self.assertEqual(result['Instance']['InstanceType'], 't3.small')
+        self.success('sqs', 'create-queue', '--queue-name', 'jobs')
+        self.success('sqs', 'set-queue-attributes', '--queue-name', 'jobs', '--attributes', 'VisibilityTimeout=120')
+        self.assertEqual(json.loads(self.success('sqs', 'get-queue-attributes', '--queue-name', 'jobs'))['Attributes']['VisibilityTimeout'], '120')
+
     def test_s3_upload_download_copy_list_prefix_and_delete(self):
         source = self.root / 'source.bin'
         source.write_bytes(b'\x00\xffbinary')

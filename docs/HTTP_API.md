@@ -270,3 +270,16 @@ python3 -m localcloud.ci
 ```
 
 This starts its own temporary backend on a free port. No manually running instance or LocalStack token is needed.
+
+## Dashboard management operations
+
+The browser uses the same running backend through these management routes. All require the configured bearer token; POST bodies require `application/json`. Service operations still apply the selected `X-Local-Principal` IAM policies and normal trace/fault behavior.
+
+| Route | Request / result |
+| --- | --- |
+| `GET /_local/resources` | Resource overview plus `instanceName`, `services`, `ec2Backend`, configured `ec2Images`, and Kubernetes executor configuration. |
+| `POST /_local/ec2` | `Action` and supported EC2 fields. Includes `NameInstance` and stopped-only `ModifyInstanceAttribute` with a string `InstanceType` preset. |
+| `POST /_local/sqs` | `Action` and supported SQS operation fields. `SetQueueAttributes` supports only `Attributes.VisibilityTimeout`. |
+| `POST /_local/s3` | `Action`: `ListBuckets`, `CreateBucket`, `DeleteBucket`, `ListObjects`, `PutObject`, `GetObject`, or `DeleteObject`; optional/required `Bucket` and `Key` according to operation. `PutObject` accepts `ContentBase64`; `GetObject` returns `ContentBase64` and `ContentLength`. |
+
+The public dashboard HTML/CSS/JavaScript and health route are available before authentication. Browser connection verifies backend access; it does not launch an emulator process. No CORS proxy is provided. See [dashboard usage](DASHBOARD.md).

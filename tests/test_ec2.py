@@ -293,3 +293,36 @@ class EC2Tests(unittest.TestCase):
             status, body = self.request('/_local/ec2', payload, 'POST', headers)
             self.assertEqual(status, 200)
             self.assertEqual(json.loads(body)['Instance']['Name'], 'old-web')
+
+    def test_modify_instance_type_requires_stopped_and_authorized_instance(self):
+        identifier = self.call('RunInstances', ImageId='ami-local', Name='resize')['Instances'][0]['InstanceId']
+        with self.assertRaisesRegex(Error, 'Stop the instance'):
+            self.call('ModifyInstanceAttribute', InstanceName='resize', InstanceType='t3.small')
+        self.call('StopInstances', InstanceName='resize')
+        changed = self.call('ModifyInstanceAttribute', InstanceName='resize', InstanceType='t3.small')
+        self.assertEqual(changed['Instance']['InstanceType'], 't3.small')
+        self.engine.iam_mode = 'enforce'
+        with self.assertRaises(Error):
+            self.call('ModifyInstanceAttribute', InstanceIds=[identifier], InstanceType='t3.medium')
+        self.engine.iam_mode = 'off'
+        self.assertEqual(self.call('DescribeInstances', InstanceName='resize')['Reservations'][0]['Instances'][0]['InstanceType'], 't3.small')
+        self.call('TerminateInstances', InstanceName='resize')
+        with self.assertRaises(Error):
+            self.call('ModifyInstanceAttribute', InstanceName='resize', InstanceType='t3.medium')
+
+    def test_docker_resize_updates_limits_and_preserves_state_on_failure(self):
+        self.engine.ec2.images = {'ami-web': 'web:dev'}
+        with patch.object(self.engine.ec2, 'docker', return_value='c'*64), patch.object(self.engine.ec2, 'container', return_value='owned'):
+            self.call('RunInstances', ImageId='ami-web', Name='resize')
+            self.call('StopInstances', InstanceName='resize')
+        with patch.object(self.engine.ec2, 'container', return_value='owned'), patch.object(self.engine.ec2, 'docker', return_value='false') as docker:
+            self.call('ModifyInstanceAttribute', InstanceName='resize', InstanceType='t3.medium')
+            self.assertEqual(docker.call_args.args, ('update', '--memory', '512m', '--memory-swap', '1024m', 'owned'))
+        def fail_update(*args):
+            if args[0] == 'update':
+                raise Error('RuntimeFailure', 'failed', 503)
+            return 'false'
+        with patch.object(self.engine.ec2, 'container', return_value='owned'), patch.object(self.engine.ec2, 'docker', side_effect=fail_update):
+            with self.assertRaises(Error):
+                self.call('ModifyInstanceAttribute', InstanceName='resize', InstanceType='t3.small')
+        self.assertEqual(self.engine.overview()['instances'][0]['InstanceType'], 't3.medium')

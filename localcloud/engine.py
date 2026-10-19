@@ -154,7 +154,7 @@ class Engine:
                                lambda: self._sqs(operation, args, principal))
 
     def _sqs(self, operation, args, principal='test'):
-        supported = {'CreateQueue', 'ListQueues', 'GetQueueUrl', 'GetQueueAttributes', 'DeleteQueue', 'PurgeQueue', 'SendMessage', 'ReceiveMessage', 'DeleteMessage', 'ChangeMessageVisibility'}
+        supported = {'CreateQueue', 'ListQueues', 'GetQueueUrl', 'GetQueueAttributes', 'SetQueueAttributes', 'DeleteQueue', 'PurgeQueue', 'SendMessage', 'ReceiveMessage', 'DeleteMessage', 'ChangeMessageVisibility'}
         if operation not in supported:
             raise Error('UnsupportedOperation', operation, 501)
         name = args.get('QueueName', '')
@@ -183,6 +183,12 @@ class Engine:
                 return {'QueueUrl': queue_url}
             if operation == 'GetQueueAttributes':
                 return {'Attributes': {'QueueArn': resource, 'VisibilityTimeout': str(q['visibility']), 'ApproximateNumberOfMessages': str(sum(m['visible'] <= time.time() for m in q['messages']))}}
+            if operation == 'SetQueueAttributes':
+                attrs = args.get('Attributes')
+                if set(args) - {'QueueUrl', 'Attributes'} or not isinstance(attrs, dict) or set(attrs) != {'VisibilityTimeout'}:
+                    raise Error('UnsupportedOperation', 'Only VisibilityTimeout can be modified', 501)
+                q['visibility'] = integer(attrs['VisibilityTimeout'], 0, 43200)
+                return {}
             if operation == 'DeleteQueue':
                 del queues[name]
             elif operation == 'PurgeQueue':

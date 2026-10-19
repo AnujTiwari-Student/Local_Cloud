@@ -15,4 +15,4 @@ localcloud = "localcloud.cli:main"
 packages = ["localcloud"]
 
 [tool.setuptools.package-data]
-localcloud = ["dashboard.html"]
+localcloud = ["dashboard.html", "dashboard.js", "dashboard.css"]
