@@ -38,8 +38,8 @@ class Tooling:
             raise Error('InvalidFault', 'Unknown fault rule fields')
         rule = copy.deepcopy(document)
         valid_name(rule.get('name'))
-        if rule.get('service') not in ('s3', 'sqs', '*'):
-            raise Error('InvalidFault', 'Service must be s3, sqs or *')
+        if rule.get('service') not in ('s3', 'sqs', 'ec2', '*'):
+            raise Error('InvalidFault', 'Service must be s3, sqs, ec2 or *')
         operation = rule.get('operation', '*')
         if not isinstance(operation, str) or not re.fullmatch(r'[A-Za-z*?]{1,80}', operation):
             raise Error('InvalidFault', 'Invalid operation pattern')
@@ -126,6 +126,8 @@ class Tooling:
     def export_state(self):
         with self.engine.lock:
             state = json.loads(self.engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+        if any(i.get('Backend') == 'docker' for i in state.get('instances', {}).values()):
+            raise Error('UnsupportedOperation', 'Docker EC2 instances cannot be exported as portable state', 409)
         body = json.dumps(state, sort_keys=True, separators=(',', ':'), allow_nan=False)
         if len(body.encode()) > 6 * 1024 * 1024:
             raise Error('StateTooLarge', 'Portable state is limited to 6 MiB; local snapshots remain available', 413)
@@ -133,6 +135,8 @@ class Tooling:
                 'sha256': hashlib.sha256(body.encode()).hexdigest(), 'state': state}
 
     def import_state(self, bundle):
+        if self.engine.ec2.images:
+            raise Error('UnsupportedOperation', 'State import is disabled in Docker EC2 mode', 409)
         # Validate everything before opening the replacement transaction.
         if not isinstance(bundle, dict) or set(bundle) != {'format', 'version', 'sha256', 'state'} or bundle['format'] != 'localcloud-state' or type(bundle['version']) is not int or bundle['version'] != 1:
             raise Error('InvalidState', 'Unsupported state bundle format or version')
@@ -151,8 +155,10 @@ class Tooling:
 
     @staticmethod
     def validate_state(state):
-        if not isinstance(state, dict) or set(state) != {'version', 'queues', 'buckets', 'policies', 'audit'} or type(state['version']) is not int or state['version'] != 1:
+        if not isinstance(state, dict) or set(state) - {'version', 'queues', 'buckets', 'policies', 'audit', 'instances'} or not {'version', 'queues', 'buckets', 'policies', 'audit'} <= set(state) or type(state['version']) is not int or state['version'] != 1:
             raise ValueError('Invalid state schema')
+        from .ec2 import validate_instances
+        validate_instances(state.get('instances', {}))
         if any(not isinstance(state[k], dict) for k in ('queues', 'buckets', 'policies')):
             raise ValueError('Resource collections must be objects')
         if not isinstance(state['audit'], list) or len(state['audit']) > 200:

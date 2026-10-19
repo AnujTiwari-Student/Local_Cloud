@@ -265,6 +265,32 @@ class CommandsTests(unittest.TestCase):
             self.success('resources')
             self.assertEqual(self.transport.requests[-1].get_header('Authorization'), 'Bearer token')
 
+<<<<<<< HEAD
+=======
+    def test_ci_http_client_runs_smoke_with_actual_response_headers(self):
+        from localcloud.ci import HTTPClient, smoke
+        self.server.management_token = 'ci-token'
+        client = HTTPClient('http://127.0.0.1:4566', 'ci-token')
+        self.assertEqual(smoke(client), ['health', 's3-binary-roundtrip', 'sqs-delivery', 'sqs-visibility', 'sqs-acknowledgement'])
+        self.assertEqual(self.engine.overview()['buckets'], [])
+        self.assertEqual(self.engine.overview()['queues'], [])
+
+    def test_ci_runner_records_success_using_real_smoke_and_http_transport(self):
+        from localcloud.ci import run
+        server = SimpleNamespace(server_port=12345, serve_forever=Mock(), shutdown=Mock(), server_close=Mock())
+        transport = HandlerOpener(server)
+        artifacts = self.root / 'ci-artifacts'
+        with patch('localcloud.ci.ThreadingHTTPServer', return_value=server), patch('localcloud.ci.urllib.request.build_opener', return_value=transport), contextlib.redirect_stdout(io.StringIO()):
+            code = run([], artifacts)
+        self.assertEqual(code, 0)
+        report = json.loads((artifacts / 'report.json').read_text())
+        self.assertTrue(report['passed'])
+        self.assertEqual(len(report['checks']), 5)
+        self.assertTrue(json.loads((artifacts / 'traces.json').read_text()))
+        server.shutdown.assert_called_once()
+        server.server_close.assert_called_once()
+
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     def test_connection_failure_has_actionable_message_without_traceback(self):
         with patch.object(self.transport, 'open', side_effect=urllib.error.URLError('Connection refused')):
             code, out, error = self.cli('status')

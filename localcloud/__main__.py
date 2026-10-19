@@ -1,4 +1,5 @@
 import argparse
+import errno
 import hmac
 import os
 import json
@@ -75,12 +76,15 @@ class Handler(BaseHTTPRequestHandler):
                 overview['workloadImages'] = sorted(executor.images) if executor is not None else []
                 return self.send(200, overview)
             if self.command == 'GET' and path == '/_local/health':
-                return self.send(200, {'status': 'running', 'services': ['sqs', 's3']})
+                return self.send(200, {'status': 'running', 'services': ['sqs', 's3', 'ec2']})
             if self.command == 'POST':
                 # Browser management mutations must be JSON, preventing simple cross-origin form posts.
                 if self.headers.get('Content-Type', '').split(';')[0] != 'application/json':
                     raise Error('InvalidRequest', 'Management requests require application/json', 415)
                 data = json.loads(body or b'{}')
+                if path == '/_local/ec2':
+                    operation = data.pop('Action')
+                    return self.send(200, engine.ec2.call(operation, data, principal))
                 if path == '/_local/state/import':
                     return self.send(200, engine.tools.import_state(data))
                 if path == '/_local/traces/clear':
@@ -99,6 +103,15 @@ class Handler(BaseHTTPRequestHandler):
                     engine.policy(data['principal'], data['policy'])
                     return self.send(200, {'saved': True})
             raise Error('NotFound', 'Unknown management route', 404)
+        if self.command == 'POST' and self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
+            from .ec2 import query_request, query_response
+            if engine.ec2.images:
+                required = getattr(self.server, 'management_token', None)
+                if not required or not hmac.compare_digest(self.headers.get('Authorization', '').encode(), ('Bearer ' + required).encode()):
+                    raise Error('Unauthorized', 'Docker EC2 requires a management bearer token', 401)
+            operation, arguments = query_request(body)
+            result = engine.ec2.call(operation, arguments, principal)
+            return self.send(200, query_response(operation, result), 'application/xml')
         target = self.headers.get('X-Amz-Target', '')
         if target.startswith('AmazonSQS.') and self.command == 'POST':
             data = json.loads(body or b'{}')
@@ -126,7 +139,10 @@ class Handler(BaseHTTPRequestHandler):
         try:
             self.handle_request()
         except Error as e:
-            if self.headers.get('X-Amz-Target', '').startswith('AmazonSQS.') or self.path.startswith('/_local'):
+            if self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
+                import uuid
+                self.send(e.status, '<Response><Errors><Error><Code>' + escape(e.code) + '</Code><Message>' + escape(e.message) + '</Message></Error></Errors><RequestID>' + str(uuid.uuid4()) + '</RequestID></Response>', 'application/xml')
+            elif self.headers.get('X-Amz-Target', '').startswith('AmazonSQS.') or self.path.startswith('/_local'):
                 self.send(e.status, {'__type': e.code, 'message': e.message})
             else:
                 self.send(e.status, f'<Error><Code>{escape(e.code)}</Code><Message>{escape(e.message)}</Message></Error>', 'application/xml')
@@ -152,10 +168,27 @@ def main(argv=None):
     parser.add_argument('--workload-image', action='append', default=[], help='Exact allowed workload image; repeat to allow more')
     parser.add_argument('--instance-name', default='localcloud')
     parser.add_argument('--instance-uid', help='Optional LocalCloudInstance UID for workload ownership')
+<<<<<<< HEAD
     args = parser.parse_args(argv)
+=======
+<<<<<<< Updated upstream
+    args = parser.parse_args()
+=======
+    parser.add_argument('--ec2-image', action='append', default=[], metavar='AMI=DOCKER_IMAGE', help='Enable Docker EC2 with an explicit image mapping; repeatable')
+    args = parser.parse_args(argv)
+>>>>>>> Stashed changes
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     management_token = os.environ.get(args.management_token_env or 'LOCALCLOUD_MANAGEMENT_TOKEN')
     if args.management_token_env and not management_token:
         parser.error('The specified management token environment variable is empty')
+    ec2_images = {}
+    for mapping in args.ec2_image:
+        ami, separator, image = mapping.partition('=')
+        if not separator or not ami.startswith('ami-') or not image or image.startswith('-'):
+            parser.error('--ec2-image must be AMI=DOCKER_IMAGE')
+        ec2_images[ami] = image
+    if ec2_images and not management_token:
+        parser.error('Docker EC2 requires LOCALCLOUD_MANAGEMENT_TOKEN')
     if args.executor == 'kubernetes' and (not management_token or not args.workload_image):
         parser.error('Kubernetes execution requires a management token and at least one --workload-image')
     if args.public_endpoint:
@@ -164,7 +197,7 @@ def main(argv=None):
             parser.error('Public endpoint must be an HTTP(S) origin without credentials, path or query')
     Path(args.data).parent.mkdir(parents=True, exist_ok=True)
     endpoint = args.public_endpoint or f'http://{args.host}:{args.port}'
-    engine = Engine(args.data, endpoint, args.iam)
+    engine = Engine(args.data, endpoint, args.iam, ec2_images)
     if args.load_state:
         try:
             engine.tools.import_state(json.loads(Path(args.load_state).read_text()))
@@ -177,7 +210,19 @@ def main(argv=None):
         finally:
             engine.close()
         return
-    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    try:
+        server = ThreadingHTTPServer((args.host, args.port), Handler)
+    except OSError as error:
+        engine.close()
+        if error.errno == errno.EADDRINUSE:
+            parser.error(
+                f'Cannot start: {args.host}:{args.port} is already in use. '
+                'Another LocalCloud process or kubectl port-forward may be listening there. '
+                'Stop that listener to use this port, or start a separate instance with '
+                '`localcloud start --port 4567 --data .localcloud/state-4567.sqlite3` '
+                'and connect with `localcloud configure --endpoint-url http://127.0.0.1:4567`.'
+            )
+        parser.error(f'Cannot listen on {args.host}:{args.port}: {error}')
     server.engine = engine
     server.management_token = management_token
     server.executor = None

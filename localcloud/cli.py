@@ -72,7 +72,11 @@ def parser():
                           ('--output', {'choices': ['json', 'text']}),
                           ('--timeout', {'type': float, 'help': 'HTTP timeout in seconds; default 15'})]:
         common.add_argument(flag, default=argparse.SUPPRESS, **options)
+<<<<<<< HEAD
     root = argparse.ArgumentParser(prog='localcloud', description='AWS-style CLI for LocalCloud S3, SQS and developer tools', parents=[common], allow_abbrev=False)
+=======
+    root = argparse.ArgumentParser(prog='localcloud', description='AWS-style CLI for LocalCloud S3, SQS, EC2 and developer tools', parents=[common], allow_abbrev=False)
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     groups = root.add_subparsers(dest='group', required=True)
     def group(name, help):
         item = groups.add_parser(name, help=help, parents=[common], allow_abbrev=False)
@@ -98,6 +102,16 @@ def parser():
     login.add_argument('--context')
     operation(auth, 'logout')
     operation(auth, 'status')
+<<<<<<< HEAD
+=======
+    ec2 = group('ec2', 'Local EC2 instance lifecycle')
+    launch = operation(ec2, 'run-instances')
+    launch.add_argument('--image-id', required=True)
+    launch.add_argument('--instance-type', default='t3.micro')
+    launch.add_argument('--count', type=int, default=1)
+    for name in ('describe-instances', 'start-instances', 'stop-instances', 'terminate-instances'):
+        operation(ec2, name).add_argument('--instance-ids', nargs='+', required=name != 'describe-instances')
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     s3 = group('s3', 'High-level S3 commands')
     for name in ('mb', 'rb', 'rm'):
         operation(s3, name).add_argument('uri')
@@ -164,7 +178,11 @@ def parser():
     operation(faults, 'remove').add_argument('name')
     fault = operation(faults, 'add')
     fault.add_argument('--name', required=True)
+<<<<<<< HEAD
     fault.add_argument('--service', choices=['s3', 'sqs', '*'], required=True)
+=======
+    fault.add_argument('--service', choices=['s3', 'sqs', 'ec2', '*'], required=True)
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     fault.add_argument('--operation', dest='fault_operation', default='*')
     fault.add_argument('--probability', type=float, default=1)
     fault.add_argument('--latency-ms', type=int, default=0)
@@ -230,6 +248,16 @@ def execute(args, client):
         return client.request('GET', '/_local/health')
     if group == 'resources':
         return client.request('GET', '/_local/resources')
+<<<<<<< HEAD
+=======
+    if group == 'ec2':
+        payload = {'Action': ''.join(word.title() for word in op.split('-'))}
+        if op == 'run-instances':
+            payload.update(ImageId=args.image_id, InstanceType=args.instance_type, MinCount=args.count, MaxCount=args.count)
+        elif args.instance_ids:
+            payload['InstanceIds'] = args.instance_ids
+        return client.request('POST', '/_local/ec2', payload)
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     if group == 's3api':
         if op == 'list-buckets':
             return client.buckets()

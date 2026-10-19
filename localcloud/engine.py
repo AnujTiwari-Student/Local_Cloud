@@ -39,7 +39,7 @@ def wildcard(value, pattern):
 
 
 class Engine:
-    def __init__(self, path, endpoint='http://127.0.0.1:4566', iam_mode='off'):
+    def __init__(self, path, endpoint='http://127.0.0.1:4566', iam_mode='off', ec2_images=None):
         if iam_mode not in ('off', 'soft', 'enforce'):
             raise ValueError('Invalid IAM mode')
         self.endpoint, self.iam_mode = endpoint.rstrip('/'), iam_mode
@@ -53,6 +53,8 @@ class Engine:
         self.db.commit()
         from .tooling import Tooling
         self.tools = Tooling(self)
+        from .ec2 import EC2
+        self.ec2 = EC2(self, ec2_images)
 
     @contextmanager
     def transaction(self):
@@ -112,11 +114,18 @@ class Engine:
 
     def snapshot(self, name, restore=False):
         valid_name(name)
+        if self.ec2.images:
+            raise Error('UnsupportedOperation', 'Snapshots are disabled in Docker EC2 mode', 409)
         with self.lock, self.db:
             if restore:
                 row = self.db.execute('SELECT body FROM snapshots WHERE name=?', (name,)).fetchone()
                 if not row:
                     raise Error('NotFound', 'Snapshot does not exist', 404)
+                from .ec2 import validate_instances
+                try:
+                    validate_instances(json.loads(row[0]).get('instances', {}))
+                except ValueError as error:
+                    raise Error('InvalidState', str(error))
                 self.db.execute('UPDATE state SET body=? WHERE id=1', (row[0],))
             else:
                 body = self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0]
@@ -133,6 +142,7 @@ class Engine:
                     'queues': [{'name': n, 'messages': len(q['messages'])} for n, q in s['queues'].items()],
                     'buckets': [{'name': n, 'objects': len(b)} for n, b in s['buckets'].items()],
                     'snapshots': [{'name': n, 'created': t} for n, t in self.db.execute('SELECT name,created FROM snapshots ORDER BY created DESC')],
+                    'instances': [self.ec2.public(i) for i in s.get('instances', {}).values()],
                     'principals': list(s['policies']), 'audit': s['audit']}
 
     def sqs(self, operation, args, principal='test'):

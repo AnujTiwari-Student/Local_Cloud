@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+      "Resource": "arn:aws:s3:::app-documents/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["sqs:GetQueueUrl", "sqs:GetQueueAttributes", "sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:ChangeMessageVisibility", "sqs:PurgeQueue"],
+      "Resource": "arn:aws:sqs:us-east-1:000000000000:app-jobs"
+    }
+  ]
+}

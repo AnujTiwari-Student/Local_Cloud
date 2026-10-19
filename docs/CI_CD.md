@@ -1,147 +1,154 @@
-# CI/CD: isolated runs, fixtures, diagnostics and Kubernetes previews
+# Local project CI
 
+<<<<<<< HEAD
 Prefer commands over curl? See the [CLI guide](CLI.md), including automatic token login from a Kubernetes Secret.
 
+=======
+<<<<<<< Updated upstream
+>>>>>>> 28aa52d (Feature: Add ec2 service)
 LocalCloud now has a CI runner, GitHub Actions workflows and a Kubernetes integration smoke test. There is no hosted billing/credit service or externally issued CI license token; these tools run in your own CI infrastructure.
+=======
+Put **`localcloud.toml` beside your application's `package.json`**, then run **`localcloud ci` from that directory**. The config tells LocalCloud which tests to execute and which supported resources to prepare.
 
-## 1. Run live HTTP smoke checks locally
+For a complete Node.js application, source files, tests and every setup step, see [the start-to-finish Node.js guide](NODEJS_LOCAL_CI.md) and [the runnable example](../examples/node-app/README.md).
+>>>>>>> Stashed changes
 
-From the project directory:
-
-```bash
-python3 -m localcloud.ci
-```
-
-No manually started backend is required. Each invocation:
-
-1. Creates a temporary SQLite database and a backend on a free loopback port.
-2. Protects management routes with a per-run random bearer token.
-3. Checks health, binary S3 upload/download, SQS delivery, visibility and acknowledgement over real HTTP.
-4. Removes its smoke resources.
-5. Saves `report.json` and `traces.json` in `artifacts/localcloud`.
-6. Stops the backend and removes temporary data, including when checks fail.
-
-Success exits 0; smoke/startup failures exit 1. The runner never connects to the manually running instance on port 4566.
-
-This command requires permission to open local listening sockets. In a sandbox that denies sockets it correctly fails and writes a failure report; that is not a passing integration test.
-
-## 2. Run application tests against the temporary backend
+## Create the config in your app
 
 ```bash
-python3 -m localcloud.ci --artifacts artifacts/my-run --timeout 300 -- \
-  python3 -m unittest discover -s tests -v
+cd /path/to/my-app
+localcloud ci init --command npm test
 ```
 
-The example runs this repository's tests after the live smoke checks. Replace the command after `--` with your application's test command. Arguments are passed directly, with no implicit shell. Its exit code is propagated; timeouts and startup failures fail the run.
+Generated file:
 
-The child process receives:
+```toml
+version = 1
 
-| Environment variable | Value |
-|---|---|
-| `LOCALCLOUD_URL` | The temporary backend URL; use this in HTTP clients. |
-| `AWS_ENDPOINT_URL` | Same URL; SDK compatibility still depends on supported protocols. |
-| `LOCALCLOUD_MANAGEMENT_TOKEN` | Bearer token for management routes only. |
-| `AWS_DEFAULT_REGION` | `us-east-1`. |
-| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Dummy `test` values. |
+[ci]
+command = ["npm", "test"]
+services = ["s3", "sqs"]
+iam = "soft"
+timeout = 300
+artifacts = "artifacts/localcloud"
+```
 
-Existing real AWS credentials in those variables are replaced for this subprocess. Applications must honor the supplied endpoint; LocalCloud does not intercept unrelated network requests.
+The command array is passed directly, without a shell. The initializer refuses to overwrite an existing file. It creates no remote workflow files and does not change your application's code or install its dependencies.
 
-Use `LOCALCLOUD_URL` in your tests instead of assuming port 4566. For example, a Python test can use `urllib.request.urlopen(os.environ['LOCALCLOUD_URL'] + '/_local/health')`. For protected management calls add `Authorization: Bearer <LOCALCLOUD_MANAGEMENT_TOKEN>`.
-
-## 3. Seed fixtures and enable policy testing
-
-Export a fixture from an existing instance:
+Run:
 
 ```bash
-curl http://127.0.0.1:4566/_local/state -o baseline.json
+localcloud ci
 ```
 
-If that instance uses a management token, include its Authorization header.
+The runner creates a temporary database/backend on a free loopback port, runs backend smoke checks, starts your app's test command, writes diagnostics, and removes the backend/database. Your tests must assert application behavior; LocalCloud does not infer correctness from the app's source code.
 
-Then:
+## Prepare services, policies and app settings
+
+```toml
+version = 1
+
+[ci]
+command = ["npm", "test"]
+services = ["s3", "sqs"]
+iam = "enforce"
+principal = "app"
+timeout = 120
+artifacts = "artifacts/localcloud"
+export_state = false
+
+[ci.seed]
+buckets = ["app-documents"]
+queues = ["app-jobs"]
+
+[ci.policy_files]
+app = "ci/policies/app.json"
+
+[ci.env]
+DOCUMENTS_BUCKET = "app-documents"
+JOBS_QUEUE = "app-jobs"
+```
+
+Policy files use the limited identity-policy format already supported by LocalCloud. They replace that principal's policy before application tests run. Enforce mode requires matching permissions; default principal `test` does not automatically inherit the runner's internal smoke policy.
+
+`services` declares dependencies and rejects unimplemented provider names. It does not disable the other supported provider or change the built-in S3/SQS smoke checks. `seed` creates missing resources; `env` supplies string-valued application settings. Reserved `LOCALCLOUD_`/`AWS_` variables cannot be overridden through `ci.env`.
+
+## Connect your application
+
+The test process receives:
+
+| Variable                             | Meaning                                              |
+| ------------------------------------ | ---------------------------------------------------- |
+| `LOCALCLOUD_URL`, `AWS_ENDPOINT_URL` | Temporary backend origin; do not hardcode port 4566. |
+| `LOCALCLOUD_PRINCIPAL`               | Caller configured by `ci.principal`; default test.   |
+| `LOCALCLOUD_MANAGEMENT_TOKEN`        | Per-run management bearer token.                     |
+| `LOCALCLOUD_CI`                      | 1 for this isolated test run.                        |
+| `AWS_DEFAULT_REGION`                 | us-east-1.                                           |
+| AWS access-key variables             | Dummy test values.                                   |
+
+Existing real AWS key variables are replaced for the subprocess. Applications still need to honor the endpoint; no general network interception is performed. A compatible API client or the supplied example adapter is needed; broad AWS SDK compatibility is not claimed.
+
+The runner manages the emulator. Your test framework manages your own app process/server and its teardown. Use a finite test command with assertions, not a server command that waits forever.
+
+## Fixtures
+
+Add `fixture = "ci/baseline.json"` inside `[ci]` to import a validated state bundle before setup. Config paths and the application's working directory are resolved relative to the config file's directory.
+
+To create a fixture from an intended running development instance:
 
 ```bash
-python3 -m localcloud.ci --fixture baseline.json --iam soft -- \
-  python3 -m unittest discover -s tests -v
+localcloud state export ci/baseline.json
 ```
 
-The fixture is fully validated and imported before the backend starts. Each run has its own database; changes do not affect the source instance or fixture file. Named snapshot history, trace history and fault rules are not imported.
+Policies are applied after fixture import, then missing seed resources are created. Existing queue attributes/data are preserved. State transfer excludes fault rules, traces and named snapshot history. Each CI run has an independent database; the fixture and source instance are not modified.
 
-`--iam` supports off, soft (default), and enforce. The runner installs a testing policy for its own `ci-smoke` principal. Enforced application tests must supply policies for their own local principals in the fixture or through management APIs; the default `test` principal does not automatically inherit the smoke policy.
-
-## 4. CI tokens and artifacts
-
-By default a new random management token is generated for each run. If your own pipeline needs a fixed secret, set `LOCALCLOUD_CI_TOKEN` through your CI secret store. The runner uses it as its management token and passes it to the test subprocess as `LOCALCLOUD_MANAGEMENT_TOKEN`. Do not put it into command arguments, committed fixtures or logs.
-
-This token is a LocalCloud management credential, not a LocalStack subscription token. It grants management access to this temporary backend; it does not introduce multiple users, role-scoped tokens or a token-issuance service.
-
-Inspect diagnostics:
+## Run options and precedence
 
 ```bash
-cat artifacts/localcloud/report.json
-cat artifacts/localcloud/traces.json
+# Use the app config automatically.
+localcloud ci
+
+# Run from elsewhere using an explicit project path.
+localcloud ci --config /path/to/my-app/localcloud.toml
+
+# Override the configured command once.
+localcloud ci -- npm run test:unit
+
+# Override individual settings once.
+localcloud ci --timeout 180 --artifacts artifacts/debug-run
+localcloud ci --export-state
+localcloud ci --no-export-state
+
+# Ignore config and check only the backend.
+localcloud ci --no-config
 ```
 
-By default artifacts contain outcomes and request metadata, not resource contents or tokens. For explicit resource-state capture:
+The config is discovered only in the current directory. CLI flags override config values. Paths written in the config are relative to its directory; explicitly supplied CLI paths are relative to the directory where you invoke the command. A trailing command after `--` replaces `ci.command`.
 
-```bash
-python3 -m localcloud.ci --export-state --artifacts artifacts/debug-run
+Without a config or explicit command, only backend smoke checks run. The report labels application tests `not_configured`; that run does not test an application automatically.
+
+## Results
+
+```text
+artifacts/localcloud/report.json
+artifacts/localcloud/traces.json
+artifacts/localcloud/state.json   # only when export_state is enabled
 ```
 
-This adds `state.json`, which can contain object/message contents and policies. Handle it as test data and choose artifact retention/access appropriately. Use separate artifact directories for runs you want to preserve.
+The report includes `passed`, `checks`, `command_exit_code`, `application_tests`, `error`, duration, and the config path when one was used. The application command's nonnegative exit code is propagated. Startup failures/timeouts return a failure code. Cleanup and diagnostics run on failure too.
 
-To launch an environment from that bundle later:
+Default artifacts contain outcomes and request metadata. State capture includes object/message contents and policies; treat exported state as test data. Keep generated artifacts out of version control. Use separate artifact directories for results you want to preserve.
 
-```bash
-python3 -m localcloud --load-state artifacts/debug-run/state.json
-```
+## Tokens
 
-## 5. GitHub Actions
+Normal local CI generates its own random management token. It does not need your Kubernetes Secret or your saved host CLI login. If necessary, supply a fixed token through shell variable `LOCALCLOUD_CI_TOKEN`; the runner passes it to the app as `LOCALCLOUD_MANAGEMENT_TOKEN`. Do not commit tokens to TOML, command arguments or fixtures.
 
-`.github/workflows/ci.yml` is ready to run when this project is committed and pushed to your GitHub repository with Actions enabled. No GitHub workflow has been executed or repository published by the authoring agent.
+This is a local management credential. There is no hosted token issuer, subscription or credits system involved.
 
-It runs on pushes, pull requests and manual dispatch, with read-only repository permissions:
+## Kubernetes tests
 
-| Job | Checks |
-|---|---|
-| `python` | Python 3.11/3.13 unit tests plus isolated live backend smoke checks. |
-| `container` | Builds the Dockerfile, starts the image, verifies HTTP readiness and S3/SQS behavior, then removes the container. |
-| `kubernetes` | Creates a disposable Kind cluster, loads the image, installs the operator and verifies an instance and a real workload Job. |
+The default CI backend has no Kubernetes executor. A Kubernetes workload check needs an actual cluster/instance; see the Node guide's [optional Kubernetes recipe](NODEJS_LOCAL_CI.md#11-optional-run-this-node-process-in-kubernetes) and [Kubernetes pack usage](KUBERNETES.md). Local app tests use S3/SQS and developer tools; they do not provision a cluster automatically.
 
-Python and Kubernetes diagnostics are uploaded even when checks fail, with seven-day retention. These jobs use temporary test infrastructure and need no LocalStack account or cloud secrets. The Kubernetes job uses the Helm project's Kind action to provision its disposable cluster.
+## Validation
 
-To use LocalCloud in another repository, copy the project or make its source available in a prior checkout step, then run:
-
-```yaml
-- name: Test against an isolated LocalCloud instance
-  run: python3 -m localcloud.ci --artifacts artifacts/localcloud -- python3 -m unittest discover -s tests -v
-```
-
-Substitute your own test command and artifact-upload step. Runtime dependencies such as pytest belong to your application setup, not this emulator.
-
-## 6. Persistent cluster previews for CI branches
-
-See [Kubernetes setup](KUBERNETES.md) first. In a trusted CI job that already has access to your development cluster, use an existing namespace/operator, a cluster-accessible image tag and a pre-created management Secret.
-
-For a CLI running outside the cluster, start a loopback-only `kubectl proxy`. Then:
-
-```bash
-python3 -m localcloud.operator --api-server http://127.0.0.1:8001 \
-  --namespace localcloud preview create --name pr-42 \
-  --image localcloud:dev --secret localcloud-access --ttl 3600
-```
-
-Wait for readiness with kubectl, run tests from inside the cluster or via a loopback Service port-forward, and delete the preview in the CI system's always/finally cleanup:
-
-```bash
-python3 -m localcloud.operator --api-server http://127.0.0.1:8001 \
-  --namespace localcloud preview delete --name pr-42
-```
-
-Use a unique DNS-label name per concurrent build, at most 40 characters. An existing name is rejected; create does not overwrite it. The operator also removes expired previews if explicit pipeline cleanup is missed. It must remain running for TTL cleanup.
-
-This provides isolated private cluster previews. It does not publish internet endpoints, post PR comments, mint cluster credentials, manage cloud subscriptions or provide a hosted quota/credits platform. Configure trusted CI identity and network access in your own platform. Do not expose cluster credentials to untrusted fork workflows; the included pull-request workflow avoids this by using a disposable local Kind cluster.
-
-## Validation boundary
-
-The unit/contract suite checks runner failure cleanup, exit codes, child environment, diagnostics, token gates, Kubernetes resource generation, reconciliation and Job ownership. The HTTP smoke routine is also exercised against the real handler using an in-memory connection. A live runner attempt in the authoring environment failed with socket permissions; Docker access was also denied. Actual container, Kind and cloud-hosted CI runs remain unverified until executed in a capable environment.
+Config initialization/discovery, schema checks, overrides, working directories, policy/resource setup and fixture preservation are covered by Python tests. The runnable Node example has three unit tests and six integration scenarios. The six scenarios were verified against the real Python HTTP handler using a test-only stdio transport in the socket-restricted authoring environment. Normal `localcloud ci` uses real loopback HTTP; that environment-dependent run still needs execution on your machine.

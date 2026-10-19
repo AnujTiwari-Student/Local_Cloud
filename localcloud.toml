@@ -1,0 +1,9 @@
+# LocalCloud project CI. Commands are argv arrays, not shell scripts.
+version = 1
+
+[ci]
+command = ["npm", "test"]
+services = ["s3", "sqs"]
+iam = "soft"
+timeout = 300
+artifacts = "artifacts/localcloud"

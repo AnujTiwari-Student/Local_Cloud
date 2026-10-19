@@ -25,6 +25,8 @@ python3 -m localcloud --iam enforce
 
 Stop the first process before starting another. The default bind address is loopback. This is a trusted local testing tool: management APIs support an optional bearer token (required for Kubernetes execution), identities are supplied through `X-Local-Principal`, and AWS signatures are not validated. Do not expose it as a shared or public service. One process owns each database.
 
+See [EC2 usage](docs/EC2.md) for persistent mock instances and optional Docker-backed execution.
+
 ## Implemented features
 
 | Feature            | Behavior                                                                                                                                                                                                                |
@@ -34,6 +36,7 @@ Stop the first process before starting another. The default bind address is loop
 | IAM testing        | Off, soft or enforce mode. Policies attached to local principal names support Action/Resource wildcards and Allow/Deny. Explicit deny wins; otherwise an allow is required. Unsupported policy constructs are rejected. |
 | SQS                | Create/List/Get/Delete queues; attributes; send, receive, delete messages; purge; change visibility. Receipts rotate on delivery.                                                                                       |
 | S3                 | Path-style create/list/delete buckets; put/get/delete binary objects; list objects with XML responses.                                                                                                                  |
+| EC2                | Run/describe/start/stop/terminate; durable mock instances or optional bounded Docker containers. [Usage and limitations](docs/EC2.md). |
 | Dashboard          | Connection status, resource search/counts, snapshots, state transfer, policies, request inspector and fault controls.                                                                                                   |
 | State transfer     | Validated versioned JSON export/import and startup seeding.                                                                                                                                                             |
 | Request inspection | Bounded durable request metadata, outcomes, timings and IAM decisions.                                                                                                                                                  |
@@ -77,7 +80,15 @@ Use `localcloud <service> <operation> --help` for flags, such as `localcloud sqs
 python3 -m unittest discover -s tests -v
 ```
 
+<<<<<<< HEAD
 72 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+=======
+<<<<<<< Updated upstream
+52 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+=======
+88 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+>>>>>>> Stashed changes
+>>>>>>> 28aa52d (Feature: Add ec2 service)
 
 ## Compatibility limits
 
@@ -154,4 +165,17 @@ docker build -t localcloud:dev .
 localcloud kube --namespace localcloud manifests --image localcloud:dev > /tmp/localcloud-install.json
 ```
 
-Follow [Kubernetes usage](docs/KUBERNETES.md) to load the image into your cluster, install the operator, create its token Secret, launch instances and execute Jobs. Follow [CI/CD usage](docs/CI_CD.md) for fixtures, tokens, artifacts, workflow jobs and previews. Neither guide requires a LocalStack subscription. Live Docker/cluster validation could not run in the authoring sandbox; workflows are provided for a capable runner.
+Follow [Kubernetes usage](docs/KUBERNETES.md) to load the image into your cluster, install the operator, create its token Secret, launch instances and execute Jobs. Follow [CI/CD usage](docs/CI_CD.md) for project configuration, application tests, fixtures, tokens and artifacts. Neither guide requires a LocalStack subscription. Live Docker/cluster validation could not run in the authoring sandbox; standalone live smoke scripts are provided for a capable environment.
+
+## Add local CI to your own application
+
+In your application's directory, beside its package.json:
+
+```bash
+localcloud ci init --command npm test
+localcloud ci
+```
+
+This creates and reads `localcloud.toml`. The file declares your test command, supported service dependencies, initial resources, policy files and environment settings. No remote CI configuration is required.
+
+See [the complete Node.js walkthrough](docs/NODEJS_LOCAL_CI.md) and [the runnable app](examples/node-app/README.md). The example covers S3/SQS processing, IAM denial, snapshots, state transfer, faults and request inspection, with a separate optional Kubernetes workload recipe.

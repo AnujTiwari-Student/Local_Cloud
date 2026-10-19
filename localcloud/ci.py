@@ -34,6 +34,9 @@ class HTTPClient:
         request = urllib.request.Request(self.endpoint + path, data=body, headers=headers, method=method)
         with self.opener.open(request, timeout=10) as response:
             payload = response.read()
+            # S3 mutations can return an empty success body, including with a JSON content type.
+            if not payload:
+                return b''
             return json.loads(payload) if 'json' in response.headers.get('Content-Type', '') else payload
 
 
@@ -72,10 +75,14 @@ def smoke(client):
             client.request('DELETE', '/' + name)
 
 
-def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=False):
+def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=False,
+        cwd=None, extra_env=None, policy_files=None, seed=None, principal='test', config=None):
     artifacts = Path(artifacts)
     artifacts.mkdir(parents=True, exist_ok=True)
-    report = {'passed': False, 'checks': [], 'command_exit_code': None, 'error': None}
+    report = {'passed': False, 'checks': [], 'command_exit_code': None, 'error': None,
+              'application_tests': 'pending' if command else 'not_configured'}
+    if config:
+        report['config'] = str(config)
     started = time.monotonic()
     server = thread = engine = None
     token = os.environ.get('LOCALCLOUD_CI_TOKEN') or secrets.token_urlsafe(32)
@@ -86,6 +93,15 @@ def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=
             if fixture:
                 engine.tools.import_state(json.loads(Path(fixture).read_text()))
             engine.policy('ci-smoke', {'Statement': {'Effect': 'Allow', 'Action': ['s3:*', 'sqs:*'], 'Resource': '*'}})
+            for caller, filename in (policy_files or {}).items():
+                engine.policy(caller, json.loads(Path(filename).read_text()))
+            for bucket in (seed or {}).get('buckets', []):
+                engine.s3('PUT', bucket, '', principal='ci-smoke')
+            existing_queues = {q['name'] for q in engine.overview()['queues']}
+            for queue in (seed or {}).get('queues', []):
+                if queue not in existing_queues:
+                    engine.sqs('CreateQueue', {'QueueName': queue}, principal='ci-smoke')
+                    existing_queues.add(queue)
             server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
             server.engine, server.management_token, server.executor = engine, token, None
             endpoint = 'http://127.0.0.1:' + str(server.server_port)
@@ -95,17 +111,22 @@ def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=
             report['checks'] = smoke(HTTPClient(endpoint, token))
             if command:
                 env = os.environ.copy()
+                env.update(extra_env or {})
                 env.update(LOCALCLOUD_URL=endpoint, AWS_ENDPOINT_URL=endpoint,
                            LOCALCLOUD_MANAGEMENT_TOKEN=token, AWS_DEFAULT_REGION='us-east-1',
-                           AWS_ACCESS_KEY_ID='test', AWS_SECRET_ACCESS_KEY='test')
-                process = subprocess.run(command, env=env, timeout=timeout, check=False)
+                           AWS_ACCESS_KEY_ID='test', AWS_SECRET_ACCESS_KEY='test',
+                           LOCALCLOUD_PRINCIPAL=principal, LOCALCLOUD_CI='1')
+                process = subprocess.run(command, env=env, cwd=cwd, timeout=timeout, check=False)
                 report['command_exit_code'] = process.returncode
+                report['application_tests'] = 'passed' if process.returncode == 0 else 'failed'
                 result = process.returncode if process.returncode >= 0 else 1
             else:
                 result = 0
             report['passed'] = result == 0
         except (OSError, Error, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
             report['error'] = str(error)
+            if command:
+                report['application_tests'] = 'failed'
             result = 1
         finally:
             if server is not None:
@@ -130,7 +151,12 @@ def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=
     return result
 
 
+<<<<<<< HEAD
 def main(argv=None):
+=======
+<<<<<<< Updated upstream
+def main():
+>>>>>>> 28aa52d (Feature: Add ec2 service)
     parser = argparse.ArgumentParser(description='Run isolated LocalCloud HTTP smoke checks and an optional application test command')
     parser.add_argument('--artifacts', default='artifacts/localcloud')
     parser.add_argument('--fixture', help='Validated LocalCloud JSON state bundle to preload')
@@ -143,6 +169,52 @@ def main(argv=None):
         parser.error('Timeout must be positive')
     command = args.command[1:] if args.command[:1] == ['--'] else args.command
     raise SystemExit(run(command, args.artifacts, args.fixture, args.iam, args.timeout, args.export_state))
+=======
+def main(argv=None):
+    import sys
+    from .project import DEFAULTS, initialize, load_project
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ['init']:
+        parser = argparse.ArgumentParser(description='Create localcloud.toml in your application directory')
+        parser.add_argument('--file', default='localcloud.toml')
+        parser.add_argument('--command', nargs=argparse.REMAINDER, required=True)
+        args = parser.parse_args(argv[1:])
+        try:
+            path = initialize(args.file, args.command)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(f'Created {path}; run localcloud ci from this directory.')
+        return 0
+    parser = argparse.ArgumentParser(description='Run local project CI using localcloud.toml, or supply a command after --')
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument('--config', help='Project TOML file; default ./localcloud.toml if present')
+    source.add_argument('--no-config', action='store_true', help='Ignore project config and run only explicitly requested checks')
+    parser.add_argument('--artifacts', default=None)
+    parser.add_argument('--fixture', default=None, help='Validated LocalCloud JSON state bundle to preload')
+    parser.add_argument('--iam', choices=['off', 'soft', 'enforce'], default=None)
+    parser.add_argument('--timeout', type=int, default=None)
+    parser.add_argument('--export-state', action=argparse.BooleanOptionalAction, default=None, help='Include resource contents in diagnostics; may contain sensitive test data')
+    parser.add_argument('command', nargs=argparse.REMAINDER, help='Optional test command after --; overrides ci.command')
+    args = parser.parse_args(argv)
+    try:
+        project = load_project(args.config, args.no_config)
+        settings = {**DEFAULTS, **(project or {})}
+        for field in ('artifacts', 'fixture', 'iam', 'timeout', 'export_state'):
+            value = getattr(args, field)
+            if value is not None:
+                settings[field] = value
+        if settings['timeout'] < 1:
+            raise ValueError('Timeout must be positive')
+        command = args.command[1:] if args.command[:1] == ['--'] else args.command
+        if command:
+            settings['command'] = command
+    except (OSError, Error, ValueError) as error:
+        parser.error(str(error))
+    raise SystemExit(run(settings['command'], settings['artifacts'], settings['fixture'], settings['iam'],
+                         settings['timeout'], settings['export_state'], cwd=settings.get('cwd'),
+                         extra_env=settings['env'], policy_files=settings['policy_files'], seed=settings['seed'],
+                         principal=settings['principal'], config=settings.get('config')))
+>>>>>>> Stashed changes
 
 
 if __name__ == '__main__':

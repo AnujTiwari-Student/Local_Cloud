@@ -1,0 +1,23 @@
+# This file belongs in YOUR APPLICATION's root directory, beside package.json.
+version = 1
+
+[ci]
+command = ["npm", "test"]
+services = ["s3", "sqs"]
+iam = "enforce"
+principal = "app"
+timeout = 120
+artifacts = "artifacts/localcloud"
+export_state = false
+
+[ci.seed]
+buckets = ["app-documents"]
+queues = ["app-jobs"]
+
+[ci.policy_files]
+app = "ci/policies/app.json"
+reader = "ci/policies/reader.json"
+
+[ci.env]
+DOCUMENTS_BUCKET = "app-documents"
+JOBS_QUEUE = "app-jobs"

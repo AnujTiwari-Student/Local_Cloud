@@ -1,0 +1,13 @@
+{
+  "name": "localcloud-node-process-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/process.mjs",
+    "test": "node --test --test-concurrency=1 test/unit.test.mjs test/integration.test.mjs",
+    "test:unit": "node --test test/unit.test.mjs",
+    "test:integration": "node --test test/integration.test.mjs"
+  }
+}

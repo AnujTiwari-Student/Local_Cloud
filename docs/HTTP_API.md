@@ -257,7 +257,10 @@ Run the verification suite:
 python3 -m unittest discover -s tests -v
 ```
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 28aa52d (Feature: Add ec2 service)
 ## 10. Kubernetes pack
 
 See [Kubernetes usage](KUBERNETES.md) for the complete image build, operator installation, Secret setup, instance CR, persistent storage, pod execution, log/status/cancel operations and TTL previews. Kubernetes Jobs can also be managed from the dashboard once the executor is enabled.

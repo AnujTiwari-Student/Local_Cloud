@@ -96,6 +96,11 @@ A browser test against intercepted fixture responses passed: unauthenticated rej
 A live `python3 -m localcloud.ci --artifacts /tmp/localcloud-ci-validation` attempt exited 1 with `[Errno 1] Operation not permitted`, preserving a failure report. `docker info` was denied access to `/var/run/docker.sock`. No live Kubernetes deployment or external GitHub Actions run was performed. The installed kubectl client was inspected without changing a cluster. The provided live container/Kind jobs still need execution in a capable environment.
 
 This is a Kubernetes/CI implementation subset: no AWS Lambda/ECS/EC2 API compatibility, warm runtime pool, managed ingress/hosted cloud service, credit billing or issuer for commercial CI tokens. Instance previews remain private cluster Services. The operator must run for instance TTL cleanup; Kubernetes itself handles completed Job TTL. Management tokens are an access gate for development tools, not complete multi-tenant authentication for AWS service routes.
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> 28aa52d (Feature: Add ec2 service)
 
 ## AWS-style LocalCloud CLI
 
@@ -110,3 +115,29 @@ AWS command syntax was checked against the official [S3 cp reference](https://do
 72 tests pass. Twenty new tests cover actual CLI argument parsing through the HTTP transport and real server handler using an in-memory connection, including binary/unicode-key S3 roundtrips, all implemented SQS operations, profile precedence, private token/file permissions, failed login preservation, Kubernetes login, management-only credential headers, snapshot/state operations, faults, IAM tools, Job argv preservation, launchers and friendly failures. CLI help, syntax and installer-to-temporary-directory checks passed. No live CLI/TCP connection, image rebuild or real-secret read was performed in the restricted authoring environment.
 
 The user's supplied kubectl output separately establishes that their operator and `dev` Deployment reached 1/1 availability, the instance Ready condition was met, and its 1 GiB PVC was Bound. That is user-reported live deployment evidence, distinct from the agent's isolated contract tests.
+<<<<<<< HEAD
+=======
+
+### CI empty-response regression fix
+
+The user's live `localcloud ci` run returned JSONDecodeError. A regression test reproduced the exact error at S3 CreateBucket: the CI HTTP client decoded a zero-byte success body as JSON because of its content type. The earlier smoke-handler adapter bypassed that decoding branch.
+
+The CI client now returns empty response bytes before selecting JSON decoding. Two added tests exercise the real CI client/smoke against actual handler response headers and the full runner-to-handler chain (using an in-memory transport, not a TCP listener). Both pass; the full suite now has 74 passing tests. No Kubernetes deployment/image change is required to run the corrected host CLI from this checkout.
+
+## Local application CI configuration and Node example
+
+The project CI entry point now auto-discovers `localcloud.toml` in the application's current directory. `localcloud ci init --command ...` creates that file exclusively. Configuration is parsed with standard-library tomllib; no YAML dependency is introduced. Explicit `--config`, `--no-config`, command/settings overrides, relative path resolution, seeded S3/SQS resources, policy files, caller identity and string environment settings are implemented. Reports distinguish unconfigured application tests from actual application test results.
+
+`examples/node-app` contains an independent Node process, package scripts, complete project config, scoped app/reader policies, unit tests and six integration scenarios. Its code stores and processes a document using S3/SQS; tests additionally exercise IAM denial, snapshot restore, portable state, faults, inspection and policy proposals. A supplied Node image supports the separate optional Kubernetes workload recipe. No new hosting integration or remote workflow file was added for this work.
+
+88 Python tests pass. These include project-config tests and two optional Node-example wrappers (requiring Node 22+). The Node example's three unit tests pass directly. All six integration scenarios pass using a test-only stdio bridge into the real HTTP handler; real service state, IAM, snapshots, import validation and faults are exercised. The bridge replaces fetch's transport only in the test harness. The actual application example uses fetch over HTTP under the normal CI runner.
+
+A live loopback/npm CI execution and the optional Node container/Kubernetes deployment were not run in this restricted authoring environment. The complete application walkthrough documents those limits and provides user-run steps. The fixture and command mechanisms are local; they do not require a hosted CI platform.
+
+## EC2 lifecycle implementation (19 October 2026)
+
+Independent source implementation in `localcloud/ec2.py`, integrated with the engine, HTTP handler, CLI and resource dashboard. Five lifecycle operations support durable mock state, IAM checks on all selected instance IDs, Query protocol XML and management JSON. Optional Docker execution uses explicit AMI/image mappings, bounded containers and ownership labels. Mock state participates in snapshots/portable bundles; Docker state cannot be exported/imported or restored as a container snapshot.
+
+Validation: `python3 -m unittest discover -s tests -q` passes 96 tests, including eight EC2 tests covering lifecycle/restart, input errors, IAM atomic denial, portable state schema checks, HTTP token and XML behavior, CLI mapping, faults/traces and mocked Docker ownership/failure/state inspection. No live Docker daemon or external AWS SDK execution was validated in the agent environment. See [EC2.md](EC2.md) for the host walkthrough and runtime limitations. This is an independent compatibility subset, with no LocalStack proprietary implementation used.
+>>>>>>> Stashed changes
+>>>>>>> 28aa52d (Feature: Add ec2 service)
