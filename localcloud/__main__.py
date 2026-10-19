@@ -168,16 +168,8 @@ def main(argv=None):
     parser.add_argument('--workload-image', action='append', default=[], help='Exact allowed workload image; repeat to allow more')
     parser.add_argument('--instance-name', default='localcloud')
     parser.add_argument('--instance-uid', help='Optional LocalCloudInstance UID for workload ownership')
-<<<<<<< HEAD
-    args = parser.parse_args(argv)
-=======
-<<<<<<< Updated upstream
-    args = parser.parse_args()
-=======
     parser.add_argument('--ec2-image', action='append', default=[], metavar='AMI=DOCKER_IMAGE', help='Enable Docker EC2 with an explicit image mapping; repeatable')
     args = parser.parse_args(argv)
->>>>>>> Stashed changes
->>>>>>> 28aa52d (Feature: Add ec2 service)
     management_token = os.environ.get(args.management_token_env or 'LOCALCLOUD_MANAGEMENT_TOKEN')
     if args.management_token_env and not management_token:
         parser.error('The specified management token environment variable is empty')

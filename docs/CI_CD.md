@@ -1,17 +1,8 @@
 # Local project CI
 
-<<<<<<< HEAD
-Prefer commands over curl? See the [CLI guide](CLI.md), including automatic token login from a Kubernetes Secret.
-
-=======
-<<<<<<< Updated upstream
->>>>>>> 28aa52d (Feature: Add ec2 service)
-LocalCloud now has a CI runner, GitHub Actions workflows and a Kubernetes integration smoke test. There is no hosted billing/credit service or externally issued CI license token; these tools run in your own CI infrastructure.
-=======
 Put **`localcloud.toml` beside your application's `package.json`**, then run **`localcloud ci` from that directory**. The config tells LocalCloud which tests to execute and which supported resources to prepare.
 
 For a complete Node.js application, source files, tests and every setup step, see [the start-to-finish Node.js guide](NODEJS_LOCAL_CI.md) and [the runnable example](../examples/node-app/README.md).
->>>>>>> Stashed changes
 
 ## Create the config in your app
 

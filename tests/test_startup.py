@@ -33,3 +33,10 @@ class StartupTests(unittest.TestCase):
         message = self.check_bind_failure(errno.EACCES)
         self.assertIn('Cannot listen on 127.0.0.1:4566', message)
         self.assertNotIn('already in use', message)
+
+    def test_repository_launcher_executes_directly(self):
+        import subprocess
+        launcher = Path(__file__).resolve().parents[1] / 'bin' / 'localcloud'
+        result = subprocess.run([str(launcher), 'ec2', 'run-instances', '--help'], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('--publish', result.stdout)

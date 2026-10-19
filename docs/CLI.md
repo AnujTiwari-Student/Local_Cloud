@@ -183,11 +183,7 @@ Restore/import **replace current resource state and policies**. Snapshot names a
 Create `policy.json`:
 
 ```json
-<<<<<<< HEAD
-{"Statement":[{"Effect":"Allow","Action":"s3:*","Resource":"*"}]}
-=======
 { "Statement": [{ "Effect": "Allow", "Action": "s3:*", "Resource": "*" }] }
->>>>>>> 28aa52d (Feature: Add ec2 service)
 ```
 
 Then:
@@ -255,19 +251,12 @@ Initial cluster creation, CRD/RBAC installation and port-forwarding still use Ki
 localcloud start --iam soft
 localcloud start --port 4567 --data .localcloud/second.sqlite3
 
-<<<<<<< HEAD
-=======
 localcloud ci init --command npm test  # run this in your app directory
->>>>>>> 28aa52d (Feature: Add ec2 service)
 localcloud ci
 localcloud ci run --artifacts artifacts/localcloud -- python3 -m unittest discover -s tests -v
 ```
 
-<<<<<<< HEAD
-`start`, `ci` and `kube` delegate to their original parsers. Put their own options after the command; HTTP profile/global flags are for the client groups, not the delegated lifecycle commands. Existing `python3 -m localcloud`, `.ci` and `.operator` entry points remain compatible.
-=======
 `start`, `ci` and `kube` delegate to their original parsers. Put their own options after the command; HTTP profile/global flags are for the client groups, not the delegated lifecycle commands. Existing `python3 -m localcloud`, `.ci` and `.operator` entry points remain compatible. `localcloud ci` automatically reads `localcloud.toml` in the current application directory; see [the complete app integration guide](NODEJS_LOCAL_CI.md).
->>>>>>> 28aa52d (Feature: Add ec2 service)
 
 ## 10. Profiles, overrides and help
 
@@ -291,8 +280,6 @@ For HTTP client commands, global flags can appear before the service, after the 
 `--output json` supports scripts; `--output text` gives scalar/tab-separated output, for example `localcloud sqs get-queue-url --queue-name jobs --output text`. Full AWS `--query`/JMESPath filtering is not implemented. Region is fixed to `us-east-1`; other `--region` values are rejected.
 
 Failures produce a concise stderr message and nonzero exit code. Authentication errors suggest login; connection errors suggest checking the backend/port-forward. Unknown services/options are rejected rather than forwarded to real AWS.
-<<<<<<< HEAD
-=======
 
 ## EC2 lifecycle
 
@@ -306,4 +293,26 @@ localcloud ec2 stop-instances --instance-ids i-REPLACE
 localcloud ec2 start-instances --instance-ids i-REPLACE
 localcloud ec2 terminate-instances --instance-ids i-REPLACE
 ```
->>>>>>> 28aa52d (Feature: Add ec2 service)
+
+Docker-backed EC2 web apps can publish localhost TCP ports:
+
+```bash
+localcloud ec2 run-instances --image-id ami-web --publish 8088:8080 --timeout 60
+```
+
+Requires an image mapping on the backend. See [complete web app deployment](EC2.md#deploy-a-web-application).
+
+### EC2 names and Docker identifiers
+
+```bash
+localcloud ec2 run-instances --image-id ami-web --name my-web --publish 8088:8080
+localcloud ec2 describe-instances
+localcloud ec2 stop-instances --name my-web
+localcloud ec2 start-instances --host-port 8088
+localcloud ec2 stop-instances --container-name localcloud-i-REPLACE
+localcloud ec2 start-instances --container-id REPLACE_WITH_DOCKER_ID
+localcloud ec2 name-instance --host-port 8088 --new-name renamed-web
+localcloud ec2 terminate-instances --name renamed-web
+```
+
+Choose one selector per command. Full EC2 IDs remain supported. Docker ID prefixes require at least 12 hex characters and must match exactly one managed instance. See [recovery and naming rules](EC2.md#names-and-other-instance-identifiers).

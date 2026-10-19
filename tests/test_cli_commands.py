@@ -265,8 +265,6 @@ class CommandsTests(unittest.TestCase):
             self.success('resources')
             self.assertEqual(self.transport.requests[-1].get_header('Authorization'), 'Bearer token')
 
-<<<<<<< HEAD
-=======
     def test_ci_http_client_runs_smoke_with_actual_response_headers(self):
         from localcloud.ci import HTTPClient, smoke
         self.server.management_token = 'ci-token'
@@ -290,7 +288,6 @@ class CommandsTests(unittest.TestCase):
         server.shutdown.assert_called_once()
         server.server_close.assert_called_once()
 
->>>>>>> 28aa52d (Feature: Add ec2 service)
     def test_connection_failure_has_actionable_message_without_traceback(self):
         with patch.object(self.transport, 'open', side_effect=urllib.error.URLError('Connection refused')):
             code, out, error = self.cli('status')

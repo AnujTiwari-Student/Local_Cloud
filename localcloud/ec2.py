@@ -5,10 +5,10 @@ import re
 import subprocess
 import uuid
 from datetime import datetime, timezone
-from .engine import Error, integer
+from .engine import Error, integer, valid_name
 
 CODES = {'running': 16, 'stopped': 80, 'terminated': 48}
-OPERATIONS = {'RunInstances', 'DescribeInstances', 'StartInstances', 'StopInstances', 'TerminateInstances'}
+OPERATIONS = {'RunInstances', 'DescribeInstances', 'StartInstances', 'StopInstances', 'TerminateInstances', 'NameInstance'}
 
 
 def state(name):
@@ -40,19 +40,58 @@ class EC2:
     def call(self, operation, args, principal):
         if operation not in OPERATIONS:
             raise Error('UnsupportedOperation', operation, 501)
-        allowed = {'ImageId', 'InstanceType', 'MinCount', 'MaxCount'} if operation == 'RunInstances' else {'InstanceIds'}
+        allowed = {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name'} if operation == 'RunInstances' else {'InstanceIds', 'InstanceName', 'ContainerId', 'ContainerName', 'HostPort'} | ({'Name'} if operation == 'NameInstance' else set())
         if not isinstance(args, dict) or set(args) - allowed:
             raise Error('UnsupportedOperation', 'Unsupported EC2 parameters', 501)
         ids = args.get('InstanceIds', [])
         if not isinstance(ids, list) or any(not isinstance(i, str) or not re.fullmatch(r'i-[0-9a-f]{17}', i) for i in ids):
             raise Error('InvalidInstanceID.Malformed', 'Expected instance IDs')
-        if operation not in ('RunInstances', 'DescribeInstances') and not ids:
+        selectors = [k for k in ('InstanceName', 'ContainerId', 'ContainerName', 'HostPort') if k in args]
+        if len(selectors) + bool(ids) > 1:
+            raise Error('InvalidParameterValue', 'Choose exactly one instance selector')
+        if operation not in ('RunInstances', 'DescribeInstances') and not ids and not selectors:
             raise Error('MissingParameter', 'InstanceIds is required')
         if len(ids) != len(set(ids)):
             raise Error('InvalidParameterValue', 'Duplicate instance IDs')
         resource = '*' if not ids else f'arn:aws:ec2:us-east-1:000000000000:instance/{ids[0]}'
-        return self.engine.tools.call('ec2', operation, principal, resource,
-                                     lambda: self.perform(operation, args, principal, ids))
+        with self.engine.lock:
+            if selectors:
+                key = selectors[0]
+                value = args[key]
+                if key == 'HostPort':
+                    if type(value) is not int or not 1024 <= value <= 65535:
+                        raise Error('InvalidParameterValue', 'HostPort must be an integer between 1024 and 65535')
+                elif not isinstance(value, str) or not value:
+                    raise Error('InvalidParameterValue', 'Selector must be a nonempty string')
+                if key == 'InstanceName':
+                    valid_name(value)
+                if key == 'ContainerId' and not re.fullmatch(r'[0-9a-f]{12,64}', value):
+                    raise Error('InvalidParameterValue', 'Use a full Docker ID or at least 12 hex characters')
+                records = json.loads(self.engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0]).get('instances', {})
+                matches = []
+                for item in records.values():
+                    matched = key == 'InstanceName' and item.get('Name') == value
+                    if item['Backend'] == 'docker':
+                        if key == 'ContainerName':
+                            matched = value == 'localcloud-' + item['InstanceId']
+                        elif key == 'ContainerId':
+                            container_id = item.get('ContainerId', '')
+                            if not container_id and item['State']['Name'] != 'terminated' and self.images:
+                                name = self.container(item)
+                                container_id = self.docker('inspect', '--format', '{{.Id}}', name)
+                            matched = bool(container_id) and container_id.startswith(value)
+                        elif key == 'HostPort':
+                            matched = item['State']['Name'] != 'terminated' and any(p['HostPort'] == value for p in item.get('PortMappings', []))
+                    if matched:
+                        matches.append(item['InstanceId'])
+                if not matches:
+                    raise Error('InvalidInstanceID.NotFound', 'No managed instance matches that selector')
+                if len(matches) != 1:
+                    raise Error('AmbiguousInstance', 'Multiple instances match; use an EC2 instance ID')
+                ids = matches
+                resource = f'arn:aws:ec2:us-east-1:000000000000:instance/{ids[0]}'
+            return self.engine.tools.call('ec2', operation, principal, resource,
+                                         lambda: self.perform(operation, args, principal, ids))
 
     def perform(self, operation, args, principal, ids):
         with self.engine.transaction() as data:
@@ -63,12 +102,23 @@ class EC2:
             for identifier in ids:
                 if identifier not in instances:
                     raise Error('InvalidInstanceID.NotFound', identifier, 400)
+            if 'Name' in args:
+                valid_name(args['Name'])
+                if any(i.get('Name') == args['Name'] and i['InstanceId'] not in ids for i in instances.values()):
+                    raise Error('InvalidParameterValue', 'Instance name already exists; choose a unique name')
+            if operation == 'NameInstance':
+                if len(ids) != 1 or 'Name' not in args:
+                    raise Error('InvalidParameterValue', 'Naming requires one instance and a Name')
+                instances[ids[0]]['Name'] = args['Name']
+                return {'Instance': self.public(instances[ids[0]])}
             if operation == 'RunInstances':
                 image = args.get('ImageId', '')
                 if not isinstance(image, str) or not re.fullmatch(r'ami-[a-zA-Z0-9-]{1,80}', image):
                     raise Error('InvalidAMIID.Malformed', 'Use an ami- identifier')
                 minimum = integer(args.get('MinCount', 1), 1, 10)
                 count = integer(args.get('MaxCount', 1), minimum, 10)
+                if 'Name' in args and count != 1:
+                    raise Error('InvalidParameterValue', 'A named launch requires --count 1')
                 kind = args.get('InstanceType', 't3.micro')
                 if kind not in ('t3.micro', 't3.small', 't3.medium'):
                     raise Error('InvalidParameterValue', 'Supported types: t3.micro, t3.small, t3.medium')
@@ -78,19 +128,40 @@ class EC2:
                     raise Error('InvalidParameterValue', 'Docker mode supports one instance per launch')
                 if sum(i['State']['Name'] != 'terminated' for i in instances.values()) + count > 100:
                     raise Error('InstanceLimitExceeded', 'Local limit is 100 active instances')
+                ports = port_mappings(args.get('PortMappings', []))
+                if ports and not self.images:
+                    raise Error('InvalidParameterValue', 'Published ports require Docker EC2 mode (--ec2-image)')
+                occupied = {p['HostPort'] for i in instances.values() if i['State']['Name'] != 'terminated' for p in i.get('PortMappings', [])}
+                if any(p['HostPort'] in occupied for p in ports):
+                    raise Error('InvalidParameterValue', 'A host port is already assigned to another instance; choose another port or terminate that instance')
                 created = []
                 for _ in range(count):
                     identifier = 'i-' + uuid.uuid4().hex[:17]
                     item = {'InstanceId': identifier, 'ImageId': image, 'InstanceType': kind,
                             'State': state('running'), 'LaunchTime': datetime.now(timezone.utc).isoformat(),
                             'Backend': 'docker' if self.images else 'mock', 'Owner': uuid.uuid4().hex}
+                    if 'Name' in args:
+                        item['Name'] = args['Name']
+                    if ports:
+                        item['PortMappings'] = ports
                     if self.images:
-                        self.docker('run', '-d', '--name', 'localcloud-' + identifier,
-                                    '--label', 'localcloud.owner=' + item['Owner'],
-                                    '--memory', {'t3.micro': '128m', 't3.small': '256m', 't3.medium': '512m'}[kind],
-                                    '--cpus', '1', '--pids-limit', '128', '--cap-drop', 'ALL',
-                                    '--security-opt', 'no-new-privileges', '--read-only', '--user', '65534:65534',
-                                    '--network', 'none', self.images[image])
+                        publish = [part for p in ports for part in ('--publish', f"127.0.0.1:{p['HostPort']}:{p['ContainerPort']}/tcp")]
+                        try:
+                            item['ContainerId'] = self.docker('run', '-d', '--name', 'localcloud-' + identifier,
+                                        '--label', 'localcloud.owner=' + item['Owner'],
+                                        '--memory', {'t3.micro': '128m', 't3.small': '256m', 't3.medium': '512m'}[kind],
+                                        '--cpus', '1', '--pids-limit', '128', '--cap-drop', 'ALL',
+                                        '--security-opt', 'no-new-privileges', '--read-only', '--user', '65534:65534',
+                                        '--network', 'bridge' if ports else 'none', *publish, self.images[image])
+                        except Error:
+                            # Docker can create a stopped container before a port-bind error.
+                            # Remove it only after verifying our unique ownership label.
+                            try:
+                                name = self.container(item)
+                                self.docker('rm', '-f', name)
+                            except (Error, ValueError, TypeError):
+                                pass
+                            raise
                     instances[identifier] = item
                     created.append(self.public(item))
                 return {'ReservationId': 'r-' + uuid.uuid4().hex[:17], 'Instances': created}
@@ -101,6 +172,8 @@ class EC2:
                         if not self.images:
                             raise Error('RuntimeUnavailable', 'Restart with Docker EC2 image mappings to inspect these instances', 503)
                         name = self.container(item)
+                        if not item.get('ContainerId'):
+                            item['ContainerId'] = self.docker('inspect', '--format', '{{.Id}}', name)
                         running = self.docker('inspect', '--format', '{{.State.Running}}', name)
                         item['State'] = state('running' if running == 'true' else 'stopped')
                 return {'Reservations': [{'Instances': [self.public(i) for i in chosen]}] if chosen else []}
@@ -122,15 +195,20 @@ class EC2:
 
     @staticmethod
     def public(item):
-        return {k: copy.deepcopy(v) for k, v in item.items() if k != 'Owner'}
+        result = {k: copy.deepcopy(v) for k, v in item.items() if k != 'Owner'}
+        if item['Backend'] == 'docker':
+            result['ContainerName'] = 'localcloud-' + item['InstanceId']
+        result['Endpoints'] = [f"http://127.0.0.1:{p['HostPort']}" for p in item.get('PortMappings', [])]
+        return result
 
 
 def validate_instances(instances):
     if not isinstance(instances, dict):
         raise ValueError('Invalid EC2 instance collection')
     required = {'InstanceId', 'ImageId', 'InstanceType', 'State', 'LaunchTime', 'Backend', 'Owner'}
+    names = []
     for key, item in instances.items():
-        if (not isinstance(item, dict) or set(item) != required or key != item['InstanceId']
+        if (not isinstance(item, dict) or set(item) - required - {'Name'} or not required <= set(item) or key != item['InstanceId']
                 or not re.fullmatch(r'i-[0-9a-f]{17}', key)
                 or item['Backend'] != 'mock' or item['State'] not in [state(n) for n in CODES]
                 or not all(isinstance(item[k], str) for k in required - {'State'})
@@ -138,6 +216,11 @@ def validate_instances(instances):
                 or item['InstanceType'] not in ('t3.micro', 't3.small', 't3.medium')
                 or not re.fullmatch(r'[0-9a-f]{32}', item['Owner'])):
             raise ValueError('Invalid EC2 record; portable state supports mock instances only')
+        if 'Name' in item:
+            valid_name(item['Name'])
+            names.append(item['Name'])
+    if len(names) != len(set(names)):
+        raise ValueError('Duplicate EC2 instance names')
 
 
 def query_request(body):
@@ -167,7 +250,7 @@ def query_response(operation, result):
              'StartingInstances': 'instancesSet', 'StoppingInstances': 'instancesSet', 'TerminatingInstances': 'instancesSet'}
     def write(parent, values):
         for key, value in values.items():
-            if key == 'Backend':
+            if key in ('Backend', 'PortMappings', 'Endpoints', 'ContainerId', 'ContainerName') or (key == 'Name' and 'InstanceId' in values):
                 continue
             node = SubElement(parent, names.get(key, key[0].lower() + key[1:]))
             if isinstance(value, dict):
@@ -179,3 +262,25 @@ def query_response(operation, result):
                 node.text = str(value)
     write(root, result)
     return tostring(root, encoding='unicode')
+
+
+def port_mappings(value):
+    if not isinstance(value, list) or len(value) > 8:
+        raise Error('InvalidParameterValue', 'PortMappings must be a list of at most eight TCP mappings')
+    result = []
+    for item in value:
+        if not isinstance(item, dict) or set(item) != {'HostPort', 'ContainerPort'}:
+            raise Error('InvalidParameterValue', 'Each port mapping requires HostPort and ContainerPort')
+        if any(type(item[k]) is not int or not 1024 <= item[k] <= 65535 for k in item):
+            raise Error('InvalidParameterValue', 'Ports must be integers between 1024 and 65535')
+        result.append(dict(item))
+    if len({p['HostPort'] for p in result}) != len(result):
+        raise Error('InvalidParameterValue', 'Duplicate host port')
+    return result
+
+
+def parse_publish(value):
+    if not re.fullmatch(r'[0-9]+:[0-9]+', value):
+        raise ValueError('--publish must be HOST_PORT:CONTAINER_PORT (localhost TCP only)')
+    host, container = map(int, value.split(':'))
+    return port_mappings([{'HostPort': host, 'ContainerPort': container}])[0]

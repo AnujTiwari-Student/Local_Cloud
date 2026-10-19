@@ -96,11 +96,6 @@ A browser test against intercepted fixture responses passed: unauthenticated rej
 A live `python3 -m localcloud.ci --artifacts /tmp/localcloud-ci-validation` attempt exited 1 with `[Errno 1] Operation not permitted`, preserving a failure report. `docker info` was denied access to `/var/run/docker.sock`. No live Kubernetes deployment or external GitHub Actions run was performed. The installed kubectl client was inspected without changing a cluster. The provided live container/Kind jobs still need execution in a capable environment.
 
 This is a Kubernetes/CI implementation subset: no AWS Lambda/ECS/EC2 API compatibility, warm runtime pool, managed ingress/hosted cloud service, credit billing or issuer for commercial CI tokens. Instance previews remain private cluster Services. The operator must run for instance TTL cleanup; Kubernetes itself handles completed Job TTL. Management tokens are an access gate for development tools, not complete multi-tenant authentication for AWS service routes.
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> 28aa52d (Feature: Add ec2 service)
 
 ## AWS-style LocalCloud CLI
 
@@ -115,8 +110,6 @@ AWS command syntax was checked against the official [S3 cp reference](https://do
 72 tests pass. Twenty new tests cover actual CLI argument parsing through the HTTP transport and real server handler using an in-memory connection, including binary/unicode-key S3 roundtrips, all implemented SQS operations, profile precedence, private token/file permissions, failed login preservation, Kubernetes login, management-only credential headers, snapshot/state operations, faults, IAM tools, Job argv preservation, launchers and friendly failures. CLI help, syntax and installer-to-temporary-directory checks passed. No live CLI/TCP connection, image rebuild or real-secret read was performed in the restricted authoring environment.
 
 The user's supplied kubectl output separately establishes that their operator and `dev` Deployment reached 1/1 availability, the instance Ready condition was met, and its 1 GiB PVC was Bound. That is user-reported live deployment evidence, distinct from the agent's isolated contract tests.
-<<<<<<< HEAD
-=======
 
 ### CI empty-response regression fix
 
@@ -139,5 +132,23 @@ A live loopback/npm CI execution and the optional Node container/Kubernetes depl
 Independent source implementation in `localcloud/ec2.py`, integrated with the engine, HTTP handler, CLI and resource dashboard. Five lifecycle operations support durable mock state, IAM checks on all selected instance IDs, Query protocol XML and management JSON. Optional Docker execution uses explicit AMI/image mappings, bounded containers and ownership labels. Mock state participates in snapshots/portable bundles; Docker state cannot be exported/imported or restored as a container snapshot.
 
 Validation: `python3 -m unittest discover -s tests -q` passes 96 tests, including eight EC2 tests covering lifecycle/restart, input errors, IAM atomic denial, portable state schema checks, HTTP token and XML behavior, CLI mapping, faults/traces and mocked Docker ownership/failure/state inspection. No live Docker daemon or external AWS SDK execution was validated in the agent environment. See [EC2.md](EC2.md) for the host walkthrough and runtime limitations. This is an independent compatibility subset, with no LocalStack proprietary implementation used.
->>>>>>> Stashed changes
->>>>>>> 28aa52d (Feature: Add ec2 service)
+
+
+## Git repair and EC2 web networking (19 October 2026)
+
+The checkout at commit `554d3a0` had committed conflict markers in Python modules, tests and documentation. Resolved the conflicts while retaining project TOML CI and EC2 functionality; the restored baseline passed 98 tests. The executable launcher also had a CRLF shebang; normalized it and added `.gitattributes` rules for Python/shell launchers. No Git history was reset and no user configuration or resource database was removed.
+
+The backend default remains 4566. The existing client profile points to 4567; client configuration never changes the server bind port. Occupied-port diagnostics and their regression tests remain present. Host listener inspection was denied by the sandbox, so the process currently holding either port was not identified.
+
+Added Docker-only `--publish HOST_PORT:CONTAINER_PORT`, up to eight TCP mappings bound explicitly to 127.0.0.1. Publishing enables Docker bridge networking, persists mappings, returns endpoints and rejects invalid/duplicate mappings or collisions with other recorded instances. Containers without published ports retain disabled networking. Failed launches attempt ownership-checked container cleanup. Added a dependency-free web sample and deployment walkthrough.
+
+Validation: 103 unittest cases pass, covering existing features, direct launcher execution and new networking validation, CLI payloads, persistence, lifecycle, port reuse and failed-launch cleanup. Python compilation and Git whitespace checks pass. The Docker daemon was inaccessible (`permission denied`), so real Docker port forwarding and browser reachability remain unverified in this environment.
+
+
+## EC2 names and managed-container selectors (19 October 2026)
+
+Added optional persistent unique instance names at launch, and `name-instance` to name or rename existing records. Describe/start/stop/terminate/naming can select by EC2 instance IDs, instance name, exact Docker container name, full or unambiguous 12+ character Docker ID prefix, or published host TCP port. Selectors resolve only against managed records under the engine lock, then authorize the resolved instance ARN. Docker ownership checks remain enforced on runtime operations. Terminated names stay reserved; host-port lookup excludes terminated records. No arbitrary Docker container adoption is implemented.
+
+Describe returns Docker container identity and backfills IDs for legacy records after ownership verification. Mock names participate in portable state and snapshots. The dashboard displays names and available container IDs/endpoints. Added recovery steps for an already-running app whose instance ID was forgotten.
+
+Validation: 109 tests pass, including named lifecycle/restart/rename/import, name validation/collisions, selector ambiguity, IAM checks, CLI mapping, legacy ID backfill and the authenticated naming HTTP route. Live Docker execution remains outside the sandbox; earlier app visibility was reported by the user.

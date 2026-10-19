@@ -151,25 +151,6 @@ def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=
     return result
 
 
-<<<<<<< HEAD
-def main(argv=None):
-=======
-<<<<<<< Updated upstream
-def main():
->>>>>>> 28aa52d (Feature: Add ec2 service)
-    parser = argparse.ArgumentParser(description='Run isolated LocalCloud HTTP smoke checks and an optional application test command')
-    parser.add_argument('--artifacts', default='artifacts/localcloud')
-    parser.add_argument('--fixture', help='Validated LocalCloud JSON state bundle to preload')
-    parser.add_argument('--iam', choices=['off', 'soft', 'enforce'], default='soft')
-    parser.add_argument('--timeout', type=int, default=300)
-    parser.add_argument('--export-state', action='store_true', help='Include resource contents in diagnostics; may contain sensitive test data')
-    parser.add_argument('command', nargs=argparse.REMAINDER, help='Optional command after --')
-    args = parser.parse_args(argv)
-    if args.timeout < 1:
-        parser.error('Timeout must be positive')
-    command = args.command[1:] if args.command[:1] == ['--'] else args.command
-    raise SystemExit(run(command, args.artifacts, args.fixture, args.iam, args.timeout, args.export_state))
-=======
 def main(argv=None):
     import sys
     from .project import DEFAULTS, initialize, load_project
@@ -214,7 +195,7 @@ def main(argv=None):
                          settings['timeout'], settings['export_state'], cwd=settings.get('cwd'),
                          extra_env=settings['env'], policy_files=settings['policy_files'], seed=settings['seed'],
                          principal=settings['principal'], config=settings.get('config')))
->>>>>>> Stashed changes
+
 
 
 if __name__ == '__main__':
