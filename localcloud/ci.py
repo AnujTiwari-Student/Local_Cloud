@@ -130,7 +130,7 @@ def run(command, artifacts, fixture=None, iam='soft', timeout=300, export_state=
     return result
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description='Run isolated LocalCloud HTTP smoke checks and an optional application test command')
     parser.add_argument('--artifacts', default='artifacts/localcloud')
     parser.add_argument('--fixture', help='Validated LocalCloud JSON state bundle to preload')
@@ -138,7 +138,7 @@ def main():
     parser.add_argument('--timeout', type=int, default=300)
     parser.add_argument('--export-state', action='store_true', help='Include resource contents in diagnostics; may contain sensitive test data')
     parser.add_argument('command', nargs=argparse.REMAINDER, help='Optional command after --')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.timeout < 1:
         parser.error('Timeout must be positive')
     command = args.command[1:] if args.command[:1] == ['--'] else args.command

@@ -1,5 +1,7 @@
 # Kubernetes pack: installation, pod execution and previews
 
+Prefer commands over curl? See the [CLI guide](CLI.md), including automatic token login from a Kubernetes Secret.
+
 This is LocalCloud's own Kubernetes integration: a namespace-scoped operator, instance CRD, private Service, optional PVC, and Job-based workload executor. It does not implement the LocalStack Kubernetes Pack or AWS Lambda/ECS/EC2 APIs.
 
 The Python code has no extra dependencies. Installation requires a working Kubernetes cluster, kubectl, and a LocalCloud container image reachable by that cluster. A persistent instance also needs a default StorageClass or an explicitly configured one.

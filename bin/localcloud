@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Run from this checkout without pip or third-party dependencies."""
+from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from localcloud.cli import main
+raise SystemExit(main())

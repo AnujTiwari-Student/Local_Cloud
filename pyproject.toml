@@ -1,5 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "localcloud-emulator"
-version = "0.1.0"
+version = "0.2.0"
 description = "Independent local AWS development emulator with persistence, snapshots and policy testing"
 requires-python = ">=3.11"
+
+[project.scripts]
+localcloud = "localcloud.cli:main"
+
+[tool.setuptools]
+packages = ["localcloud"]
+
+[tool.setuptools.package-data]
+localcloud = ["dashboard.html"]
