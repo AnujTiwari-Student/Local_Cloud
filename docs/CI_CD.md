@@ -1,5 +1,7 @@
 # CI/CD: isolated runs, fixtures, diagnostics and Kubernetes previews
 
+Prefer commands over curl? See the [CLI guide](CLI.md), including automatic token login from a Kubernetes Secret.
+
 LocalCloud now has a CI runner, GitHub Actions workflows and a Kubernetes integration smoke test. There is no hosted billing/credit service or externally issued CI license token; these tools run in your own CI infrastructure.
 
 ## 1. Run live HTTP smoke checks locally

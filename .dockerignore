@@ -2,3 +2,5 @@
 !localcloud/
 !localcloud/**
 localcloud/__pycache__/
+!bin/
+!bin/localcloud

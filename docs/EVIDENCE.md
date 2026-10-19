@@ -96,3 +96,17 @@ A browser test against intercepted fixture responses passed: unauthenticated rej
 A live `python3 -m localcloud.ci --artifacts /tmp/localcloud-ci-validation` attempt exited 1 with `[Errno 1] Operation not permitted`, preserving a failure report. `docker info` was denied access to `/var/run/docker.sock`. No live Kubernetes deployment or external GitHub Actions run was performed. The installed kubectl client was inspected without changing a cluster. The provided live container/Kind jobs still need execution in a capable environment.
 
 This is a Kubernetes/CI implementation subset: no AWS Lambda/ECS/EC2 API compatibility, warm runtime pool, managed ingress/hosted cloud service, credit billing or issuer for commercial CI tokens. Instance previews remain private cluster Services. The operator must run for instance TTL cleanup; Kubernetes itself handles completed Job TTL. Management tokens are an access gate for development tools, not complete multi-tenant authentication for AWS service routes.
+
+## AWS-style LocalCloud CLI
+
+AWS command syntax was checked against the official [S3 cp reference](https://docs.aws.amazon.com/cli/latest/reference/s3/cp.html), [SQS create-queue](https://docs.aws.amazon.com/cli/latest/reference/sqs/create-queue.html), and [SQS receive-message](https://docs.aws.amazon.com/cli/latest/reference/sqs/receive-message.html). These establish familiar command/flag shapes, not full AWS CLI compatibility. LocalCloud implements only the listed options and rejects unknown ones.
+
+- `localcloud/cli.py`: high-level S3 commands, S3 API-style operations, every supported SQS operation, management tools, Kubernetes Job controls, profile/login commands and lifecycle delegation.
+- `localcloud/client.py`: HTTP JSON/XML/binary transport, no credential-forwarding redirects, bearer headers restricted to management paths, private atomic profile files and Kubernetes Secret token extraction. Tokens are verified before saving and are omitted from output.
+- `bin/localcloud` and `scripts/install-cli.py`: direct checkout command and pip-free persistent launcher. The installer was exercised only with a temporary destination; no home-directory installation was performed by the authoring agent.
+- `pyproject.toml`: optional package console entry point and explicit inclusion of dashboard data. Packaging could not be built here because pip/setuptools are unavailable; no package build is claimed as tested.
+- Dockerfile includes the launcher in newly built images. Host CLI commands use existing backend APIs; the user's currently running image does not need a rebuild for host access.
+
+72 tests pass. Twenty new tests cover actual CLI argument parsing through the HTTP transport and real server handler using an in-memory connection, including binary/unicode-key S3 roundtrips, all implemented SQS operations, profile precedence, private token/file permissions, failed login preservation, Kubernetes login, management-only credential headers, snapshot/state operations, faults, IAM tools, Job argv preservation, launchers and friendly failures. CLI help, syntax and installer-to-temporary-directory checks passed. No live CLI/TCP connection, image rebuild or real-secret read was performed in the restricted authoring environment.
+
+The user's supplied kubectl output separately establishes that their operator and `dev` Deployment reached 1/1 availability, the instance Ready condition was met, and its 1 GiB PVC was Bound. That is user-reported live deployment evidence, distinct from the agent's isolated contract tests.

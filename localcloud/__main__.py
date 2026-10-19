@@ -136,7 +136,7 @@ class Handler(BaseHTTPRequestHandler):
     do_GET = do_POST = do_PUT = do_DELETE = dispatch
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description='LocalCloud development emulator')
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=4566)
@@ -152,7 +152,7 @@ def main():
     parser.add_argument('--workload-image', action='append', default=[], help='Exact allowed workload image; repeat to allow more')
     parser.add_argument('--instance-name', default='localcloud')
     parser.add_argument('--instance-uid', help='Optional LocalCloudInstance UID for workload ownership')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     management_token = os.environ.get(args.management_token_env or 'LOCALCLOUD_MANAGEMENT_TOKEN')
     if args.management_token_env and not management_token:
         parser.error('The specified management token environment variable is empty')

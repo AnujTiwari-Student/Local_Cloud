@@ -191,7 +191,7 @@ class Operator:
                 self.status(resource, {'phase': 'Error', 'observedGeneration': resource['metadata'].get('generation', 1), 'message': str(error)[:500]})
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description='LocalCloud Kubernetes operator and preview manager')
     parser.add_argument('--api-server', help='Loopback kubectl proxy URL; omit when running in-cluster')
     parser.add_argument('--namespace', default=os.environ.get('POD_NAMESPACE', 'localcloud'))
@@ -215,7 +215,7 @@ def main():
     previews.add_parser('list')
     delete = previews.add_parser('delete')
     delete.add_argument('--name', required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     try:
         if args.action == 'manifests':
             from .kube_manifests import installation
