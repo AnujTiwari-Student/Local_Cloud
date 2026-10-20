@@ -55,6 +55,8 @@ class Engine:
         self.tools = Tooling(self)
         from .ec2 import EC2
         self.ec2 = EC2(self, ec2_images)
+        from .gateway import Gateway
+        self.gateway = Gateway(self)
 
     @contextmanager
     def transaction(self):
@@ -172,7 +174,8 @@ class Engine:
                 if set(args) - {'QueueName', 'Attributes'} or set(args.get('Attributes', {})) - {'VisibilityTimeout'}:
                     raise Error('UnsupportedOperation', 'Only standard queues and VisibilityTimeout are supported', 501)
                 visibility = integer(args.get('Attributes', {}).get('VisibilityTimeout', 30), 0, 43200)
-                if name in queues and queues[name]['visibility'] != visibility:
+                # Upstream SqsProvider.create_queue compares only supplied attributes.
+                if name in queues and 'VisibilityTimeout' in args.get('Attributes', {}) and queues[name]['visibility'] != visibility:
                     raise Error('QueueNameExists', 'Queue has different attributes')
                 queues.setdefault(name, {'visibility': visibility, 'messages': []})
                 return {'QueueUrl': queue_url}

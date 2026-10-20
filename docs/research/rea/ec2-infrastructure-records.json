@@ -1,0 +1,11 @@
+{
+  "reference_infrastructure": "ev_512b26b0158081d116fa832eaebd8eb97efd2d858d26aa69e325e286d8feba09",
+  "candidate_infrastructure": "ev_02c7e94e3ce500f11e2793162a55c901e951ebc921d5f5ae30025d4a8db80747",
+  "docker_infrastructure": "ev_445877535a38b73374a6745d178c4305922492ce378f543bd567b8f51ae81ae8",
+  "guest_ssh_root": "ev_e3d6e34ff89088a92fab64b57f3e22b10ee729a1c3ee6308cccb322731fa3cb3",
+  "browser": "ev_f182312ba4701da5750a65e253471600b42f57c853f86aeed0d2b731381ff3c9",
+  "browser_confirmation": "ev_4eb411db444c3dee122967fd41f540efb81acb9883590deb061177f6303ff61a",
+  "final_audit": "ev_7e55bc5e0aa4f3f05364292fe57126b99e2158a1b99e2b50b43fc5381cad750c",
+  "final_image": "ev_3e441641a255fcc9afd8d84cb2fcab7f3206b81318a183de4972a8e7de7d233f",
+  "botocore_model": "ev_08f48535cdd0f2742e855db7d732a79c2b5866394609034e5a1dd28975daa7d6"
+}

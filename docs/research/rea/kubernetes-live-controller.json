@@ -1,0 +1,8 @@
+{
+  "namespace": "localcloud-rea-72703825",
+  "context": "kind-localcloud",
+  "exit": 0,
+  "output": "{\n  \"passed\": true,\n  \"checks\": [\n    \"health\",\n    \"s3-binary-roundtrip\",\n    \"sqs-delivery\",\n    \"sqs-visibility\",\n    \"sqs-acknowledgement\",\n    \"kubernetes-job-endpoint-roundtrip\"\n  ]\n}\n",
+  "stderr": "",
+  "namespace_cleanup_requested": true
+}

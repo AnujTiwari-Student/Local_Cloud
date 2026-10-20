@@ -1,0 +1,333 @@
+{
+  "reference": {
+    "id": "sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+    "digests": [
+      "localstack/localstack-pro@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+      "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872"
+    ],
+    "created": "2026-10-13T09:06:46.500100168Z",
+    "size": 1611503672,
+    "version": null
+  },
+  "distributions": {
+    "localstack": null,
+    "localstack-core": {
+      "version": "2026.10.0",
+      "location": "/opt/code/localstack/.venv/lib/python3.13/site-packages"
+    },
+    "localstack-ext": null,
+    "moto": null,
+    "rolo": {
+      "version": "0.8.8",
+      "location": "/opt/code/localstack/.venv/lib/python3.13/site-packages"
+    }
+  },
+  "reference_startup": {
+    "created": true,
+    "exit_code": 55,
+    "output": "\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\nLocalstack returning with exit code 55. Reason: \n===============================================\nLicense activation failed! 🔑❌\n\nReason: No credentials were found in the environment. Please set the LOCALSTACK_AUTH_TOKEN variable to a valid auth token. Alternatively, run `lstk login` and start LocalStack with the lstk CLI, which configures the credentials for you.\n\nDue to this error, Localstack has quit. LocalStack pro features can only be used with a valid license.\n\n- Please check that your credentials are set up correctly and that you have an active license.\n  You can find your credentials in our webapp at https://app.localstack.cloud.\n\n",
+    "removed": true
+  },
+  "evidence": {
+    "identity": "ev_12686c301921b26121805670129c71e0ebf76d68bcde85ae3c1234fcb3d1f5db",
+    "versions": "ev_9a265771f6cca789011a507481302a40d94e3940ff0718133fbcfa1690eb8ed3",
+    "startup": "ev_8c8901e5385cf321c46daa91a24565f4ba2568b08e5dbfced60be918f2fb811e",
+    "service_files": "ev_496237cfe43cfcdac899ad2aa358ee2bd847e2b4ae4fd8515289fabba13ebf2c"
+  },
+  "provider_file_inventory": {
+    "counts": {
+      "s3": 37,
+      "sqs": 26,
+      "iam": 51,
+      "ec2": 75,
+      "state": 147,
+      "chaos": 9,
+      "inspector": 0,
+      "kubernetes": 2,
+      "pods": 41
+    },
+    "selected_files": {
+      "s3": [
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/s3/bucket.py.enc",
+          "bytes": 9472,
+          "sha256": "7a87b8cac3c31632c827b5dd964fd213afdd6f17408ecb2e443a9b666ccd7ded"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/s3/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/s3/checksums.py.enc",
+          "bytes": 2336,
+          "sha256": "f08ecd1a02ee43a71d868f781ccadcb9748108203c247398e6057ae8b4a198b2"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/s3/codec.py.enc",
+          "bytes": 3984,
+          "sha256": "05961c2be66f31e090a3c77e8acc09a9252ae434418f169bc91002f3d88373a6"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/s3/constants.py.enc",
+          "bytes": 80,
+          "sha256": "20005fcba59aebe10bc1698348948a47d2748b2667169a8e6cfb9623cc8c03ce"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/s3/constants_basic.py.enc",
+          "bytes": 3184,
+          "sha256": "0726af7fcf0971e25c5886e9f3ca328c7660c0a29bf734e04fa7328da3ca6feb"
+        }
+      ],
+      "sqs": [
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/sqs/queue.py.enc",
+          "bytes": 3760,
+          "sha256": "ba9a3a03173e208a3dfa1b85dd57e86c9df19cfd8969d9bd93ded52de9fbe884"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/sqs/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/sqs/constants.py.enc",
+          "bytes": 3536,
+          "sha256": "63940c900c78846b755e350c2d638c6a862f88c3dd641334c5c87de4f7e4a47f"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/sqs/developer_api.py.enc",
+          "bytes": 4208,
+          "sha256": "88259f45d59498c69726f5a93367e5d6b809786f66f50c3d5f3bd9942c3c5303"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/sqs/exceptions.py.enc",
+          "bytes": 528,
+          "sha256": "d4d744786a5c9b74ff93db3e00ed89ef1fb541e2f249304e29d0eed3bb723f12"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/sqs/iam.py.enc",
+          "bytes": 1808,
+          "sha256": "0fa9fb3d59a2aab8d8f0aaf8f5eb6995c44bb1baf92f4e5ad0143f0c5a15d4ff"
+        }
+      ],
+      "iam": [
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/iam/policy.py.enc",
+          "bytes": 3232,
+          "sha256": "47f33dd7f443eef626342699fb238a01d32be53ebc895d57b9d41707dc2a97ed"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/iam/role.py.enc",
+          "bytes": 2000,
+          "sha256": "57566b9cc57373a6010033547040ee678410c1beddc54bd570f10e205b68d99a"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/iam/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/iam/analytics.py.enc",
+          "bytes": 752,
+          "sha256": "94962198d67a49f5097f50365827b2c998b247dbb1c97f5b6525eabfc8cb5684"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/iam/iam.py.enc",
+          "bytes": 2896,
+          "sha256": "6f7a0e17f39a90ed332e02e4e44d06054d38393af936bf94181b927143a8b42e"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/iam/migrations.py.enc",
+          "bytes": 1120,
+          "sha256": "0a8cbfc2dd41fbb68bc05567e681df14714fe2169f602d8e6227d5582bc6c0bf"
+        }
+      ],
+      "ec2": [
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/ec2/base.py.enc",
+          "bytes": 368,
+          "sha256": "3029657cd755a8184cd1f5ab7f21b57822b5e05cdaf4468b007bad4f14e2b191"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/ec2/security_group.py.enc",
+          "bytes": 2768,
+          "sha256": "0753a41123df25c0369686070072be8a8f7efcee9b32bb56de7f3f1ff2b0e002"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/ec2/subnet.py.enc",
+          "bytes": 2080,
+          "sha256": "803247520773147ae918b189b417d90491d8efd186d7d03f794ac511a068bf0e"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/replicator/resource_replicators/services/ec2/vpc.py.enc",
+          "bytes": 1808,
+          "sha256": "3d6e61b85d340b1d15b447ccdd43a1299a15b3996ae4f94ae5406b8567bf19a9"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/ec2/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/ec2/constants.py.enc",
+          "bytes": 496,
+          "sha256": "e6d845aac82c1bcdf7ae3f1698859e83d5efa931483284b351e7105f9791426b"
+        }
+      ],
+      "state": [
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/state/__init__.py",
+          "bytes": 307,
+          "sha256": "34c7b4fd3150266dcea37f621e4e4e9ea0879c44187215cf1eea541931eb72ab"
+        },
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/state/codecs.py.enc",
+          "bytes": 816,
+          "sha256": "e013efe79425af4387deaa8a6a96e0fd22888eace5f3dbbabad678658cd7f25c"
+        },
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/state/core.py",
+          "bytes": 1417,
+          "sha256": "2c462dcd4d41b229b217040042bf3d58784bdeb7352da9371a628384ccb141d1"
+        },
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/state/pickle.py.enc",
+          "bytes": 4448,
+          "sha256": "1904708a3de006a7a199277514d980dbb999fc97b4c0f1b9f40758260f8643f9"
+        },
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/state/snapshot.py.enc",
+          "bytes": 368,
+          "sha256": "95e7fe67f64e0ce948d6f3e055013877d8469b0e19142ac7f1841828034eb833"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/services/stepfunctions/asl/component/state/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "chaos": [
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/chaos/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/chaos/analytics.py.enc",
+          "bytes": 272,
+          "sha256": "4f91b1946f7720c9ccaed6300e1e895aa91e42c5aab9eb67bf5f76b704d47fe2"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/chaos/config.py.enc",
+          "bytes": 400,
+          "sha256": "4f26bfa3b63d8888d34b4e8538834c234be73d55a467ca0b04cdc0e6520ebc15"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/chaos/constants.py.enc",
+          "bytes": 3120,
+          "sha256": "950235ff6021665ab4d784676345196f3e0533c205d814de445cba2e34357304"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/chaos/exceptions.py.enc",
+          "bytes": 272,
+          "sha256": "7bddd2fd40c037a6a395753e36819b7468cc70db74e8f94a05c4ad4817089c29"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/chaos/handlers.py.enc",
+          "bytes": 1600,
+          "sha256": "adca86e39851906d8e58c3d869677c23e6b60eb6f6e8d1e70815032b1f6ca610"
+        }
+      ],
+      "inspector": [],
+      "kubernetes": [
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/dev/kubernetes/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-core",
+          "path": "localstack/dev/kubernetes/__main__.py.enc",
+          "bytes": 8064,
+          "sha256": "e8c28cd1293e855847677740177ac30e078448cd7e6460766c1e2e2eeb9a9757"
+        }
+      ],
+      "pods": [
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/bootstrap/pods/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/bootstrap/pods/api_types.py",
+          "bytes": 149,
+          "sha256": "e9c3c30c8c70aa68fe254a7128d4d622dae76fcc8d1fef412a978952fd37d2ea"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/bootstrap/pods/constants.py",
+          "bytes": 574,
+          "sha256": "eff79791527ff83a7cdbe3ae086063b01c8f8de8a086011626548921d69efd54"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/bootstrap/pods/launchpad/__init__.py",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/bootstrap/pods/launchpad/api.py",
+          "bytes": 2522,
+          "sha256": "2db8027b93e164d9aed11f0e982b6c7e2d03961de35b9409b0a7936d7b9155cd"
+        },
+        {
+          "distribution": "localstack-pro-core",
+          "path": "localstack/pro/core/bootstrap/pods/launchpad/cache.py",
+          "bytes": 1334,
+          "sha256": "d1c7d7addca957b1b1e745e8b54f249e397d316d80a8968368ff7bc494fdf6d7"
+        }
+      ]
+    }
+  }
+}

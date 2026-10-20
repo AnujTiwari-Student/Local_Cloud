@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "standard-link-local-imdsv1-from-guest",
+    "vpc-bridge-sg-ingress-loopback-web-endpoint",
+    "real-volume-snapshot-copy-stopped-detach-attach-recreate",
+    "imdsv2-token-after-metadata-options-update"
+  ],
+  "cleanup_completed": true
+}

@@ -1,0 +1,1108 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "vpc-create",
+      "operation": "create_vpc",
+      "parameters": {
+        "CidrBlock": "10.88.0.0/16"
+      },
+      "status": 200,
+      "result": {
+        "Vpc": {
+          "OwnerId": "000000000000",
+          "InstanceTenancy": "default",
+          "CidrBlockAssociationSet": [
+            {
+              "AssociationId": "vpc-cidr-assoc-f16be5c21cbb44acb",
+              "CidrBlock": "10.88.0.0/16",
+              "CidrBlockState": {
+                "State": "associated"
+              }
+            }
+          ],
+          "IsDefault": false,
+          "Tags": [],
+          "VpcId": "vpc-cef4a37154714633a",
+          "State": "available",
+          "CidrBlock": "10.88.0.0/16",
+          "DhcpOptionsId": "default"
+        }
+      }
+    },
+    {
+      "case": "vpc-describe",
+      "operation": "describe_vpcs",
+      "parameters": {
+        "VpcIds": [
+          "vpc-cef4a37154714633a"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Vpcs": [
+          {
+            "OwnerId": "000000000000",
+            "InstanceTenancy": "default",
+            "CidrBlockAssociationSet": [
+              {
+                "AssociationId": "vpc-cidr-assoc-f16be5c21cbb44acb",
+                "CidrBlock": "10.88.0.0/16",
+                "CidrBlockState": {
+                  "State": "associated"
+                }
+              }
+            ],
+            "IsDefault": false,
+            "Tags": [],
+            "VpcId": "vpc-cef4a37154714633a",
+            "State": "available",
+            "CidrBlock": "10.88.0.0/16",
+            "DhcpOptionsId": "default"
+          }
+        ]
+      }
+    },
+    {
+      "case": "vpc-dns",
+      "operation": "describe_vpc_attribute",
+      "parameters": {
+        "VpcId": "vpc-cef4a37154714633a",
+        "Attribute": "enableDnsSupport"
+      },
+      "status": 200,
+      "result": {
+        "EnableDnsSupport": {
+          "Value": true
+        },
+        "VpcId": "vpc-cef4a37154714633a"
+      }
+    },
+    {
+      "case": "subnet-create",
+      "operation": "create_subnet",
+      "parameters": {
+        "VpcId": "vpc-cef4a37154714633a",
+        "CidrBlock": "10.88.1.0/24",
+        "AvailabilityZone": "us-east-1a"
+      },
+      "status": 200,
+      "result": {
+        "Subnet": {
+          "AvailabilityZoneId": "use1-az6",
+          "OwnerId": "000000000000",
+          "AssignIpv6AddressOnCreation": false,
+          "Ipv6CidrBlockAssociationSet": [],
+          "Tags": [],
+          "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-8d115289441c489a8",
+          "Ipv6Native": false,
+          "SubnetId": "subnet-8d115289441c489a8",
+          "State": "available",
+          "VpcId": "vpc-cef4a37154714633a",
+          "CidrBlock": "10.88.1.0/24",
+          "AvailableIpAddressCount": 251,
+          "AvailabilityZone": "us-east-1a",
+          "DefaultForAz": false,
+          "MapPublicIpOnLaunch": false
+        }
+      }
+    },
+    {
+      "case": "subnet-describe",
+      "operation": "describe_subnets",
+      "parameters": {
+        "SubnetIds": [
+          "subnet-8d115289441c489a8"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Subnets": [
+          {
+            "AvailabilityZoneId": "use1-az6",
+            "OwnerId": "000000000000",
+            "AssignIpv6AddressOnCreation": false,
+            "Ipv6CidrBlockAssociationSet": [],
+            "Tags": [],
+            "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-8d115289441c489a8",
+            "Ipv6Native": false,
+            "SubnetId": "subnet-8d115289441c489a8",
+            "State": "available",
+            "VpcId": "vpc-cef4a37154714633a",
+            "CidrBlock": "10.88.1.0/24",
+            "AvailableIpAddressCount": 251,
+            "AvailabilityZone": "us-east-1a",
+            "DefaultForAz": false,
+            "MapPublicIpOnLaunch": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "subnet-overlap",
+      "operation": "create_subnet",
+      "parameters": {
+        "VpcId": "vpc-cef4a37154714633a",
+        "CidrBlock": "10.88.1.0/24"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidSubnet.Conflict",
+        "Message": "The CIDR '10.88.1.0/24' conflicts with another subnet"
+      }
+    },
+    {
+      "case": "sg-create",
+      "operation": "create_security_group",
+      "parameters": {
+        "VpcId": "vpc-cef4a37154714633a",
+        "GroupName": "rea-web",
+        "Description": "REA probe"
+      },
+      "status": 200,
+      "result": {
+        "GroupId": "sg-c9b27b16f3074c85a",
+        "SecurityGroupArn": "arn:aws:ec2:us-east-1:000000000000:security-group/sg-c9b27b16f3074c85a"
+      }
+    },
+    {
+      "case": "sg-authorize",
+      "operation": "authorize_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-c9b27b16f3074c85a",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "IpRanges": [
+              {
+                "CidrIp": "127.0.0.1/32"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "sg-duplicate",
+      "operation": "authorize_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-c9b27b16f3074c85a",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "IpRanges": [
+              {
+                "CidrIp": "127.0.0.1/32"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidPermission.Duplicate",
+        "Message": "The specified rule already exists"
+      }
+    },
+    {
+      "case": "sg-describe",
+      "operation": "describe_security_groups",
+      "parameters": {
+        "GroupIds": [
+          "sg-c9b27b16f3074c85a"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "SecurityGroups": [
+          {
+            "GroupId": "sg-c9b27b16f3074c85a",
+            "IpPermissionsEgress": [
+              {
+                "IpProtocol": "-1",
+                "UserIdGroupPairs": [],
+                "IpRanges": [
+                  {
+                    "CidrIp": "0.0.0.0/0"
+                  }
+                ],
+                "Ipv6Ranges": [],
+                "PrefixListIds": []
+              }
+            ],
+            "Tags": [],
+            "VpcId": "vpc-cef4a37154714633a",
+            "SecurityGroupArn": "arn:aws:ec2:us-east-1:000000000000:security-group/sg-c9b27b16f3074c85a",
+            "OwnerId": "000000000000",
+            "GroupName": "rea-web",
+            "Description": "REA probe",
+            "IpPermissions": [
+              {
+                "IpProtocol": "tcp",
+                "FromPort": 8080,
+                "ToPort": 8080,
+                "UserIdGroupPairs": [],
+                "IpRanges": [
+                  {
+                    "CidrIp": "127.0.0.1/32"
+                  }
+                ],
+                "Ipv6Ranges": [],
+                "PrefixListIds": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "sg-revoke",
+      "operation": "revoke_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-c9b27b16f3074c85a",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "IpRanges": [
+              {
+                "CidrIp": "127.0.0.1/32"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "igw-create",
+      "operation": "create_internet_gateway",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "InternetGateway": {
+          "Attachments": [],
+          "InternetGatewayId": "igw-4ac7d24945ed4a69b",
+          "OwnerId": "000000000000",
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "igw-attach",
+      "operation": "attach_internet_gateway",
+      "parameters": {
+        "InternetGatewayId": "igw-4ac7d24945ed4a69b",
+        "VpcId": "vpc-cef4a37154714633a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "igw-describe",
+      "operation": "describe_internet_gateways",
+      "parameters": {
+        "InternetGatewayIds": [
+          "igw-4ac7d24945ed4a69b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "InternetGateways": [
+          {
+            "Attachments": [
+              {
+                "State": "available",
+                "VpcId": "vpc-cef4a37154714633a"
+              }
+            ],
+            "InternetGatewayId": "igw-4ac7d24945ed4a69b",
+            "OwnerId": "000000000000",
+            "Tags": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "route-table-create",
+      "operation": "create_route_table",
+      "parameters": {
+        "VpcId": "vpc-cef4a37154714633a"
+      },
+      "status": 200,
+      "result": {
+        "RouteTable": {
+          "Associations": [],
+          "RouteTableId": "rtb-61af7dd0b4e24db7b",
+          "Routes": [
+            {
+              "DestinationCidrBlock": "10.88.0.0/16",
+              "GatewayId": "local",
+              "Origin": "CreateRouteTable",
+              "State": "active"
+            }
+          ],
+          "Tags": [],
+          "VpcId": "vpc-cef4a37154714633a",
+          "OwnerId": "000000000000"
+        }
+      }
+    },
+    {
+      "case": "route-create",
+      "operation": "create_route",
+      "parameters": {
+        "RouteTableId": "rtb-61af7dd0b4e24db7b",
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": "igw-4ac7d24945ed4a69b"
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "route-associate",
+      "operation": "associate_route_table",
+      "parameters": {
+        "RouteTableId": "rtb-61af7dd0b4e24db7b",
+        "SubnetId": "subnet-8d115289441c489a8"
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "rtbassoc-04e9b1cc111f4cf2b"
+      }
+    },
+    {
+      "case": "route-table-describe",
+      "operation": "describe_route_tables",
+      "parameters": {
+        "RouteTableIds": [
+          "rtb-61af7dd0b4e24db7b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "RouteTables": [
+          {
+            "Associations": [
+              {
+                "Main": false,
+                "RouteTableAssociationId": "rtbassoc-04e9b1cc111f4cf2b",
+                "RouteTableId": "rtb-61af7dd0b4e24db7b",
+                "SubnetId": "subnet-8d115289441c489a8",
+                "AssociationState": {
+                  "State": "associated"
+                }
+              }
+            ],
+            "RouteTableId": "rtb-61af7dd0b4e24db7b",
+            "Routes": [
+              {
+                "DestinationCidrBlock": "10.88.0.0/16",
+                "GatewayId": "local",
+                "Origin": "CreateRouteTable",
+                "State": "active"
+              },
+              {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": "igw-4ac7d24945ed4a69b",
+                "Origin": "CreateRoute",
+                "State": "active"
+              }
+            ],
+            "Tags": [],
+            "VpcId": "vpc-cef4a37154714633a",
+            "OwnerId": "000000000000"
+          }
+        ]
+      }
+    },
+    {
+      "case": "volume-create",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "VolumeType": "gp3"
+      },
+      "status": 200,
+      "result": {
+        "Iops": 3000,
+        "Tags": [],
+        "VolumeType": "gp3",
+        "Throughput": 125,
+        "VolumeId": "vol-934191e47c7646619",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-20 08:00:38.116502+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "volume-describe",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-934191e47c7646619"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Volumes": [
+          {
+            "Iops": 3000,
+            "Tags": [],
+            "VolumeType": "gp3",
+            "Throughput": 125,
+            "VolumeId": "vol-934191e47c7646619",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "available",
+            "CreateTime": "2026-10-20 08:00:38.116502+00:00",
+            "Attachments": [],
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "volume-modify",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-934191e47c7646619",
+        "Size": 2
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-934191e47c7646619",
+          "ModificationState": "modifying",
+          "TargetSize": 2,
+          "OriginalSize": 1,
+          "Progress": 0,
+          "StartTime": "2026-10-20 08:00:38.122071+00:00"
+        }
+      }
+    },
+    {
+      "case": "snapshot-create",
+      "operation": "create_snapshot",
+      "parameters": {
+        "VolumeId": "vol-934191e47c7646619",
+        "Description": "REA probe"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-a3a36242de57445ba",
+        "VolumeId": "vol-934191e47c7646619",
+        "State": "pending",
+        "StartTime": "2026-10-20 08:00:38.125011+00:00",
+        "Progress": "60%",
+        "OwnerId": "000000000000",
+        "Description": "REA probe",
+        "VolumeSize": 2,
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "snapshot-describe",
+      "operation": "describe_snapshots",
+      "parameters": {
+        "SnapshotIds": [
+          "snap-a3a36242de57445ba"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Tags": [],
+            "SnapshotId": "snap-a3a36242de57445ba",
+            "VolumeId": "vol-934191e47c7646619",
+            "State": "completed",
+            "StartTime": "2026-10-20 08:00:38.125011+00:00",
+            "Progress": "100%",
+            "OwnerId": "000000000000",
+            "Description": "REA probe",
+            "VolumeSize": 2,
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "key-create",
+      "operation": "create_key_pair",
+      "parameters": {
+        "KeyName": "rea-probe",
+        "KeyType": "ed25519"
+      },
+      "status": 200,
+      "result": {
+        "KeyPairId": "key-05f33813bc994c5ab",
+        "KeyName": "rea-probe",
+        "KeyFingerprint": "48:e1:77:0e:ab:80:93:03:23:03:e8:a8:92:9e:44:5f:69:3a:fc:21:cf:63:d4:d8:0f:f7:b9:65:27:00:9d:ef",
+        "KeyMaterial": "<generated private key omitted>"
+      }
+    },
+    {
+      "case": "key-describe",
+      "operation": "describe_key_pairs",
+      "parameters": {
+        "KeyNames": [
+          "rea-probe"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "KeyPairs": [
+          {
+            "KeyPairId": "key-05f33813bc994c5ab",
+            "KeyType": "ed25519",
+            "Tags": [],
+            "CreateTime": "2026-10-20 08:00:38.135577+00:00",
+            "KeyName": "rea-probe",
+            "KeyFingerprint": "48:e1:77:0e:ab:80:93:03:23:03:e8:a8:92:9e:44:5f:69:3a:fc:21:cf:63:d4:d8:0f:f7:b9:65:27:00:9d:ef"
+          }
+        ]
+      }
+    },
+    {
+      "case": "availability-zones",
+      "operation": "describe_availability_zones",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "AvailabilityZones": [
+          {
+            "Messages": [],
+            "RegionName": "us-east-1",
+            "ZoneName": "us-east-1a",
+            "ZoneId": "use1-az6",
+            "ZoneType": "availability-zone",
+            "State": "available"
+          },
+          {
+            "Messages": [],
+            "RegionName": "us-east-1",
+            "ZoneName": "us-east-1b",
+            "ZoneId": "use1-az1",
+            "ZoneType": "availability-zone",
+            "State": "available"
+          },
+          {
+            "Messages": [],
+            "RegionName": "us-east-1",
+            "ZoneName": "us-east-1c",
+            "ZoneId": "use1-az2",
+            "ZoneType": "availability-zone",
+            "State": "available"
+          },
+          {
+            "Messages": [],
+            "RegionName": "us-east-1",
+            "ZoneName": "us-east-1d",
+            "ZoneId": "use1-az4",
+            "ZoneType": "availability-zone",
+            "State": "available"
+          },
+          {
+            "Messages": [],
+            "RegionName": "us-east-1",
+            "ZoneName": "us-east-1e",
+            "ZoneId": "use1-az3",
+            "ZoneType": "availability-zone",
+            "State": "available"
+          },
+          {
+            "Messages": [],
+            "RegionName": "us-east-1",
+            "ZoneName": "us-east-1f",
+            "ZoneId": "use1-az5",
+            "ZoneType": "availability-zone",
+            "State": "available"
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-types",
+      "operation": "describe_instance_types",
+      "parameters": {
+        "InstanceTypes": [
+          "t3.micro"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "InstanceTypes": [
+          {
+            "InstanceType": "t3.micro",
+            "SupportedUsageClasses": [
+              "on-demand"
+            ],
+            "SupportedRootDeviceTypes": [
+              "ebs"
+            ],
+            "SupportedVirtualizationTypes": [
+              "hvm"
+            ],
+            "ProcessorInfo": {
+              "SupportedArchitectures": [
+                "x86_64"
+              ]
+            },
+            "VCpuInfo": {
+              "DefaultVCpus": 2
+            },
+            "MemoryInfo": {
+              "SizeInMiB": 1024
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-create",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-local",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "InstanceType": "t3.micro",
+        "SubnetId": "subnet-8d115289441c489a8",
+        "SecurityGroupIds": [
+          "sg-c9b27b16f3074c85a"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-f720b4e2e05949078",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "46d6e329-3231-4fc2-ab98-dfa979c6b22d",
+            "NetworkInterfaces": [
+              {
+                "Attachment": {
+                  "AttachTime": "2026-10-20 08:00:38.147333+00:00",
+                  "AttachmentId": "eni-attach-995450a3a270414ab",
+                  "DeleteOnTermination": true,
+                  "DeviceIndex": 0,
+                  "Status": "attached"
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-c9b27b16f3074c85a",
+                    "GroupName": "rea-web"
+                  }
+                ],
+                "MacAddress": "02:00:18:3c:d5:f4",
+                "NetworkInterfaceId": "eni-f6956156fca04203a",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-88-1-4.ec2.internal",
+                "PrivateIpAddress": "10.88.1.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.88.1.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-8d115289441c489a8",
+                "VpcId": "vpc-cef4a37154714633a"
+              }
+            ],
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-c9b27b16f3074c85a",
+                "GroupName": "rea-web"
+              }
+            ],
+            "Tags": [],
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-1217a57e3ccd48c08",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-88-1-4.ec2.internal",
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 08:00:38.147230+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "SubnetId": "subnet-8d115289441c489a8",
+            "VpcId": "vpc-cef4a37154714633a",
+            "PrivateIpAddress": "10.88.1.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-status",
+      "operation": "describe_instance_status",
+      "parameters": {
+        "InstanceIds": [
+          "i-1217a57e3ccd48c08"
+        ],
+        "IncludeAllInstances": true
+      },
+      "status": 200,
+      "result": {
+        "InstanceStatuses": [
+          {
+            "AvailabilityZone": "us-east-1a",
+            "InstanceId": "i-1217a57e3ccd48c08",
+            "InstanceState": {
+              "Code": 16,
+              "Name": "running"
+            },
+            "InstanceStatus": {
+              "Details": [
+                {
+                  "Name": "reachability",
+                  "Status": "passed"
+                }
+              ],
+              "Status": "ok"
+            },
+            "SystemStatus": {
+              "Details": [
+                {
+                  "Name": "reachability",
+                  "Status": "passed"
+                }
+              ],
+              "Status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-reboot",
+      "operation": "reboot_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-1217a57e3ccd48c08"
+        ]
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "instance-console",
+      "operation": "get_console_output",
+      "parameters": {
+        "InstanceId": "i-1217a57e3ccd48c08"
+      },
+      "status": 200,
+      "result": {
+        "InstanceId": "i-1217a57e3ccd48c08",
+        "Timestamp": "2026-10-20 08:00:38.155896+00:00",
+        "Output": ""
+      }
+    },
+    {
+      "case": "volume-attach",
+      "operation": "attach_volume",
+      "parameters": {
+        "VolumeId": "vol-934191e47c7646619",
+        "InstanceId": "i-1217a57e3ccd48c08",
+        "Device": "/dev/sdf"
+      },
+      "status": 200,
+      "result": {
+        "VolumeId": "vol-934191e47c7646619",
+        "InstanceId": "i-1217a57e3ccd48c08",
+        "Device": "/dev/sdf",
+        "State": "attaching",
+        "AttachTime": "2026-10-20 08:00:38.158726+00:00"
+      }
+    },
+    {
+      "case": "volume-in-use-delete",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-934191e47c7646619"
+      },
+      "status": 400,
+      "error": {
+        "Code": "VolumeInUse",
+        "Message": "Detach the volume before deleting it"
+      }
+    },
+    {
+      "case": "volume-detach",
+      "operation": "detach_volume",
+      "parameters": {
+        "VolumeId": "vol-934191e47c7646619"
+      },
+      "status": 200,
+      "result": {
+        "VolumeId": "vol-934191e47c7646619",
+        "InstanceId": "i-1217a57e3ccd48c08",
+        "Device": "/dev/sdf",
+        "State": "detaching",
+        "AttachTime": "2026-10-20 08:00:38.158726+00:00"
+      }
+    },
+    {
+      "case": "instance-describe-network",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-1217a57e3ccd48c08"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-f720b4e2e05949078",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "BlockDeviceMappings": [],
+                "ClientToken": "46d6e329-3231-4fc2-ab98-dfa979c6b22d",
+                "NetworkInterfaces": [
+                  {
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 08:00:38.147333+00:00",
+                      "AttachmentId": "eni-attach-995450a3a270414ab",
+                      "DeleteOnTermination": true,
+                      "DeviceIndex": 0,
+                      "Status": "attached"
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-c9b27b16f3074c85a",
+                        "GroupName": "rea-web"
+                      }
+                    ],
+                    "MacAddress": "02:00:18:3c:d5:f4",
+                    "NetworkInterfaceId": "eni-f6956156fca04203a",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-88-1-4.ec2.internal",
+                    "PrivateIpAddress": "10.88.1.4",
+                    "PrivateIpAddresses": [
+                      {
+                        "Primary": true,
+                        "PrivateIpAddress": "10.88.1.4"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-8d115289441c489a8",
+                    "VpcId": "vpc-cef4a37154714633a"
+                  }
+                ],
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-c9b27b16f3074c85a",
+                    "GroupName": "rea-web"
+                  }
+                ],
+                "Tags": [],
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-1217a57e3ccd48c08",
+                "ImageId": "ami-local",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-88-1-4.ec2.internal",
+                "AmiLaunchIndex": 0,
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 08:00:38.147230+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "SubnetId": "subnet-8d115289441c489a8",
+                "VpcId": "vpc-cef4a37154714633a",
+                "PrivateIpAddress": "10.88.1.4"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "missing-vpc",
+      "operation": "describe_vpcs",
+      "parameters": {
+        "VpcIds": [
+          "vpc-00000000000000000"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidVpcID.NotFound",
+        "Message": "Vpc 'vpc-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-1217a57e3ccd48c08"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-1217a57e3ccd48c08",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_key_pair",
+      "operation": "delete_key_pair",
+      "parameters": {
+        "KeyName": "rea-probe"
+      },
+      "status": 200,
+      "result": {
+        "Return": true,
+        "KeyPairId": "key-05f33813bc994c5ab"
+      }
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-a3a36242de57445ba"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-934191e47c7646619"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-disassociate_route_table",
+      "operation": "disassociate_route_table",
+      "parameters": {
+        "AssociationId": "rtbassoc-04e9b1cc111f4cf2b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_route_table",
+      "operation": "delete_route_table",
+      "parameters": {
+        "RouteTableId": "rtb-61af7dd0b4e24db7b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-detach_internet_gateway",
+      "operation": "detach_internet_gateway",
+      "parameters": {
+        "InternetGatewayId": "igw-4ac7d24945ed4a69b",
+        "VpcId": "vpc-cef4a37154714633a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_internet_gateway",
+      "operation": "delete_internet_gateway",
+      "parameters": {
+        "InternetGatewayId": "igw-4ac7d24945ed4a69b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_security_group",
+      "operation": "delete_security_group",
+      "parameters": {
+        "GroupId": "sg-c9b27b16f3074c85a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_subnet",
+      "operation": "delete_subnet",
+      "parameters": {
+        "SubnetId": "subnet-8d115289441c489a8"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_vpc",
+      "operation": "delete_vpc",
+      "parameters": {
+        "VpcId": "vpc-cef4a37154714633a"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": ""
+}

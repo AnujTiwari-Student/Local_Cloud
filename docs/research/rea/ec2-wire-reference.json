@@ -1,0 +1,119 @@
+{
+  "completed": true,
+  "records": [
+    {
+      "operation": "DescribeInstances",
+      "parameters": {},
+      "projection": {
+        "status": 200,
+        "root": "DescribeInstancesResponse"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<DescribeInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><reservationSet /><requestId>81e2d049-dac0-4cb3-9f99-1d345f0d7a89</requestId></DescribeInstancesResponse>"
+    },
+    {
+      "operation": "RunInstances",
+      "parameters": {
+        "ImageId": "ami-03cf127a",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "projection": {
+        "status": 200,
+        "root": "RunInstancesResponse",
+        "state": "pending",
+        "type": "t3.micro"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<RunInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><reservationId>r-605c0f8be25498054</reservationId><ownerId>000000000000</ownerId><groupSet /><instancesSet><item><architecture>x86_64</architecture><blockDeviceMapping><item><deviceName>/dev/sda1</deviceName><ebs><attachTime>2026-10-20T05:35:51Z</attachTime><deleteOnTermination>true</deleteOnTermination><status>attached</status><volumeId>vol-d3831784f82a6ce4e</volumeId></ebs></item></blockDeviceMapping><clientToken>ABCDE</clientToken><ebsOptimized>false</ebsOptimized><hypervisor>xen</hypervisor><networkInterfaceSet><item><association><ipOwnerId>000000000000</ipOwnerId><publicDnsName>ip-54-214-122-217.ec2.internal</publicDnsName><publicIp>54.214.122.217</publicIp></association><attachment><attachTime>2026-10-20T05:35:51Z</attachTime><attachmentId>eni-attach-8fda0cb6afb2cf46f</attachmentId><deleteOnTermination>false</deleteOnTermination><deviceIndex>0</deviceIndex><status>attached</status><networkCardIndex>0</networkCardIndex></attachment><description>Primary network interface</description><groupSet><item><groupId>sg-5f442ab2a4077f845</groupId><groupName>default</groupName></item></groupSet><ipv6AddressesSet /><macAddress>02:00:00:23002x:6902x:202x</macAddress><networkInterfaceId>eni-ce623979ba330c4e4</networkInterfaceId><ownerId>000000000000</ownerId><privateDnsName>ip-10-211-75-184.ec2.internal</privateDnsName><privateIpAddress>10.211.75.184</privateIpAddress><privateIpAddressesSet><item><association><ipOwnerId>000000000000</ipOwnerId><publicDnsName>ip-54-214-122-217.ec2.internal</publicDnsName><publicIp>54.214.122.217</publicIp></association><primary>true</primary><privateIpAddress>10.211.75.184</privateIpAddress></item></privateIpAddressesSet><sourceDestCheck>true</sourceDestCheck><status>in-use</status><subnetId>subnet-c058d655a041c5bcd</subnetId><vpcId>vpc-de65c332ba9faaae0</vpcId><interfaceType>interface</interfaceType></item></networkInterfaceSet><rootDeviceName>/dev/sda1</rootDeviceName><rootDeviceType>ebs</rootDeviceType><groupSet><item><groupId>sg-5f442ab2a4077f845</groupId><groupName>default</groupName></item></groupSet><sourceDestCheck>true</sourceDestCheck><sriovNetSupport>simple</sriovNetSupport><stateReason><code /><message /></stateReason><virtualizationType>hvm</virtualizationType><hibernationOptions /><metadataOptions><state>applied</state><httpTokens>optional</httpTokens><httpPutResponseHopLimit>1</httpPutResponseHopLimit><httpEndpoint>enabled</httpEndpoint><httpProtocolIpv6>disabled</httpProtocolIpv6><instanceMetadataTags>disabled</instanceMetadataTags></metadataOptions><instanceId>i-7a73fd8de282ce902</instanceId><imageId>ami-03cf127a</imageId><instanceState><code>0</code><name>pending</name></instanceState><privateDnsName>ip-10-211-75-184.ec2.internal</privateDnsName><dnsName>ec2-54-214-122-217.localhost.localstack.cloud</dnsName><reason /><amiLaunchIndex>0</amiLaunchIndex><productCodes /><instanceType>t3.micro</instanceType><launchTime>2026-10-20T05:35:51Z</launchTime><placement><groupName /><tenancy>default</tenancy><availabilityZone>us-east-1a</availabilityZone></placement><platform>windows</platform><monitoring><state>disabled</state></monitoring><subnetId>subnet-c058d655a041c5bcd</subnetId><vpcId>vpc-de65c332ba9faaae0</vpcId><privateIpAddress>10.211.75.184</privateIpAddress><ipAddress>54.214.122.217</ipAddress></item></instancesSet><requestId>3500dcdc-0ab1-4fd0-a5d3-ba1b1d7a59b3</requestId></RunInstancesResponse>"
+    },
+    {
+      "operation": "DescribeInstances",
+      "parameters": {
+        "InstanceId.1": "i-7a73fd8de282ce902"
+      },
+      "projection": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "running",
+        "type": "t3.micro"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<DescribeInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><reservationSet><item><reservationId>r-605c0f8be25498054</reservationId><ownerId>000000000000</ownerId><groupSet /><instancesSet><item><architecture>x86_64</architecture><blockDeviceMapping><item><deviceName>/dev/sda1</deviceName><ebs><attachTime>2026-10-20T05:35:51Z</attachTime><deleteOnTermination>true</deleteOnTermination><status>attached</status><volumeId>vol-d3831784f82a6ce4e</volumeId></ebs></item></blockDeviceMapping><clientToken>ABCDE</clientToken><ebsOptimized>false</ebsOptimized><hypervisor>xen</hypervisor><networkInterfaceSet><item><association><ipOwnerId>000000000000</ipOwnerId><publicDnsName>ip-54-214-122-217.ec2.internal</publicDnsName><publicIp>54.214.122.217</publicIp></association><attachment><attachTime>2026-10-20T05:35:51Z</attachTime><attachmentId>eni-attach-8fda0cb6afb2cf46f</attachmentId><deleteOnTermination>false</deleteOnTermination><deviceIndex>0</deviceIndex><status>attached</status><networkCardIndex>0</networkCardIndex></attachment><description>Primary network interface</description><groupSet><item><groupId>sg-5f442ab2a4077f845</groupId><groupName>default</groupName></item></groupSet><ipv6AddressesSet /><macAddress>02:00:00:23002x:6902x:202x</macAddress><networkInterfaceId>eni-ce623979ba330c4e4</networkInterfaceId><ownerId>000000000000</ownerId><privateDnsName>ip-10-211-75-184.ec2.internal</privateDnsName><privateIpAddress>10.211.75.184</privateIpAddress><privateIpAddressesSet><item><association><ipOwnerId>000000000000</ipOwnerId><publicDnsName>ip-54-214-122-217.ec2.internal</publicDnsName><publicIp>54.214.122.217</publicIp></association><primary>true</primary><privateIpAddress>10.211.75.184</privateIpAddress></item></privateIpAddressesSet><sourceDestCheck>true</sourceDestCheck><status>in-use</status><subnetId>subnet-c058d655a041c5bcd</subnetId><vpcId>vpc-de65c332ba9faaae0</vpcId><interfaceType>interface</interfaceType></item></networkInterfaceSet><rootDeviceName>/dev/sda1</rootDeviceName><rootDeviceType>ebs</rootDeviceType><groupSet><item><groupId>sg-5f442ab2a4077f845</groupId><groupName>default</groupName></item></groupSet><sourceDestCheck>true</sourceDestCheck><sriovNetSupport>simple</sriovNetSupport><stateReason><code /><message /></stateReason><virtualizationType>hvm</virtualizationType><hibernationOptions /><metadataOptions><state>applied</state><httpTokens>optional</httpTokens><httpPutResponseHopLimit>1</httpPutResponseHopLimit><httpEndpoint>enabled</httpEndpoint><httpProtocolIpv6>disabled</httpProtocolIpv6><instanceMetadataTags>disabled</instanceMetadataTags></metadataOptions><instanceId>i-7a73fd8de282ce902</instanceId><imageId>ami-03cf127a</imageId><instanceState><code>16</code><name>running</name></instanceState><privateDnsName>ip-10-211-75-184.ec2.internal</privateDnsName><dnsName>ec2-54-214-122-217.localhost.localstack.cloud</dnsName><reason /><amiLaunchIndex>0</amiLaunchIndex><productCodes /><instanceType>t3.micro</instanceType><launchTime>2026-10-20T05:35:51Z</launchTime><placement><groupName /><tenancy>default</tenancy><availabilityZone>us-east-1a</availabilityZone></placement><platform>windows</platform><monitoring><state>disabled</state></monitoring><subnetId>subnet-c058d655a041c5bcd</subnetId><vpcId>vpc-de65c332ba9faaae0</vpcId><privateIpAddress>10.211.75.184</privateIpAddress><ipAddress>54.214.122.217</ipAddress></item></instancesSet></item></reservationSet><requestId>1eb076e6-f851-4ea1-ad37-1fb6fd2627c0</requestId></DescribeInstancesResponse>"
+    },
+    {
+      "operation": "StopInstances",
+      "parameters": {
+        "InstanceId.1": "i-7a73fd8de282ce902"
+      },
+      "projection": {
+        "status": 200,
+        "root": "StopInstancesResponse",
+        "current": "stopping",
+        "previous": "running"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<StopInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><instancesSet><item><instanceId>i-7a73fd8de282ce902</instanceId><currentState><code>64</code><name>stopping</name></currentState><previousState><code>16</code><name>running</name></previousState></item></instancesSet><requestId>0a2fd327-2671-440f-b5c2-50f9887df0eb</requestId></StopInstancesResponse>"
+    },
+    {
+      "operation": "ModifyInstanceAttribute",
+      "parameters": {
+        "InstanceId": "i-7a73fd8de282ce902",
+        "InstanceType.Value": "t3.small"
+      },
+      "projection": {
+        "status": 200,
+        "root": "ModifyInstanceAttributeResponse"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<ModifyInstanceAttributeResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><requestId>5542ab80-2c11-4d6f-8ad7-0dd7a3293f0f</requestId></ModifyInstanceAttributeResponse>"
+    },
+    {
+      "operation": "DescribeInstances",
+      "parameters": {
+        "InstanceId.1": "i-7a73fd8de282ce902"
+      },
+      "projection": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "stopped",
+        "type": "t3.small"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<DescribeInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><reservationSet><item><reservationId>r-605c0f8be25498054</reservationId><ownerId>000000000000</ownerId><groupSet /><instancesSet><item><architecture>x86_64</architecture><blockDeviceMapping><item><deviceName>/dev/sda1</deviceName><ebs><attachTime>2026-10-20T05:35:51Z</attachTime><deleteOnTermination>true</deleteOnTermination><status>attached</status><volumeId>vol-d3831784f82a6ce4e</volumeId></ebs></item></blockDeviceMapping><clientToken>ABCDE</clientToken><ebsOptimized>false</ebsOptimized><hypervisor>xen</hypervisor><networkInterfaceSet><item><association /><attachment><attachTime>2026-10-20T05:35:51Z</attachTime><attachmentId>eni-attach-8fda0cb6afb2cf46f</attachmentId><deleteOnTermination>false</deleteOnTermination><deviceIndex>0</deviceIndex><status>attached</status><networkCardIndex>0</networkCardIndex></attachment><description>Primary network interface</description><groupSet><item><groupId>sg-5f442ab2a4077f845</groupId><groupName>default</groupName></item></groupSet><ipv6AddressesSet /><macAddress>02:00:00:23002x:6902x:202x</macAddress><networkInterfaceId>eni-ce623979ba330c4e4</networkInterfaceId><ownerId>000000000000</ownerId><privateDnsName>ip-10-211-75-184.ec2.internal</privateDnsName><privateIpAddress>10.211.75.184</privateIpAddress><privateIpAddressesSet><item><primary>true</primary><privateIpAddress>10.211.75.184</privateIpAddress></item></privateIpAddressesSet><sourceDestCheck>true</sourceDestCheck><status>in-use</status><subnetId>subnet-c058d655a041c5bcd</subnetId><vpcId>vpc-de65c332ba9faaae0</vpcId><interfaceType>interface</interfaceType></item></networkInterfaceSet><rootDeviceName>/dev/sda1</rootDeviceName><rootDeviceType>ebs</rootDeviceType><groupSet><item><groupId>sg-5f442ab2a4077f845</groupId><groupName>default</groupName></item></groupSet><sourceDestCheck>true</sourceDestCheck><sriovNetSupport>simple</sriovNetSupport><stateReason><code>Client.UserInitiatedShutdown</code><message>Client.UserInitiatedShutdown: User initiated shutdown</message></stateReason><virtualizationType>hvm</virtualizationType><hibernationOptions /><metadataOptions><state>applied</state><httpTokens>optional</httpTokens><httpPutResponseHopLimit>1</httpPutResponseHopLimit><httpEndpoint>enabled</httpEndpoint><httpProtocolIpv6>disabled</httpProtocolIpv6><instanceMetadataTags>disabled</instanceMetadataTags></metadataOptions><instanceId>i-7a73fd8de282ce902</instanceId><imageId>ami-03cf127a</imageId><instanceState><code>80</code><name>stopped</name></instanceState><privateDnsName>ip-10-211-75-184.ec2.internal</privateDnsName><reason>User initiated (2026-10-20 05:35:51 UTC)</reason><amiLaunchIndex>0</amiLaunchIndex><productCodes /><instanceType>t3.small</instanceType><launchTime>2026-10-20T05:35:51Z</launchTime><placement><groupName /><tenancy>default</tenancy><availabilityZone>us-east-1a</availabilityZone></placement><platform>windows</platform><monitoring><state>disabled</state></monitoring><subnetId>subnet-c058d655a041c5bcd</subnetId><vpcId>vpc-de65c332ba9faaae0</vpcId><privateIpAddress>10.211.75.184</privateIpAddress></item></instancesSet></item></reservationSet><requestId>25073210-a107-45a9-a486-276176bf8b95</requestId></DescribeInstancesResponse>"
+    },
+    {
+      "operation": "StartInstances",
+      "parameters": {
+        "InstanceId.1": "i-7a73fd8de282ce902"
+      },
+      "projection": {
+        "status": 200,
+        "root": "StartInstancesResponse",
+        "current": "pending",
+        "previous": "stopped"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<StartInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><instancesSet><item><instanceId>i-7a73fd8de282ce902</instanceId><currentState><code>0</code><name>pending</name></currentState><previousState><code>80</code><name>stopped</name></previousState></item></instancesSet><requestId>81cbdcde-fbdf-441e-827d-f5ec174de6f0</requestId></StartInstancesResponse>"
+    },
+    {
+      "operation": "DescribeInstances",
+      "parameters": {
+        "InstanceId.1": "i-00000000000000000"
+      },
+      "projection": {
+        "status": 400,
+        "root": "Response",
+        "error": "InvalidInstanceID.NotFound"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<Response xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><Errors><Error><Code>InvalidInstanceID.NotFound</Code><Message>The instance ID 'i-00000000000000000' does not exist</Message></Error></Errors><RequestID>71fa4b5e-6583-4de6-9fe0-8ed59f28705a</RequestID></Response>"
+    },
+    {
+      "operation": "TerminateInstances",
+      "parameters": {
+        "InstanceId.1": "i-7a73fd8de282ce902"
+      },
+      "projection": {
+        "status": 200,
+        "root": "TerminateInstancesResponse",
+        "current": "shutting-down",
+        "previous": "running"
+      },
+      "xml": "<?xml version='1.0' encoding='utf-8'?>\n<TerminateInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15\"><instancesSet><item><instanceId>i-7a73fd8de282ce902</instanceId><currentState><code>32</code><name>shutting-down</name></currentState><previousState><code>16</code><name>running</name></previousState></item></instancesSet><requestId>b7ae5115-73ca-4751-82fb-99a3739a1fd8</requestId></TerminateInstancesResponse>"
+    }
+  ]
+}

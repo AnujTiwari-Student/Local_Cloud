@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-20",
+  "tool": "REA MCP 6.7.0",
+  "bundle": "evidence-bundle.json.gz",
+  "compressed_bytes": 998657,
+  "compressed_sha256": "de4b40b3da2bc349e076fe59529d3aaf28408f2d73191b01f663c81a9778d04f",
+  "decompressed_bytes": 5917631,
+  "decompressed_sha256": "6aee4c482a8db40ed7f6ebe60214b25e0e6e4a5ed1966e23e90314ccfd897176",
+  "record_count": 26,
+  "audit_script_sha256": "dc72d076440b58a80e02286aaebc85a3d383664d371d96aec561bdb5681c20c4"
+}

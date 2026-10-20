@@ -1,0 +1,92 @@
+{
+  "contracts": {
+    "errors": 0,
+    "failures": 0,
+    "modules": {
+      "test_ci_runner": 5,
+      "test_cli": 2,
+      "test_cli_commands": 27,
+      "test_dashboard": 6,
+      "test_ec2": 22,
+      "test_ec2_contract": 8,
+      "test_engine": 11,
+      "test_gateway": 8,
+      "test_http": 10,
+      "test_kubernetes": 16,
+      "test_node_example": 2,
+      "test_project_ci": 12,
+      "test_startup": 3,
+      "test_tooling": 9
+    },
+    "passed": true,
+    "skipped": 0,
+    "tests_run": 141
+  },
+  "live_checks": [
+    {
+      "check": "s3-live-http-binary-list-and-nonempty-delete-error",
+      "passed": true
+    },
+    {
+      "check": "sqs-live-http-delivery-visibility-receipts-ack-settings-and-idempotence",
+      "passed": true
+    },
+    {
+      "check": "ec2-mock-live-http-names-lifecycle-and-type",
+      "passed": true
+    },
+    {
+      "check": "iam-live-http-allow-and-deny",
+      "passed": true
+    },
+    {
+      "check": "snapshot-portable-state-restore-and-checksum-rejection",
+      "passed": true
+    },
+    {
+      "check": "fault-injection-management-isolation-and-recovery",
+      "passed": true
+    },
+    {
+      "check": "traces-request-identity-and-policy-proposals",
+      "passed": true
+    },
+    {
+      "check": "cli-verified-profile-and-live-resource-access",
+      "passed": true
+    },
+    {
+      "check": "persistence-after-backend-restart",
+      "passed": true
+    },
+    {
+      "check": "ci-live-isolated-server-application-command-and-cleanup",
+      "passed": true
+    },
+    {
+      "check": "ec2-real-docker-web-port-stop-resize-start-terminate",
+      "image_id": "sha256:faa7dfcfbaac782bb673b859646c3871c0690bb010dcef124a962dc7d463f693",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "reference_parity": "not established",
+  "source_hashes": {
+    "localcloud/__init__.py": "e4269b508c431c877c2361f9c08915a0fa6f14e9499035f8e9edd6c25ceadb8e",
+    "localcloud/__main__.py": "b051d5b452ba006d8ff93af193812fa22fa9d64a59441ece39239e511603b23a",
+    "localcloud/ci.py": "0333582c9d41bf3634595470814a756282edcb84d9fb29e1c644e9f01875dcb1",
+    "localcloud/cli.py": "a5a35ed037b593fef3ae6d70c74b3bdf0ff7de3a4bd5a0a8072aa7a52dcc3fff",
+    "localcloud/client.py": "f07ddd8c3b892170d8c9ff679b054c61b18005e8aa77f81195b6d6fce7070fef",
+    "localcloud/dashboard.js": "ef0049eaa3116e119fa20b19ff3f239ec77b90b77ce0ccaf8ca697b75f5930f2",
+    "localcloud/ec2.py": "ef85085aaa0c21fbcef9484c3aae9ebc5c11dcd30b8d7feeee25f539200b2180",
+    "localcloud/engine.py": "2777b7ac04095a79110083a4cdb109208a35b7d51d555c5afa8db85c6a163f8c",
+    "localcloud/gateway.py": "e81bcbf5e64afca0b78aa8f66ec4a4473b64944183cc68542080b728ebf8410a",
+    "localcloud/kube.py": "9e2404213c7158f47ae962dbd95946dce5be82e6e68aae6a4a2fafb4183354ce",
+    "localcloud/kube_manifests.py": "dca481efc3b2018d0596e4e4e0f348243fab9340b565c5bc5712bbff64e97d5a",
+    "localcloud/operator.py": "9bd7d0e709fb50fea798fe3eb36312e5fb28bfa321144117dfa8777434958b41",
+    "localcloud/project.py": "48f4ab0ca84f1d147f90f77008b72d9f472138d91e682e3adc6b0a8a769e6a71",
+    "localcloud/providers.py": "6afbd42af1930e780e2c2ae08c78b4340865b963b904442a0acda4b64f75019c",
+    "localcloud/tooling.py": "5b370d3498b8c2e759bba148e73a31eafddbaab475214fa4fe5e1b7880f26158"
+  },
+  "target": "LocalCloud"
+}

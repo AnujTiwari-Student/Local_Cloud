@@ -15,9 +15,10 @@ from localcloud.ci import HTTPClient, smoke
 from localcloud.kube_manifests import installation
 from localcloud.operator import instance
 
+CONTEXT = []
 
 def kubectl(*args, body=None, timeout=240):
-    return subprocess.run(['kubectl', *args], input=json.dumps(body) if body is not None else None,
+    return subprocess.run(['kubectl', *CONTEXT, *args], input=json.dumps(body) if body is not None else None,
                           text=True, check=True, timeout=timeout, capture_output=True).stdout
 
 
@@ -26,7 +27,10 @@ def main():
     parser.add_argument('--namespace', default='localcloud-ci')
     parser.add_argument('--image', default='localcloud:ci')
     parser.add_argument('--artifacts', default='artifacts/kubernetes')
+    parser.add_argument('--context', help='Explicit kubectl context for every operation')
+    parser.add_argument('--existing-crd', action='store_true', help='Use the installed CRD without modifying it')
     args = parser.parse_args()
+    CONTEXT[:] = ['--context', args.context] if args.context else []
     artifacts = Path(args.artifacts)
     artifacts.mkdir(parents=True, exist_ok=True)
     name = 'ci-' + uuid.uuid4().hex[:10]
@@ -36,7 +40,11 @@ def main():
     secret_created = instance_created = False
     report = {'passed': False}
     try:
-        kubectl('apply', '-f', '-', body=installation(args.namespace, args.image))
+        manifests = installation(args.namespace, args.image)
+        if args.existing_crd:
+            kubectl('get', 'crd/localcloudinstances.localcloud.dev')
+            manifests['items'] = [item for item in manifests['items'] if item['kind'] != 'CustomResourceDefinition']
+        kubectl('apply', '-f', '-', body=manifests)
         kubectl('wait', '--for=condition=Established', 'crd/localcloudinstances.localcloud.dev', '--timeout=60s')
         kubectl('rollout', 'status', '-n', args.namespace, 'deployment/localcloud-operator', '--timeout=180s')
         kubectl('create', '-f', '-', body={'apiVersion': 'v1', 'kind': 'Secret', 'metadata': {'name': secret, 'namespace': args.namespace}, 'type': 'Opaque', 'stringData': {'token': token}})
@@ -47,7 +55,7 @@ def main():
         kubectl('wait', '-n', args.namespace, '--for=jsonpath={.status.phase}=Ready', 'localcloudinstance/' + name, '--timeout=180s')
         log = (artifacts / 'port-forward.log').open('w')
         # Ask kubectl to choose a free loopback port to avoid colliding with other CI jobs.
-        forward = subprocess.Popen(['kubectl', '-n', args.namespace, 'port-forward', 'service/' + name, ':4566', '--address=127.0.0.1'], stdout=log, stderr=subprocess.STDOUT)
+        forward = subprocess.Popen(['kubectl', *CONTEXT, '-n', args.namespace, 'port-forward', 'service/' + name, ':4566', '--address=127.0.0.1'], stdout=log, stderr=subprocess.STDOUT)
         import re
         for _ in range(120):
             log.flush()

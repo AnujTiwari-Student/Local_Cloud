@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "checks": [
+    "user-data-executed-inside-unprivileged-container",
+    "client-token-replay-no-second-container",
+    "external-stop-recovered-without-describe"
+  ]
+}

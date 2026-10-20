@@ -1,0 +1,5 @@
+{
+  "name": "lc-run-63940f2478a3430a",
+  "logs": "{\"status\": \"running\", \"services\": [\"sqs\", \"s3\", \"ec2\"]}\n",
+  "pending": false
+}

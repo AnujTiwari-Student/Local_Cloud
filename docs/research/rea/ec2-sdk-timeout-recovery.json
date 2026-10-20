@@ -1,0 +1,86 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "images",
+      "operation": "describe_images",
+      "status": 200,
+      "result": {
+        "Images": [
+          {
+            "Name": "ami-local",
+            "Tags": [
+              {
+                "Key": "ec2_vm_manager",
+                "Value": "docker"
+              }
+            ],
+            "ImageId": "ami-local",
+            "State": "available",
+            "OwnerId": "000000000000",
+            "Public": false,
+            "Architecture": "x86_64",
+            "ImageType": "machine"
+          }
+        ]
+      }
+    },
+    {
+      "case": "missing-image",
+      "operation": "describe_images",
+      "status": 400,
+      "error": {
+        "Code": "InvalidAMIID.NotFound",
+        "Message": "The image id '[ami-00000000000000000]' does not exist"
+      }
+    },
+    {
+      "case": "launch",
+      "operation": "run_instances",
+      "status": null,
+      "error": {
+        "type": "ReadTimeoutError",
+        "message": "Read timeout on endpoint URL: \"http://127.0.0.1:38975\""
+      }
+    },
+    {
+      "case": "replay",
+      "operation": "run_instances",
+      "status": null,
+      "error": {
+        "type": "ReadTimeoutError",
+        "message": "Read timeout on endpoint URL: \"http://127.0.0.1:38975\""
+      }
+    },
+    {
+      "case": "mismatched-replay",
+      "operation": "run_instances",
+      "status": 400,
+      "error": {
+        "Code": "IdempotentParameterMismatch",
+        "Message": "ClientToken was used with different launch parameters"
+      }
+    },
+    {
+      "case": "cleanup",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-3feed3ae41c34f738",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "stderr": ""
+}

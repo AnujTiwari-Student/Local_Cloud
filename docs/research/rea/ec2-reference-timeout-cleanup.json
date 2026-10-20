@@ -1,0 +1,10 @@
+{
+  "removed_timeout_workload": true,
+  "instance": "i-1aed0f2eff2208afe",
+  "ownership_checks": [
+    "creation-within-reference-capture",
+    "exact-name-and-AMI",
+    "scenario-user-data-marker"
+  ],
+  "note": "ReadTimeoutError prevented RunInstances from returning the created instance ID."
+}

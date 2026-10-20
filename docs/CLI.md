@@ -334,3 +334,24 @@ localcloud sqs set-queue-attributes --queue-name app-jobs --attributes Visibilit
 ```
 
 EC2 type changes require a stopped instance; only the three documented local presets are supported. SQS settings currently support only `VisibilityTimeout`.
+
+## Engine source reference and routing
+
+EC2 now also supports `describe-images`, `create-tags`, `delete-tags`,
+`describe-tags`, `describe-instance-attribute`, JSON `--filters`, and launch
+`--client-token`, `--tags` and `--user-data`. See the complete
+[EC2 examples and SDK setup](EC2_REFERENCE.md).
+
+```bash
+localcloud engine status
+```
+
+Requires the running server's management access. Shows the pinned upstream architecture reference, provider adapter states and handler stages. It explicitly reports that exact LocalStack parity has not been established. See [source evidence and migration boundaries](ENGINE_RE.md).
+
+## Expanded EC2 commands
+
+The [EC2 infrastructure walkthrough](EC2_INFRASTRUCTURE.md) covers VPC/subnet/SG,
+route/gateway, volume/snapshot, key-pair, metadata, reboot/status and console
+commands. Run `localcloud ec2 --help` to list commands and each command with
+`--help` for supported flags. Structured infrastructure arguments accept JSON
+or `file://PATH`; string lists accept space-separated values.

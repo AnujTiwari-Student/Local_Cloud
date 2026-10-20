@@ -1,0 +1,1167 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "images",
+      "operation": "describe_images",
+      "status": 200,
+      "result": {
+        "Images": [
+          {
+            "BlockDeviceMappings": [
+              {
+                "Ebs": {
+                  "DeleteOnTermination": false,
+                  "SnapshotId": "snap-9e30b9e56f36c9dcd",
+                  "VolumeSize": 15,
+                  "VolumeType": "standard"
+                },
+                "DeviceName": "/dev/sda1"
+              }
+            ],
+            "Description": "Managed by LocalStack",
+            "Name": "ubuntu-26.04-resolute-raccoon",
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "standard",
+            "Tags": [
+              {
+                "Key": "ec2_vm_manager",
+                "Value": "docker"
+              }
+            ],
+            "VirtualizationType": "hvm",
+            "BootMode": "uefi",
+            "ImageId": "ami-61ad6e59d7b0",
+            "ImageLocation": "docker",
+            "State": "available",
+            "OwnerId": "000000000000",
+            "CreationDate": "2026-08-13T14:29:12.644824617Z",
+            "Public": true,
+            "ProductCodes": [],
+            "Architecture": "amd64",
+            "ImageType": "machine"
+          }
+        ]
+      }
+    },
+    {
+      "case": "missing-image",
+      "operation": "describe_images",
+      "status": 400,
+      "error": {
+        "Code": "InvalidAMIID.NotFound",
+        "Message": "The image id '[ami-00000000000000000]' does not exist"
+      }
+    },
+    {
+      "case": "launch",
+      "operation": "run_instances",
+      "status": 200,
+      "result": {
+        "ReservationId": "r-17680f891f0f248e3",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-20 06:37:55+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-8bbd6ca445280c01d"
+                }
+              }
+            ],
+            "ClientToken": "rea-idempotent-launch",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-193-27.ec2.internal",
+                  "PublicIp": "54.214.193.27"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-20 06:37:55+00:00",
+                  "AttachmentId": "eni-attach-f6fbc62d225dea7d1",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-da9631058656f06a9",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:10002x:5202x:6902x",
+                "NetworkInterfaceId": "eni-eb75ff778cacc1226",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-102-209-94.ec2.internal",
+                "PrivateIpAddress": "10.102.209.94",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-193-27.ec2.internal",
+                      "PublicIp": "54.214.193.27"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.102.209.94"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-6e30764bd2fdfe102",
+                "VpcId": "vpc-597c57ae8452e88fc",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-da9631058656f06a9",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "rea-web"
+              },
+              {
+                "Key": "Env",
+                "Value": "test"
+              }
+            ],
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-d828cd8eea7944eca",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-102-209-94.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 06:37:55+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-6e30764bd2fdfe102",
+            "VpcId": "vpc-597c57ae8452e88fc",
+            "PrivateIpAddress": "10.102.209.94",
+            "PublicIpAddress": "172.17.0.3"
+          }
+        ]
+      }
+    },
+    {
+      "case": "replay",
+      "operation": "run_instances",
+      "status": 200,
+      "result": {
+        "ReservationId": "r-69470bf180cd4ae41",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-20 06:37:57+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-8a488ae32cff056a8"
+                }
+              }
+            ],
+            "ClientToken": "rea-idempotent-launch",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-28-133.ec2.internal",
+                  "PublicIp": "54.214.28.133"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-20 06:37:57+00:00",
+                  "AttachmentId": "eni-attach-3025e8517149a28ba",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-da9631058656f06a9",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:6302x:9002x:9402x",
+                "NetworkInterfaceId": "eni-cf83e9e6ab0c70c7a",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-161-16-8.ec2.internal",
+                "PrivateIpAddress": "10.161.16.8",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-28-133.ec2.internal",
+                      "PublicIp": "54.214.28.133"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.161.16.8"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-6e30764bd2fdfe102",
+                "VpcId": "vpc-597c57ae8452e88fc",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-da9631058656f06a9",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "rea-web"
+              },
+              {
+                "Key": "Env",
+                "Value": "test"
+              }
+            ],
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-0cea018583b5db634",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-161-16-8.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-4.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 06:37:57+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-6e30764bd2fdfe102",
+            "VpcId": "vpc-597c57ae8452e88fc",
+            "PrivateIpAddress": "10.161.16.8",
+            "PublicIpAddress": "172.17.0.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "mismatched-replay",
+      "operation": "run_instances",
+      "status": null,
+      "error": {
+        "type": "ReadTimeoutError",
+        "message": "Read timeout on endpoint URL: \"http://127.0.0.1:4566/\""
+      }
+    },
+    {
+      "case": "describe",
+      "operation": "describe_instances",
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-17680f891f0f248e3",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-20 06:37:55+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-8bbd6ca445280c01d"
+                    }
+                  }
+                ],
+                "ClientToken": "rea-idempotent-launch",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                      "PublicIp": "172.17.0.3"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 06:37:55+00:00",
+                      "AttachmentId": "eni-attach-f6fbc62d225dea7d1",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-da9631058656f06a9",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:10002x:5202x:6902x",
+                    "NetworkInterfaceId": "eni-eb75ff778cacc1226",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-102-209-94.ec2.internal",
+                    "PrivateIpAddress": "10.102.209.94",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                          "PublicIp": "172.17.0.3"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.102.209.94"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-6e30764bd2fdfe102",
+                    "VpcId": "vpc-597c57ae8452e88fc",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-da9631058656f06a9",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "Tags": [
+                  {
+                    "Key": "Name",
+                    "Value": "rea-web"
+                  },
+                  {
+                    "Key": "Env",
+                    "Value": "test"
+                  }
+                ],
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-d828cd8eea7944eca",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-102-209-94.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 06:37:55+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-6e30764bd2fdfe102",
+                "VpcId": "vpc-597c57ae8452e88fc",
+                "PrivateIpAddress": "10.102.209.94",
+                "PublicIpAddress": "172.17.0.3"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "filter-tag",
+      "operation": "describe_instances",
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-17680f891f0f248e3",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-20 06:37:55+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-8bbd6ca445280c01d"
+                    }
+                  }
+                ],
+                "ClientToken": "rea-idempotent-launch",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                      "PublicIp": "172.17.0.3"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 06:37:55+00:00",
+                      "AttachmentId": "eni-attach-f6fbc62d225dea7d1",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-da9631058656f06a9",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:10002x:5202x:6902x",
+                    "NetworkInterfaceId": "eni-eb75ff778cacc1226",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-102-209-94.ec2.internal",
+                    "PrivateIpAddress": "10.102.209.94",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                          "PublicIp": "172.17.0.3"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.102.209.94"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-6e30764bd2fdfe102",
+                    "VpcId": "vpc-597c57ae8452e88fc",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-da9631058656f06a9",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "Tags": [
+                  {
+                    "Key": "Name",
+                    "Value": "rea-web"
+                  },
+                  {
+                    "Key": "Env",
+                    "Value": "test"
+                  }
+                ],
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-d828cd8eea7944eca",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-102-209-94.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 06:37:55+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-6e30764bd2fdfe102",
+                "VpcId": "vpc-597c57ae8452e88fc",
+                "PrivateIpAddress": "10.102.209.94",
+                "PublicIpAddress": "172.17.0.3"
+              }
+            ]
+          },
+          {
+            "ReservationId": "r-69470bf180cd4ae41",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-20 06:37:57+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-8a488ae32cff056a8"
+                    }
+                  }
+                ],
+                "ClientToken": "rea-idempotent-launch",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-172-17-0-4.ec2.internal",
+                      "PublicIp": "172.17.0.4"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 06:37:57+00:00",
+                      "AttachmentId": "eni-attach-3025e8517149a28ba",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-da9631058656f06a9",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:6302x:9002x:9402x",
+                    "NetworkInterfaceId": "eni-cf83e9e6ab0c70c7a",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-161-16-8.ec2.internal",
+                    "PrivateIpAddress": "10.161.16.8",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-4.ec2.internal",
+                          "PublicIp": "172.17.0.4"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.161.16.8"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-6e30764bd2fdfe102",
+                    "VpcId": "vpc-597c57ae8452e88fc",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-da9631058656f06a9",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "Tags": [
+                  {
+                    "Key": "Name",
+                    "Value": "rea-web"
+                  },
+                  {
+                    "Key": "Env",
+                    "Value": "test"
+                  }
+                ],
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-0cea018583b5db634",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-161-16-8.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-4.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 06:37:57+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-6e30764bd2fdfe102",
+                "VpcId": "vpc-597c57ae8452e88fc",
+                "PrivateIpAddress": "10.161.16.8",
+                "PublicIpAddress": "172.17.0.4"
+              }
+            ]
+          },
+          {
+            "ReservationId": "r-97e3c3b53d57d5a13",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-20 06:37:59+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-5f65cf407e0151283"
+                    }
+                  }
+                ],
+                "ClientToken": "rea-idempotent-launch",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-181-105.ec2.internal",
+                      "PublicIp": "54.214.181.105"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 06:37:59+00:00",
+                      "AttachmentId": "eni-attach-809b2596a8d45481f",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-da9631058656f06a9",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:2302x:21202x:5402x",
+                    "NetworkInterfaceId": "eni-35eec7bafdbad4fed",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-173-102-168.ec2.internal",
+                    "PrivateIpAddress": "10.173.102.168",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-54-214-181-105.ec2.internal",
+                          "PublicIp": "54.214.181.105"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.173.102.168"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-6e30764bd2fdfe102",
+                    "VpcId": "vpc-597c57ae8452e88fc",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "Tags": [
+                  {
+                    "Key": "Name",
+                    "Value": "rea-web"
+                  },
+                  {
+                    "Key": "Env",
+                    "Value": "test"
+                  }
+                ],
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-1aed0f2eff2208afe",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-173-102-168.ec2.internal",
+                "PublicDnsName": "ec2-54-214-181-105.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.small",
+                "LaunchTime": "2026-10-20 06:37:59+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-6e30764bd2fdfe102",
+                "VpcId": "vpc-597c57ae8452e88fc",
+                "PrivateIpAddress": "10.173.102.168",
+                "PublicIpAddress": "54.214.181.105"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "filter-empty",
+      "operation": "describe_instances",
+      "status": 200,
+      "result": {
+        "Reservations": []
+      }
+    },
+    {
+      "case": "filter-invalid",
+      "operation": "describe_instances",
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "Filter dicts have not been implemented in Moto for 'not-real' yet. Feel free to open an issue at https://github.com/getmoto/moto/issues"
+      }
+    },
+    {
+      "case": "tag-update",
+      "operation": "create_tags",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tags",
+      "operation": "describe_tags",
+      "status": 200,
+      "result": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "ResourceId": "i-d828cd8eea7944eca",
+            "ResourceType": "instance",
+            "Value": "rea-web"
+          },
+          {
+            "Key": "Env",
+            "ResourceId": "i-d828cd8eea7944eca",
+            "ResourceType": "instance",
+            "Value": "dev"
+          },
+          {
+            "Key": "Owner",
+            "ResourceId": "i-d828cd8eea7944eca",
+            "ResourceType": "instance",
+            "Value": "team"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-wrong-value",
+      "operation": "delete_tags",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tag-delete",
+      "operation": "delete_tags",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tags-after-delete",
+      "operation": "describe_tags",
+      "status": 200,
+      "result": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "ResourceId": "i-d828cd8eea7944eca",
+            "ResourceType": "instance",
+            "Value": "rea-web"
+          },
+          {
+            "Key": "Env",
+            "ResourceId": "i-d828cd8eea7944eca",
+            "ResourceType": "instance",
+            "Value": "dev"
+          }
+        ]
+      }
+    },
+    {
+      "case": "attribute",
+      "operation": "describe_instance_attribute",
+      "status": 200,
+      "result": {
+        "InstanceId": "i-d828cd8eea7944eca",
+        "InstanceType": {
+          "Value": "t3.micro"
+        }
+      }
+    },
+    {
+      "case": "user-data-attribute",
+      "operation": "describe_instance_attribute",
+      "status": 200,
+      "result": {
+        "InstanceId": "i-d828cd8eea7944eca",
+        "UserData": {
+          "Value": "cHJpbnRmIHJlYS11c2VyLWRhdGEtb2sgPi90bXAvcmVhLXNkay11c2VyLWRhdGE="
+        }
+      }
+    },
+    {
+      "case": "stop",
+      "operation": "stop_instances",
+      "status": 200,
+      "result": {
+        "StoppingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 80,
+              "Name": "stopped"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "stop-again",
+      "operation": "stop_instances",
+      "status": 200,
+      "result": {
+        "StoppingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 80,
+              "Name": "stopped"
+            },
+            "PreviousState": {
+              "Code": 80,
+              "Name": "stopped"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "modify",
+      "operation": "modify_instance_attribute",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "attribute-after-modify",
+      "operation": "describe_instance_attribute",
+      "status": 200,
+      "result": {
+        "InstanceId": "i-d828cd8eea7944eca",
+        "InstanceType": {
+          "Value": "t3.small"
+        }
+      }
+    },
+    {
+      "case": "start",
+      "operation": "start_instances",
+      "status": 200,
+      "result": {
+        "StartingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 16,
+              "Name": "running"
+            },
+            "PreviousState": {
+              "Code": 80,
+              "Name": "stopped"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "start-again",
+      "operation": "start_instances",
+      "status": 200,
+      "result": {
+        "StartingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 16,
+              "Name": "running"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "terminate",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "terminate-again",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 48,
+              "Name": "terminated"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "start-terminated",
+      "operation": "start_instances",
+      "status": 200,
+      "result": {
+        "StartingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PreviousState": {
+              "Code": 48,
+              "Name": "terminated"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "missing-instance",
+      "operation": "describe_instances",
+      "status": 400,
+      "error": {
+        "Code": "InvalidInstanceID.NotFound",
+        "Message": "The instance ID 'i-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "cleanup",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-d828cd8eea7944eca",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          },
+          {
+            "InstanceId": "i-0cea018583b5db634",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "stderr": "",
+  "removed": true
+}

@@ -283,3 +283,15 @@ The browser uses the same running backend through these management routes. All r
 | `POST /_local/s3` | `Action`: `ListBuckets`, `CreateBucket`, `DeleteBucket`, `ListObjects`, `PutObject`, `GetObject`, or `DeleteObject`; optional/required `Bucket` and `Key` according to operation. `PutObject` accepts `ContentBase64`; `GetObject` returns `ContentBase64` and `ContentLength`. |
 
 The public dashboard HTML/CSS/JavaScript and health route are available before authentication. Browser connection verifies backend access; it does not launch an emulator process. No CORS proxy is provided. See [dashboard usage](DASHBOARD.md).
+
+## Expanded EC2 API
+
+`POST /_local/ec2` also accepts DescribeImages, CreateTags, DeleteTags, DescribeTags
+and DescribeInstanceAttribute. RunInstances adds ClientToken, TagSpecifications
+and base64 UserData. DescribeInstances accepts Filters. Image, tag and attribute
+request shapes and limits are documented in [EC2_REFERENCE.md](EC2_REFERENCE.md).
+The Query endpoint accepts the AWS indexed Filter/TagSpecification/ResourceId
+parameters and emits SDK-compatible XML for these operations. In Docker mode,
+Query requests may authenticate with the management token in X-Amz-Security-Token
+(the AWS session-token header), in addition to the existing bearer header. This
+is local bearer authentication, not verification of AWS SigV4 signatures.

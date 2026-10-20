@@ -1,0 +1,962 @@
+{
+  "repository": "https://github.com/localstack/localstack",
+  "commit": "8b9a79f05846835cf4dff63ab7eefdde9df83783",
+  "inspection": "static source; no upstream module executed",
+  "files": [
+    {
+      "path": "LICENSE.txt",
+      "bytes": 606,
+      "sha256": "dcf0bef59ebd52c34046e43df3480d47f26c2f1f2ebcc8dd1ba0bb71ce0b058b",
+      "git_blob_sha1": "cdb01382c05f99cf5d255048379a13acd5700b99",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/LICENSE.txt",
+      "definitions": []
+    },
+    {
+      "path": "localstack-core/localstack/aws/app.py",
+      "bytes": 5145,
+      "sha256": "9fd6c909f251b8ccff80b1801f8df47376c84178145de58ee4d3df71d2f6315f",
+      "git_blob_sha1": "35249aae9d7cd26b5b212da09f263a1e25c66a33",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/app.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "LocalstackAwsGateway",
+          "line": 16
+        },
+        {
+          "kind": "def",
+          "name": "main",
+          "line": 102
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/aws/gateway.py",
+      "bytes": 903,
+      "sha256": "77f4e6d0ddbe9809eebc4e29b977d18e0ccc1f047712eb8e407e482165febc04",
+      "git_blob_sha1": "34959d6d2d0b75bde88e3c3aefe09f8ec1e9f4e1",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/gateway.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "Gateway",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/aws/chain.py",
+      "bytes": 1221,
+      "sha256": "ba97fb183a21a61b07d6d2816f053f279279c4af2ba9c59bf9d5377492f40a8a",
+      "git_blob_sha1": "8a371cf0d945c67425330e354b1fae296fadd0bd",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/chain.py",
+      "definitions": []
+    },
+    {
+      "path": "localstack-core/localstack/aws/api/core.py",
+      "bytes": 6913,
+      "sha256": "eea8bf845c922539ce4a1d4abfe142029d893692b98cff2cb9ca06f954f21f89",
+      "git_blob_sha1": "d05ef5125b586c2d3770529b735cc0818c6aca95",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/api/core.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "ServiceRequest",
+          "line": 21
+        },
+        {
+          "kind": "class",
+          "name": "ServiceException",
+          "line": 32
+        },
+        {
+          "kind": "class",
+          "name": "CommonServiceException",
+          "line": 55
+        },
+        {
+          "kind": "class",
+          "name": "ServiceOperation",
+          "line": 73
+        },
+        {
+          "kind": "class",
+          "name": "RequestContext",
+          "line": 78
+        },
+        {
+          "kind": "class",
+          "name": "ServiceRequestHandler",
+          "line": 153
+        },
+        {
+          "kind": "def",
+          "name": "handler",
+          "line": 171
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/aws/skeleton.py",
+      "bytes": 8832,
+      "sha256": "ed1d0cf17e619e83f1759d6ccb4a1a04ebbf8160054b866b218531e7ad7b559b",
+      "git_blob_sha1": "faae3a49ce13c302d130f080e465fe9bc4082243",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/skeleton.py",
+      "definitions": [
+        {
+          "kind": "def",
+          "name": "create_skeleton",
+          "line": 28
+        },
+        {
+          "kind": "class",
+          "name": "HandlerAttributes",
+          "line": 35
+        },
+        {
+          "kind": "def",
+          "name": "create_dispatch_table",
+          "line": 46
+        },
+        {
+          "kind": "class",
+          "name": "ServiceRequestDispatcher",
+          "line": 85
+        },
+        {
+          "kind": "class",
+          "name": "Skeleton",
+          "line": 121
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/aws/handlers/service.py",
+      "bytes": 14122,
+      "sha256": "9b03a89ea372d38078d022c453ddfe3d43dee5a49b03daaccfedbdc61634e68b",
+      "git_blob_sha1": "21cb228d9ab2c7bbd39f2d6dee3f8d9dee806fb6",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/handlers/service.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "ServiceNameParser",
+          "line": 29
+        },
+        {
+          "kind": "class",
+          "name": "ServiceRequestParser",
+          "line": 52
+        },
+        {
+          "kind": "class",
+          "name": "SkeletonHandler",
+          "line": 80
+        },
+        {
+          "kind": "class",
+          "name": "ServiceRequestRouter",
+          "line": 93
+        },
+        {
+          "kind": "class",
+          "name": "ServiceExceptionSerializer",
+          "line": 152
+        },
+        {
+          "kind": "class",
+          "name": "ServiceResponseParser",
+          "line": 265
+        },
+        {
+          "kind": "class",
+          "name": "ServiceResponseHandlers",
+          "line": 321
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/aws/handlers/service_plugin.py",
+      "bytes": 3887,
+      "sha256": "893360e5ad15adbed310df5ca0c39a5d5e4c93e53136d6e66c62a56bbf4debcb",
+      "git_blob_sha1": "dac5e483eee670bf82461b8efda086535a203a6a",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/handlers/service_plugin.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "ServiceLoader",
+          "line": 21
+        },
+        {
+          "kind": "class",
+          "name": "ServiceLoaderForDataPlane",
+          "line": 79
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/aws/protocol/service_router.py",
+      "bytes": 20705,
+      "sha256": "339890f1729468f57ae43c8a7b095560760d9aee24d7b667fe9ebf25d8f6070f",
+      "git_blob_sha1": "dae3d3101e62cfe542624e04f1402ee18f930934",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/aws/protocol/service_router.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "ProtocolError",
+          "line": 32
+        },
+        {
+          "kind": "class",
+          "name": "_ServiceIndicators",
+          "line": 40
+        },
+        {
+          "kind": "def",
+          "name": "_extract_service_indicators",
+          "line": 61
+        },
+        {
+          "kind": "def",
+          "name": "_matches_protocol",
+          "line": 98
+        },
+        {
+          "kind": "def",
+          "name": "match_available_protocols",
+          "line": 123
+        },
+        {
+          "kind": "def",
+          "name": "custom_signing_name_rules",
+          "line": 184
+        },
+        {
+          "kind": "def",
+          "name": "custom_host_addressing_rules",
+          "line": 207
+        },
+        {
+          "kind": "def",
+          "name": "custom_path_addressing_rules",
+          "line": 220
+        },
+        {
+          "kind": "def",
+          "name": "legacy_s3_rules",
+          "line": 232
+        },
+        {
+          "kind": "def",
+          "name": "resolve_conflicts",
+          "line": 300
+        },
+        {
+          "kind": "def",
+          "name": "determine_aws_service_model_for_data_plane",
+          "line": 329
+        },
+        {
+          "kind": "def",
+          "name": "determine_aws_protocol",
+          "line": 342
+        },
+        {
+          "kind": "def",
+          "name": "determine_aws_service_model",
+          "line": 360
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/plugins.py",
+      "bytes": 25053,
+      "sha256": "c82f0899393e487b5a75cb445ecbc632939f4361dcedd42aacde35a5e0adaf2f",
+      "git_blob_sha1": "412796b52d9c9e88ab77dd45109699a78957ba04",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/plugins.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "ServiceException",
+          "line": 37
+        },
+        {
+          "kind": "class",
+          "name": "ServiceDisabled",
+          "line": 41
+        },
+        {
+          "kind": "class",
+          "name": "ServiceStateException",
+          "line": 45
+        },
+        {
+          "kind": "class",
+          "name": "ServiceLifecycleHook",
+          "line": 49
+        },
+        {
+          "kind": "class",
+          "name": "ServiceProvider",
+          "line": 63
+        },
+        {
+          "kind": "class",
+          "name": "Service",
+          "line": 67
+        },
+        {
+          "kind": "class",
+          "name": "ServiceState",
+          "line": 175
+        },
+        {
+          "kind": "class",
+          "name": "ServiceContainer",
+          "line": 186
+        },
+        {
+          "kind": "class",
+          "name": "ServiceManager",
+          "line": 237
+        },
+        {
+          "kind": "class",
+          "name": "ServicePlugin",
+          "line": 340
+        },
+        {
+          "kind": "class",
+          "name": "ServicePluginAdapter",
+          "line": 353
+        },
+        {
+          "kind": "def",
+          "name": "aws_provider",
+          "line": 374
+        },
+        {
+          "kind": "class",
+          "name": "ServicePluginErrorCollector",
+          "line": 396
+        },
+        {
+          "kind": "class",
+          "name": "ServicePluginManager",
+          "line": 432
+        },
+        {
+          "kind": "def",
+          "name": "wait_for_infra_shutdown",
+          "line": 674
+        },
+        {
+          "kind": "def",
+          "name": "check_service_health",
+          "line": 688
+        },
+        {
+          "kind": "def",
+          "name": "eager_load_services",
+          "line": 699
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/stores.py",
+      "bytes": 11626,
+      "sha256": "2da070cb55bf91a456f22bcde3150836807077befac26b0402c8f7789700ea0c",
+      "git_blob_sha1": "ad9a566b83205845f36c498b944c0cb48bc9beaa",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/stores.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "LocalAttribute",
+          "line": 50
+        },
+        {
+          "kind": "class",
+          "name": "CrossRegionAttribute",
+          "line": 79
+        },
+        {
+          "kind": "class",
+          "name": "CrossAccountAttribute",
+          "line": 118
+        },
+        {
+          "kind": "class",
+          "name": "BaseStore",
+          "line": 164
+        },
+        {
+          "kind": "class",
+          "name": "RegionBundle",
+          "line": 193
+        },
+        {
+          "kind": "class",
+          "name": "AccountRegionBundle",
+          "line": 284
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/ec2/provider.py",
+      "bytes": 26031,
+      "sha256": "455cac527372fe8825b78d355a9fbedef00577ad7885d47d068206652da29821",
+      "git_blob_sha1": "2480058d5f08939a8f85844a304329318281d4a9",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/ec2/provider.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "Ec2Provider",
+          "line": 107
+        },
+        {
+          "kind": "def",
+          "name": "modify_subnet_attribute",
+          "line": 575
+        },
+        {
+          "kind": "def",
+          "name": "get_moto_backend",
+          "line": 591
+        },
+        {
+          "kind": "def",
+          "name": "get_filter_value",
+          "line": 597
+        },
+        {
+          "kind": "def",
+          "name": "delete_transit_gateway_vpc_attachment",
+          "line": 607
+        },
+        {
+          "kind": "def",
+          "name": "_validate_request",
+          "line": 614
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/ec2/models.py",
+      "bytes": 184,
+      "sha256": "c486f9ad78f690c2098cbdedf67c3529958616426e00a2696ce531d54d236738",
+      "git_blob_sha1": "bb64aa3fd3b2233317e38884255a4e53b8204e02",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/ec2/models.py",
+      "definitions": [
+        {
+          "kind": "def",
+          "name": "get_ec2_backend",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/sqs/provider.py",
+      "bytes": 66642,
+      "sha256": "4032eec97af46a6c662537ee5cd8a3c07f0858697501d1e6b61acde9708a04b9",
+      "git_blob_sha1": "0058e6828a26782741babbb5d3bdc11bf752efd6",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/sqs/provider.py",
+      "definitions": [
+        {
+          "kind": "def",
+          "name": "assert_queue_name",
+          "line": 125
+        },
+        {
+          "kind": "def",
+          "name": "check_message_min_size",
+          "line": 142
+        },
+        {
+          "kind": "def",
+          "name": "check_message_max_size",
+          "line": 149
+        },
+        {
+          "kind": "def",
+          "name": "_message_body_size",
+          "line": 162
+        },
+        {
+          "kind": "def",
+          "name": "_message_attributes_size",
+          "line": 166
+        },
+        {
+          "kind": "def",
+          "name": "_bytesize",
+          "line": 176
+        },
+        {
+          "kind": "def",
+          "name": "check_message_content",
+          "line": 181
+        },
+        {
+          "kind": "class",
+          "name": "CloudwatchDispatcher",
+          "line": 188
+        },
+        {
+          "kind": "class",
+          "name": "CloudwatchPublishWorker",
+          "line": 292
+        },
+        {
+          "kind": "class",
+          "name": "QueueUpdateWorker",
+          "line": 374
+        },
+        {
+          "kind": "class",
+          "name": "MessageMoveTaskManager",
+          "line": 442
+        },
+        {
+          "kind": "def",
+          "name": "check_attributes",
+          "line": 573
+        },
+        {
+          "kind": "def",
+          "name": "check_fifo_id",
+          "line": 621
+        },
+        {
+          "kind": "class",
+          "name": "SqsProvider",
+          "line": 631
+        },
+        {
+          "kind": "def",
+          "name": "resolve_queue_location",
+          "line": 1663
+        },
+        {
+          "kind": "def",
+          "name": "extract_message_count_from_headers",
+          "line": 1687
+        },
+        {
+          "kind": "def",
+          "name": "extract_wait_time_seconds_from_headers",
+          "line": 1696
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/s3/provider.py",
+      "bytes": 203701,
+      "sha256": "c7b7156aaadad9d4df1fc894fbd321bd5501a3c58de83111c8e6a3366a1242a9",
+      "git_blob_sha1": "2413fa5a33e10ebc144a41c86128109ae340ffc2",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/s3/provider.py",
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "S3Provider",
+          "line": 350
+        },
+        {
+          "kind": "def",
+          "name": "generate_version_id",
+          "line": 4809
+        },
+        {
+          "kind": "def",
+          "name": "add_encryption_to_response",
+          "line": 4818
+        },
+        {
+          "kind": "def",
+          "name": "get_encryption_parameters_from_request_and_bucket",
+          "line": 4827
+        },
+        {
+          "kind": "def",
+          "name": "get_object_lock_parameters_from_bucket_and_request",
+          "line": 4866
+        },
+        {
+          "kind": "def",
+          "name": "get_part_range",
+          "line": 4902
+        },
+        {
+          "kind": "def",
+          "name": "get_acl_headers_from_request",
+          "line": 4945
+        },
+        {
+          "kind": "def",
+          "name": "get_access_control_policy_from_acl_request",
+          "line": 4968
+        },
+        {
+          "kind": "def",
+          "name": "get_access_control_policy_for_new_resource_request",
+          "line": 5017
+        },
+        {
+          "kind": "def",
+          "name": "object_exists_for_precondition_write",
+          "line": 5047
+        },
+        {
+          "kind": "def",
+          "name": "verify_object_equality_precondition_write",
+          "line": 5051
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/providers.py",
+      "bytes": 12910,
+      "sha256": "c257d57a80ceb511fd2d628577feb351c1e93db8009cb6db002d1ceae10b22a6",
+      "git_blob_sha1": "ef1d9a55c5435045c02cd0209a8256c8e66171c4",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/providers.py",
+      "definitions": [
+        {
+          "kind": "def",
+          "name": "acm",
+          "line": 9
+        },
+        {
+          "kind": "def",
+          "name": "apigateway",
+          "line": 18
+        },
+        {
+          "kind": "def",
+          "name": "apigateway_next_gen",
+          "line": 27
+        },
+        {
+          "kind": "def",
+          "name": "apigateway_legacy",
+          "line": 36
+        },
+        {
+          "kind": "def",
+          "name": "cloudformation",
+          "line": 45
+        },
+        {
+          "kind": "def",
+          "name": "cloudformation_v2",
+          "line": 53
+        },
+        {
+          "kind": "def",
+          "name": "awsconfig",
+          "line": 61
+        },
+        {
+          "kind": "def",
+          "name": "cloudwatch",
+          "line": 70
+        },
+        {
+          "kind": "def",
+          "name": "cloudwatch_v1",
+          "line": 78
+        },
+        {
+          "kind": "def",
+          "name": "cloudwatch_v2",
+          "line": 87
+        },
+        {
+          "kind": "def",
+          "name": "dynamodb",
+          "line": 95
+        },
+        {
+          "kind": "def",
+          "name": "dynamodbstreams_v2",
+          "line": 108
+        },
+        {
+          "kind": "def",
+          "name": "dynamodb_v2",
+          "line": 116
+        },
+        {
+          "kind": "def",
+          "name": "dynamodbstreams",
+          "line": 129
+        },
+        {
+          "kind": "def",
+          "name": "ec2",
+          "line": 137
+        },
+        {
+          "kind": "def",
+          "name": "es",
+          "line": 146
+        },
+        {
+          "kind": "def",
+          "name": "firehose",
+          "line": 154
+        },
+        {
+          "kind": "def",
+          "name": "iam",
+          "line": 162
+        },
+        {
+          "kind": "def",
+          "name": "sts",
+          "line": 171
+        },
+        {
+          "kind": "def",
+          "name": "kinesis",
+          "line": 180
+        },
+        {
+          "kind": "def",
+          "name": "kms",
+          "line": 193
+        },
+        {
+          "kind": "def",
+          "name": "lambda_",
+          "line": 201
+        },
+        {
+          "kind": "def",
+          "name": "lambda_asf",
+          "line": 209
+        },
+        {
+          "kind": "def",
+          "name": "lambda_v2",
+          "line": 217
+        },
+        {
+          "kind": "def",
+          "name": "logs",
+          "line": 225
+        },
+        {
+          "kind": "def",
+          "name": "opensearch",
+          "line": 234
+        },
+        {
+          "kind": "def",
+          "name": "redshift",
+          "line": 242
+        },
+        {
+          "kind": "def",
+          "name": "route53",
+          "line": 251
+        },
+        {
+          "kind": "def",
+          "name": "route53resolver",
+          "line": 260
+        },
+        {
+          "kind": "def",
+          "name": "s3",
+          "line": 269
+        },
+        {
+          "kind": "def",
+          "name": "s3control",
+          "line": 277
+        },
+        {
+          "kind": "def",
+          "name": "scheduler",
+          "line": 286
+        },
+        {
+          "kind": "def",
+          "name": "secretsmanager",
+          "line": 295
+        },
+        {
+          "kind": "def",
+          "name": "ses",
+          "line": 304
+        },
+        {
+          "kind": "def",
+          "name": "sns",
+          "line": 313
+        },
+        {
+          "kind": "def",
+          "name": "sqs",
+          "line": 321
+        },
+        {
+          "kind": "def",
+          "name": "ssm",
+          "line": 329
+        },
+        {
+          "kind": "def",
+          "name": "events",
+          "line": 338
+        },
+        {
+          "kind": "def",
+          "name": "events_v2",
+          "line": 346
+        },
+        {
+          "kind": "def",
+          "name": "events_v1",
+          "line": 354
+        },
+        {
+          "kind": "def",
+          "name": "events_legacy",
+          "line": 363
+        },
+        {
+          "kind": "def",
+          "name": "stepfunctions",
+          "line": 372
+        },
+        {
+          "kind": "def",
+          "name": "stepfunctions_v2",
+          "line": 381
+        },
+        {
+          "kind": "def",
+          "name": "swf",
+          "line": 390
+        },
+        {
+          "kind": "def",
+          "name": "resourcegroupstaggingapi",
+          "line": 399
+        },
+        {
+          "kind": "def",
+          "name": "resource_groups",
+          "line": 410
+        },
+        {
+          "kind": "def",
+          "name": "support",
+          "line": 419
+        },
+        {
+          "kind": "def",
+          "name": "transcribe",
+          "line": 428
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/moto.py",
+      "bytes": 8459,
+      "sha256": "de1ba006d55a6469888c562aa87cea52cdd243595f72d18e6be5e7d9fa2e0d11",
+      "git_blob_sha1": "c2180066b06b65d164c53603fd314909ec61d3fd",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/moto.py",
+      "definitions": [
+        {
+          "kind": "def",
+          "name": "call_moto",
+          "line": 40
+        },
+        {
+          "kind": "def",
+          "name": "call_moto_with_request",
+          "line": 51
+        },
+        {
+          "kind": "def",
+          "name": "_proxy_moto",
+          "line": 78
+        },
+        {
+          "kind": "def",
+          "name": "MotoFallbackDispatcher",
+          "line": 91
+        },
+        {
+          "kind": "def",
+          "name": "dispatch_to_moto",
+          "line": 103
+        },
+        {
+          "kind": "def",
+          "name": "get_dispatcher",
+          "line": 140
+        },
+        {
+          "kind": "def",
+          "name": "get_moto_routing_table",
+          "line": 159
+        },
+        {
+          "kind": "def",
+          "name": "load_moto_routing_table",
+          "line": 164
+        },
+        {
+          "kind": "class",
+          "name": "_PartIsolatingRegexConverter",
+          "line": 202
+        }
+      ]
+    },
+    {
+      "path": "localstack-core/localstack/services/ec2/patches.py",
+      "bytes": 10629,
+      "sha256": "e65b7586fc87b40a21be7e79c9108a38ac88d67a64302af1934c9a29c3b56e8b",
+      "git_blob_sha1": "66ead222acfa6aa0e76dc768db656a742fe07942",
+      "url": "https://github.com/localstack/localstack/blob/8b9a79f05846835cf4dff63ab7eefdde9df83783/localstack-core/localstack/services/ec2/patches.py",
+      "definitions": [
+        {
+          "kind": "def",
+          "name": "generate_vpc_id",
+          "line": 25
+        },
+        {
+          "kind": "def",
+          "name": "generate_security_group_id",
+          "line": 35
+        },
+        {
+          "kind": "def",
+          "name": "generate_subnet_id",
+          "line": 45
+        },
+        {
+          "kind": "class",
+          "name": "VpcIdentifier",
+          "line": 54
+        },
+        {
+          "kind": "class",
+          "name": "SecurityGroupIdentifier",
+          "line": 69
+        },
+        {
+          "kind": "class",
+          "name": "SubnetIdentifier",
+          "line": 82
+        },
+        {
+          "kind": "def",
+          "name": "apply_patches",
+          "line": 97
+        }
+      ]
+    }
+  ]
+}

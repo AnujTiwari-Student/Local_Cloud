@@ -18,6 +18,16 @@ class EngineTests(unittest.TestCase):
     def queue(self):
         return self.e.sqs('CreateQueue', {'QueueName': 'jobs'})['QueueUrl']
 
+    def test_recreate_queue_omitting_attributes_keeps_existing_settings(self):
+        engine = self.e
+        args = {'QueueName': 'custom-visibility', 'Attributes': {'VisibilityTimeout': '90'}}
+        original = engine.sqs('CreateQueue', args)['QueueUrl']
+        for attributes in ({}, {'Attributes': {}}, {'Attributes': {'VisibilityTimeout': '90'}}):
+            self.assertEqual(engine.sqs('CreateQueue', {'QueueName': 'custom-visibility', **attributes})['QueueUrl'], original)
+        self.assertEqual(engine.sqs('GetQueueAttributes', {'QueueUrl': original})['Attributes']['VisibilityTimeout'], '90')
+        with self.assertRaises(Error):
+            engine.sqs('CreateQueue', {'QueueName': 'custom-visibility', 'Attributes': {'VisibilityTimeout': '30'}})
+
     def test_persistence_after_restart(self):
         self.queue()
         self.e.s3('PUT', 'assets', '')

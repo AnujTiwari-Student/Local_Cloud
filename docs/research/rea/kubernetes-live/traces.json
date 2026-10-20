@@ -1,0 +1,242 @@
+[
+  {
+    "id": "4bafc98e-e763-4f4b-8b10-8c9580f7c967",
+    "time": 1792474453.4729335,
+    "service": "s3",
+    "operation": "DeleteBucket",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:s3:::ci-551cc6486d40",
+    "permission": {
+      "action": "s3:DeleteBucket",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "0252d4e7-16bb-4ead-8933-48b7438fc418",
+    "protocol": "rest-xml",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.725
+  },
+  {
+    "id": "6ae36418-31b3-4fed-b867-0792b1729e2d",
+    "time": 1792474453.4697235,
+    "service": "s3",
+    "operation": "DeleteObject",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:s3:::ci-551cc6486d40/payload",
+    "permission": {
+      "action": "s3:DeleteObject",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "a5762f91-b8ce-43be-b01b-74f4ad655dbf",
+    "protocol": "rest-xml",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.665
+  },
+  {
+    "id": "66b64418-4361-48a0-a127-c564a6bc4154",
+    "time": 1792474453.466714,
+    "service": "sqs",
+    "operation": "DeleteQueue",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:DeleteQueue",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "9b8bf59f-ff58-4476-9c79-11e51c5ca954",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.73
+  },
+  {
+    "id": "afa000cc-484a-424e-95d3-8a76dbff643b",
+    "time": 1792474453.46345,
+    "service": "sqs",
+    "operation": "ReceiveMessage",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:ReceiveMessage",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "5e507478-42e1-4b9d-aeb2-302884e0c113",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.705
+  },
+  {
+    "id": "03a42091-ad3e-4600-93de-ab453aeeb803",
+    "time": 1792474453.4601173,
+    "service": "sqs",
+    "operation": "DeleteMessage",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:DeleteMessage",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "4e9b2ac1-70b0-4a96-b06d-d8a8a687bbbb",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.892
+  },
+  {
+    "id": "d3f7b1c4-ebb3-4e2a-af07-e473d0890bd2",
+    "time": 1792474453.4570868,
+    "service": "sqs",
+    "operation": "ReceiveMessage",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:ReceiveMessage",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "0852897e-e5ed-4521-b52c-335bf1808dd3",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.706
+  },
+  {
+    "id": "6865d2a8-8c2d-4f0e-9d2a-54385d2522bc",
+    "time": 1792474453.4537864,
+    "service": "sqs",
+    "operation": "ReceiveMessage",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:ReceiveMessage",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "84872b31-9e68-46ef-a35f-0327982b6bb3",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.845
+  },
+  {
+    "id": "4fc743b9-32cd-4e15-b0a0-c93c06a5c2a9",
+    "time": 1792474453.4507349,
+    "service": "sqs",
+    "operation": "SendMessage",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:SendMessage",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "6fe65411-6ede-4ae3-99fa-ad99259dca63",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.701
+  },
+  {
+    "id": "70720388-f52f-4f5a-b8c8-76e342bae4aa",
+    "time": 1792474453.4478517,
+    "service": "sqs",
+    "operation": "CreateQueue",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:sqs:us-east-1:000000000000:ci-551cc6486d40",
+    "permission": {
+      "action": "sqs:CreateQueue",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "164a12dd-aa09-4d4c-a818-48a0cdd76c05",
+    "protocol": "aws-json",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.745
+  },
+  {
+    "id": "f6f6811b-d230-4eb0-9dbc-923b217c037b",
+    "time": 1792474453.4449813,
+    "service": "s3",
+    "operation": "GetObject",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:s3:::ci-551cc6486d40/payload",
+    "permission": {
+      "action": "s3:GetObject",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "79bf600b-3f13-4a2a-9a78-8fe42aa93697",
+    "protocol": "rest-xml",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.652
+  },
+  {
+    "id": "6e9844f1-8937-48ac-a849-6aff72112469",
+    "time": 1792474453.442337,
+    "service": "s3",
+    "operation": "PutObject",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:s3:::ci-551cc6486d40/payload",
+    "permission": {
+      "action": "s3:PutObject",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "4936db9f-b481-470f-ab4d-9a8dbbb91b58",
+    "protocol": "rest-xml",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 0.633
+  },
+  {
+    "id": "a5208cbf-c52a-4a4c-b805-2ad1b97f7ffe",
+    "time": 1792474453.4385104,
+    "service": "s3",
+    "operation": "CreateBucket",
+    "principal": "ci-smoke",
+    "resource": "arn:aws:s3:::ci-551cc6486d40",
+    "permission": {
+      "action": "s3:CreateBucket",
+      "decision": "deny",
+      "mode": "soft"
+    },
+    "status": 200,
+    "error": null,
+    "request_id": "5f77b394-532f-4986-8235-a82af7a1e083",
+    "protocol": "rest-xml",
+    "region": "us-east-1",
+    "account_id": "000000000000",
+    "duration_ms": 1.217
+  }
+]

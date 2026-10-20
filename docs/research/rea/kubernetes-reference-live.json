@@ -1,0 +1,165 @@
+{
+  "namespace": "localstack-rea-f9f4c414",
+  "context": "kind-localcloud",
+  "image_already_loaded": true,
+  "probe": [
+    {
+      "operation": "describe_instances",
+      "result": {
+        "Reservations": []
+      }
+    },
+    {
+      "operation": "run_instances",
+      "error": {
+        "type": "ReadTimeoutError",
+        "message": "Read timeout on endpoint URL: \"http://127.0.0.1:4566/\""
+      }
+    }
+  ],
+  "pods": [
+    {
+      "name": "localstack-ec2-i-69270b8f755705572-5f667b7d87-gpxbn",
+      "labels": {
+        "app": "localstack-ec2-i-69270b8f755705572",
+        "app.kubernetes.io/managed-by": "localstack",
+        "localstack.cloud/service": "ec2",
+        "pod-template-hash": "5f667b7d87"
+      },
+      "phase": "Pending",
+      "images": [
+        "ami-61ad6e59d7b0",
+        "alpine/socat:latest"
+      ],
+      "container_statuses": [
+        {
+          "containerID": "containerd://caa4c88be3a4aa30b4a918979114acb3579378f1ee19f5b91862d4dd2f14164c",
+          "image": "docker.io/alpine/socat:latest",
+          "imageID": "docker.io/alpine/socat@sha256:22d77becaeeea8ef56b8c4bb2312323acafe85354be6a85714ff5050e3537842",
+          "lastState": {},
+          "name": "imds-proxy-sidecar",
+          "ready": true,
+          "resources": {},
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-20T05:39:53Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                6,
+                10,
+                11,
+                20,
+                26,
+                27
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+              "name": "kube-api-access-cs9fr",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        },
+        {
+          "image": "ami-61ad6e59d7b0",
+          "imageID": "",
+          "lastState": {},
+          "name": "localstack-ec2-i-69270b8f755705572",
+          "ready": false,
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "waiting": {
+              "message": "failed to pull and unpack image \"docker.io/library/ami-61ad6e59d7b0:latest\": failed to resolve reference \"docker.io/library/ami-61ad6e59d7b0:latest\": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed",
+              "reason": "ErrImagePull"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+              "name": "kube-api-access-cs9fr",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reference-7998498db9-hxdw2",
+      "labels": {
+        "app": "reference",
+        "pod-template-hash": "7998498db9"
+      },
+      "phase": "Running",
+      "images": [
+        "localstack/localstack:latest"
+      ],
+      "container_statuses": [
+        {
+          "allocatedResources": {
+            "cpu": "100m",
+            "memory": "256Mi"
+          },
+          "containerID": "containerd://25d1e85a91989772dd7d496bed177b9e0cac4bfab2a3630e18033f973b68ada8",
+          "image": "docker.io/localstack/localstack:latest",
+          "imageID": "docker.io/library/import-2026-10-20@sha256:1e0da331934569a86390059ffca6fd41762e48caa0e6189cd1558eee0383b535",
+          "lastState": {},
+          "name": "reference",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "2",
+              "memory": "1Gi"
+            },
+            "requests": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-20T05:39:16Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+              "name": "kube-api-access-5lj9w",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "logs": "\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\nDocker not available\n2026-10-20T05:39:18.678  INFO --- [  MainThread] l.licensing.licensingv2    : Successfully requested and activated new license b340015b-b2bb-4e8f-ad5c-3dff0596abf4:student \ud83d\udd11\u2705\n2026-10-20T05:39:19.858  INFO --- [  MainThread] localstack.utils.bootstrap : Execution of \"_resolve_api_provider_specs\" took 1101.72ms\n2026-10-20T05:39:22.991  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: logodev ready at http://logodev.localhost.localstack.cloud:4566 -> 127.0.0.1:4115\n2026-10-20T05:39:22.993  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: posthog ready at http://posthog.localhost.localstack.cloud:4566 -> 127.0.0.1:4113\n2026-10-20T05:39:22.995  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: resend ready at http://resend.localhost.localstack.cloud:4566 -> 127.0.0.1:4114\n2026-10-20T05:39:22.999  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: stripe ready at http://stripe.localhost.localstack.cloud:4566 -> 127.0.0.1:4111\n2026-10-20T05:39:23.003  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: twilio ready at http://twilio.localhost.localstack.cloud:4566 -> 127.0.0.1:4112\n2026-10-20T05:39:23.373  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-20T05:39:24.216  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\nReady.\nkube_config_path not provided and default location (~/.kube/config) does not exist. Using inCluster Config. This might not work.\n2026-10-20T05:39:28.930  INFO --- [et.reactor-0] l.p.c.s.e.v.kubernetes     : Initializing Kubernetes client and setting up namespaces.\n2026-10-20T05:39:29.154  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeInstances => 200\n2026-10-20T05:39:59.190  WARN --- [et.reactor-0] l.p.c.s.e.v.kubernetes     : Error launching instance i-69270b8f755705572: Deployment localstack-ec2-i-69270b8f755705572 not ready after 30 seconds\n2026-10-20T05:39:59.192  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RunInstances => 200\n",
+  "namespace_cleanup_requested": true
+}

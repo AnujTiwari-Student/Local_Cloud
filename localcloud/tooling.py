@@ -86,6 +86,9 @@ class Tooling:
         event = {'id': str(uuid.uuid4()), 'time': time.time(), 'service': service,
                  'operation': operation, 'principal': principal, 'resource': resource,
                  'permission': None, 'status': 200, 'error': None}
+        context = getattr(engine.request_context, 'gateway_context', None)
+        if context is not None:
+            event.update(request_id=context.request_id, protocol=context.protocol, region=context.region, account_id=context.account_id)
         engine.request_context.permission = None
         try:
             self.before(service, operation)
@@ -155,10 +158,13 @@ class Tooling:
 
     @staticmethod
     def validate_state(state):
-        if not isinstance(state, dict) or set(state) - {'version', 'queues', 'buckets', 'policies', 'audit', 'instances'} or not {'version', 'queues', 'buckets', 'policies', 'audit'} <= set(state) or type(state['version']) is not int or state['version'] != 1:
+        if not isinstance(state, dict) or set(state) - {'version', 'queues', 'buckets', 'policies', 'audit', 'instances', 'ec2'} or not {'version', 'queues', 'buckets', 'policies', 'audit'} <= set(state) or type(state['version']) is not int or state['version'] != 1:
             raise ValueError('Invalid state schema')
         from .ec2 import validate_instances
         validate_instances(state.get('instances', {}))
+        if 'ec2' in state:
+            from .ec2_infrastructure import validate_infrastructure
+            validate_infrastructure(state['ec2'])
         if any(not isinstance(state[k], dict) for k in ('queues', 'buckets', 'policies')):
             raise ValueError('Resource collections must be objects')
         if not isinstance(state['audit'], list) or len(state['audit']) > 200:

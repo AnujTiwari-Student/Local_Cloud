@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-20",
+  "tool": "REA MCP 6.7.0",
+  "bundle": "ec2-final-evidence.json.gz",
+  "compressed_sha256": "be92271b7e4543155a4d0bb6b64172fe16024bf0228bdf9020f881b9c39105bc",
+  "decompressed_sha256": "ed82a333e938dcf28408fe4d66ad34d6c635e4544d1b7ef1b9fcfd9ff2f4951d",
+  "decompressed_bytes": 7537650,
+  "records": 64,
+  "source_hashes": {
+    "localcloud/ec2.py": "ef85085aaa0c21fbcef9484c3aae9ebc5c11dcd30b8d7feeee25f539200b2180",
+    "localcloud/cli.py": "a5a35ed037b593fef3ae6d70c74b3bdf0ff7de3a4bd5a0a8072aa7a52dcc3fff",
+    "localcloud/__main__.py": "b051d5b452ba006d8ff93af193812fa22fa9d64a59441ece39239e511603b23a",
+    "localcloud/dashboard.html": "784e25f0545f1659d803a62f542e1a3fe63b7bf1f49b0f125c20e0be86064f46",
+    "localcloud/dashboard.js": "ef0049eaa3116e119fa20b19ff3f239ec77b90b77ce0ccaf8ca697b75f5930f2",
+    "scripts/ec2-sdk-scenario.py": "a7089666640305253b999cec2d667626ecd3829aa65f3af0a46a38355624e3b6",
+    "scripts/ec2-wire-probe.py": "fbb965bffb8ad9c6719eecbc0410916e740f013a1194bc72267186d3b165c48b",
+    "scripts/rea-runtime-audit.py": "dc72d076440b58a80e02286aaebc85a3d383664d371d96aec561bdb5681c20c4",
+    "tests/test_ec2.py": "67ae862bd7336682524856f1fa38297b8b8fd1bf955e6a10e8b3277d1ab8d6be",
+    "tests/test_ec2_contract.py": "f1e88bd0a4d24f22e148e626c08c339f61e2b1107acf3d263099a03e2dd9cbf6"
+  }
+}

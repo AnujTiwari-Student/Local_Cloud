@@ -1,0 +1,13 @@
+{
+  "comparison": "Selected HTTP statuses only, not whole-response equivalence",
+  "reference_cases": 47,
+  "candidate_cases": 47,
+  "matching_statuses": 46,
+  "differences": [
+    {
+      "case": "volume-detach",
+      "reference": 500,
+      "localcloud": 200
+    }
+  ]
+}

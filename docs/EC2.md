@@ -2,6 +2,12 @@
 
 LocalCloud implements a small EC2 lifecycle provider. Mock mode creates durable instance records. Optional Docker mode runs real containers behind those records. Neither mode provides an AWS virtual machine, AWS networking or complete EC2 compatibility.
 
+The latest [EC2 networking, storage, IMDS and SSH guide](EC2_INFRASTRUCTURE.md)
+contains the expanded setup and evidence. The earlier
+[EC2 reference coverage and CLI walkthrough](EC2_REFERENCE.md) covers
+tags, filters, image discovery, launch idempotency, user-data scripts and SDK
+access, with captured LocalStack behavior and explicit remaining limits.
+
 ## Start and use mock instances
 
 From the LocalCloud checkout, start the backend:
@@ -27,7 +33,7 @@ localcloud ec2 terminate-instances --instance-ids i-REPLACE
 localcloud ec2 describe-instances --instance-ids i-REPLACE
 ```
 
-Mock instances do not execute code. State transitions are immediate. Instance records survive server restart; terminated records remain visible and cannot be restarted. Repeating stop/start/terminate for the current state is safe. Mock instances participate in snapshots and portable state alongside S3/SQS. Older state bundles without instances remain accepted.
+Mock instances do not execute code. Lifecycle responses report transient states (pending, stopping, shutting-down) and settle immediately in stored state; describe returns the final state. Instance records survive server restart; terminated records remain visible and cannot be restarted. Repeating stop/start/terminate for the current state is safe. Mock instances participate in snapshots and portable state alongside S3/SQS. Older state bundles without instances remain accepted.
 
 Open `http://127.0.0.1:4566/_local` to see instance IDs, lifecycle state and backend in the Resource Browser. `localcloud resources` also includes instances.
 
@@ -76,7 +82,7 @@ You can also name or rename an existing instance through `name-instance --instan
 
 ## Execute containers through EC2
 
-Run the backend on a host with Docker CLI installed and access to a running Docker daemon. The project's default server image does not include the Docker CLI or daemon access. First build a small long-running workload image:
+Run the backend on a host with Docker CLI installed and access to a running Docker daemon. The server image includes the Docker CLI, but daemon access must be configured separately; host execution is simplest. First build a small long-running workload image:
 
 ```bash
 mkdir -p /tmp/localcloud-ec2-demo
@@ -201,3 +207,13 @@ Limits: 100 non-terminated instances per database and at most 10 mock instances 
 ## Validation
 
 Automated tests exercise persistent lifecycle transitions, IAM denial across multiple IDs, snapshots/import, Query XML, CLI payloads, token protection, traces/faults and Docker command construction/failure/ownership checks. Docker tests use a mocked subprocess boundary; live daemon execution must be verified on the host using the walkthrough above.
+
+### Live verification through REA MCP
+
+The authenticated [EC2/Kubernetes comparison](REA_EC2_KUBERNETES.md) now includes
+LocalStack 2026.10.0 mock and Docker lifecycle captures. The AWS Query endpoint
+accepts `InstanceId` and `InstanceType.Value` for ModifyInstanceAttribute. This
+fix does not add full AWS SDK coverage, transition-state parity or Kubernetes EC2
+execution; those gaps are listed in the comparison report.
+
+On 20 October 2026, the REA process runner successfully exercised the sample web image through real Docker launch, loopback HTTP access, stop, type modification, restart, termination and removal, using an isolated temporary backend. This supersedes the earlier lack of host execution evidence for this tested path. It does not establish LocalStack EC2 parity. See [the complete audit and evidence](REA_SERVICES.md).

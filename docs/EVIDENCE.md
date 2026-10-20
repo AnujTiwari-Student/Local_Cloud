@@ -1,6 +1,11 @@
 # Evidence ledger
 
-## Boundaries
+The original boundaries below describe the first implementation. Subsequent
+normal-license LocalStack runtime captures and independent replays are recorded
+in [EC2 infrastructure evidence](EC2_INFRASTRUCTURE.md) and the linked REA reports.
+No encrypted paid-provider source or entitlement bypass was used.
+
+## Original boundaries
 
 No proprietary LocalStack source, container image, entitlement mechanism or authenticated service execution was inspected. This project is independently written from public behavior descriptions, AWS API concepts and the supplied dashboard screenshot. It makes no claims about LocalStack's private implementation or the 2026 image/repository changes described in the conversation.
 
@@ -160,3 +165,34 @@ Replaced the summary-only dashboard with a connect-first service console. The br
 Added authenticated JSON bridges for supported S3/SQS operations, named instance/runtime metadata, packaged CSS/JS assets and verified CLI `localcloud connect` profiles. EC2 resize verifies ownership/stopped state and applies Docker memory/swap presets before committing metadata. SQS setting changes preserve already-inflight receipt behavior. The server must be running; neither browser connection nor CLI profiles start it automatically.
 
 Validation: 121 unittest cases pass, including real-handler dashboard API tests, authentication/IAM failures, S3 binary CRUD, SQS lifecycle/settings, connection profile success/failure, CLI modifications and Docker resize failure rollback. JavaScript syntax, Python compilation and whitespace checks pass. Browser fixture checks exercised invalid-token gating, EC2 launch/lifecycle/rename/resize, S3 upload/download/delete, SQS send/receive/acknowledge/settings/purge/delete, offline/reconnect behavior, safe message rendering and desktop/mobile layouts without document overflow. Browser testing caught and corrected HTML pattern escaping for the current RegExp `v` behavior. Final browser console checks have no errors. These browser tests used fixture API responses; live browser-to-backend/Docker integration remains a host-side check. See [DASHBOARD.md](DASHBOARD.md) for exact setup and limits.
+
+
+## Public LocalStack engine investigation and first migration (20 October 2026)
+
+Inspected 18 actual public source files at `8b9a79f05846835cf4dff63ab7eefdde9df83783`, with exact-byte hashes and permanent links in [the source manifest](research/localstack-source-manifest.json). The reference establishes a gateway/context pipeline, modeled parsing/serialization, lazy service loading, dispatch tables and account/region stores. Public EC2 registration uses `Ec2Provider` with `MotoFallbackDispatcher`; this corrects the earlier overly broad inference that there would be no public EC2 provider. It does not establish paid Docker VM manager internals.
+
+Implemented a first gateway/provider-adapter migration, preserving existing codecs, services and database state. All supported HTTP service routes now enter a shared context and synchronized lazy adapter registry; request IDs correlate HTTP headers, EC2 XML and service traces. Engine metadata is available through authenticated `/_local/engine` and `localcloud engine status`.
+
+Validation: 130 tests pass, and the source verifier matches all 18 reference files. Upstream dependencies are absent and the upstream runtime was not executed. This work is static source investigation and an architecture-guided migration; no REA decompilation, private-code extraction or full runtime parity comparison was performed. [ENGINE_RE.md](ENGINE_RE.md) maps exact observations, changes and unresolved areas.
+
+
+## REA MCP audit of implemented services (20 October 2026)
+
+Used actual REA MCP tools for static dashboard analysis, graph views/traces, controlled process captures, before/after comparison and evidence export. Pinned the latest LocalStack image to `localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872`; metadata and startup identify version 2026.10.0. A normal isolated startup exited 55 because no LocalStack auth credentials were supplied; the container was removed. Package paths/hashes include encrypted modules, which were not decrypted. No latest-version service API parity was established.
+
+REA's host process runner could access Docker and loopback sockets. Final untruncated capture `ev_f9b32fac2b415f0b4210fbefc117cc5c1704fc08cef1bf3c68677e78f5a84e49` records 131 passing contract tests and 11 live checks covering S3, SQS, mock EC2, IAM, state/snapshots, faults, traces, CLI, persistence, CI and a real Docker web-app lifecycle. Kubernetes remains contract-tested, not live-cluster verified. The separate static dashboard result retains 827 semantic unknowns and does not prove runtime feature execution.
+
+A historical public-source SQS contract mismatch was captured and corrected: CreateQueue without explicit attributes now preserves an existing non-default visibility timeout. REA before/after captures and comparison are retained. [REA_SERVICES.md](REA_SERVICES.md) maps each component to observations, source boundaries and unknowns. [The compressed original evidence bundle](research/rea/evidence-bundle.json.gz) contains 26 records and five residual unknowns; exact compressed/decompressed hashes are in [evidence-index.json](research/rea/evidence-index.json). No user's running server/state database or Kubernetes cluster was used as a fixture. The downloaded reference image remains cached.
+
+## EC2 extension through authenticated REA captures (20 October 2026)
+
+The [EC2 reference report](EC2_REFERENCE.md) records 27 Boto3 scenarios against
+both mock and Docker backends of pinned LocalStack 2026.10.0 and LocalCloud.
+All nine earlier lifecycle projections now match. Instance tags/filters, local
+image discovery, attribute reads, user-data execution, durable launch idempotency
+and Docker external-stop recovery were added; CLI and dashboard controls were
+extended. The final runtime audit passed 141 tests and 11 live checks; separate
+live Docker checks verified user data and recovery. Reference ClientToken and
+start-after-termination behavior intentionally differ. Full response and service
+parity remain unestablished; VPC/EBS/IMDS and Kubernetes-backed EC2 are unfinished.
+See the report and its indexed REA evidence for boundaries and reproducible data.

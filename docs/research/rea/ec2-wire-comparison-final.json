@@ -1,0 +1,142 @@
+{
+  "scope": "Nine requests; compare only the explicitly listed projection fields. Raw XML is not asserted equivalent.",
+  "reference_evidence": "ev_940288f4e2772438e6bdfe0080598ac29e19fb7daa7d7042b4b5865775265e26",
+  "candidate_evidence": "ev_026057770a70a7fbaf1390516be1e8ce1e0df07165a575cadb9cc0da722e7969",
+  "cases": [
+    {
+      "operation": "DescribeInstances",
+      "reference": {
+        "status": 200,
+        "root": "DescribeInstancesResponse"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "DescribeInstancesResponse"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "RunInstances",
+      "reference": {
+        "status": 200,
+        "root": "RunInstancesResponse",
+        "state": "pending",
+        "type": "t3.micro"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "RunInstancesResponse",
+        "state": "pending",
+        "type": "t3.micro"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "DescribeInstances",
+      "reference": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "running",
+        "type": "t3.micro"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "running",
+        "type": "t3.micro"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "StopInstances",
+      "reference": {
+        "status": 200,
+        "root": "StopInstancesResponse",
+        "current": "stopping",
+        "previous": "running"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "StopInstancesResponse",
+        "current": "stopping",
+        "previous": "running"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "ModifyInstanceAttribute",
+      "reference": {
+        "status": 200,
+        "root": "ModifyInstanceAttributeResponse"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "ModifyInstanceAttributeResponse"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "DescribeInstances",
+      "reference": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "stopped",
+        "type": "t3.small"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "stopped",
+        "type": "t3.small"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "StartInstances",
+      "reference": {
+        "status": 200,
+        "root": "StartInstancesResponse",
+        "current": "pending",
+        "previous": "stopped"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "StartInstancesResponse",
+        "current": "pending",
+        "previous": "stopped"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "DescribeInstances",
+      "reference": {
+        "status": 400,
+        "root": "Response",
+        "error": "InvalidInstanceID.NotFound"
+      },
+      "candidate": {
+        "status": 400,
+        "root": "Response",
+        "error": "InvalidInstanceID.NotFound"
+      },
+      "projection_matches": true
+    },
+    {
+      "operation": "TerminateInstances",
+      "reference": {
+        "status": 200,
+        "root": "TerminateInstancesResponse",
+        "current": "shutting-down",
+        "previous": "running"
+      },
+      "candidate": {
+        "status": 200,
+        "root": "TerminateInstancesResponse",
+        "current": "shutting-down",
+        "previous": "running"
+      },
+      "projection_matches": true
+    }
+  ],
+  "full_parity": false
+}

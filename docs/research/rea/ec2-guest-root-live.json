@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "actual-public-key-ssh",
+    "writable-root-preserved-across-volume-attach",
+    "writable-root-preserved-across-volume-detach"
+  ],
+  "cleanup_completed": true,
+  "evidence_id": "ev_e3d6e34ff89088a92fab64b57f3e22b10ee729a1c3ee6308cccb322731fa3cb3"
+}

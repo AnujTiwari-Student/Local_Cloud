@@ -117,6 +117,16 @@ class CommandsTests(unittest.TestCase):
         self.success('sqs', 'set-queue-attributes', '--queue-name', 'jobs', '--attributes', 'VisibilityTimeout=120')
         self.assertEqual(json.loads(self.success('sqs', 'get-queue-attributes', '--queue-name', 'jobs'))['Attributes']['VisibilityTimeout'], '120')
 
+    def test_engine_status_reports_source_reference_and_lazy_registry(self):
+        report = json.loads(self.success('engine', 'status'))
+        self.assertEqual(report['architecture'], 'gateway-provider-registry')
+        self.assertFalse(report['reference']['exactParity'])
+        self.assertEqual(report['reference']['commit'], '8b9a79f05846835cf4dff63ab7eefdde9df83783')
+        self.assertEqual(report['services']['s3']['state'], 'available')
+        self.success('s3api', 'list-buckets')
+        report = json.loads(self.success('engine', 'status'))
+        self.assertEqual(report['services']['s3']['state'], 'running')
+
     def test_s3_upload_download_copy_list_prefix_and_delete(self):
         source = self.root / 'source.bin'
         source.write_bytes(b'\x00\xffbinary')

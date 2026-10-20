@@ -1,0 +1,558 @@
+{
+  "scope": "HTTP status comparison only, not response or service parity. Images differ by configured local catalog; instance IDs are intentionally different.",
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "full_parity": false,
+  "backends": {
+    "mock": {
+      "reference_evidence": "ev_95c52c636e6e34fd9554c9a214bae5a422d54d66b2581deb5cc97ea84d40c182",
+      "candidate_evidence": "ev_5b7de1d1f383a4f9460e600267f79df77b106db575bf16ead5f1dffd8d14dd0c",
+      "cases": [
+        {
+          "case": "images",
+          "operation": "describe_images",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "missing-image",
+          "operation": "describe_images",
+          "reference_status": 400,
+          "localcloud_status": 400,
+          "reference_error": "InvalidAMIID.NotFound",
+          "localcloud_error": "InvalidAMIID.NotFound",
+          "status_matches": true
+        },
+        {
+          "case": "launch",
+          "operation": "run_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "replay",
+          "operation": "run_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "mismatched-replay",
+          "operation": "run_instances",
+          "reference_status": 200,
+          "localcloud_status": 400,
+          "reference_error": null,
+          "localcloud_error": "IdempotentParameterMismatch",
+          "status_matches": false
+        },
+        {
+          "case": "describe",
+          "operation": "describe_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "filter-tag",
+          "operation": "describe_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "filter-empty",
+          "operation": "describe_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "filter-invalid",
+          "operation": "describe_instances",
+          "reference_status": 501,
+          "localcloud_status": 501,
+          "reference_error": "InternalFailure",
+          "localcloud_error": "InternalFailure",
+          "status_matches": true
+        },
+        {
+          "case": "tag-update",
+          "operation": "create_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tags",
+          "operation": "describe_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tag-delete-wrong-value",
+          "operation": "delete_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tag-delete",
+          "operation": "delete_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tags-after-delete",
+          "operation": "describe_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "attribute",
+          "operation": "describe_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "user-data-attribute",
+          "operation": "describe_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "stop",
+          "operation": "stop_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "stop-again",
+          "operation": "stop_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "modify",
+          "operation": "modify_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "attribute-after-modify",
+          "operation": "describe_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "start",
+          "operation": "start_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "start-again",
+          "operation": "start_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "terminate",
+          "operation": "terminate_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "terminate-again",
+          "operation": "terminate_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "start-terminated",
+          "operation": "start_instances",
+          "reference_status": 200,
+          "localcloud_status": 400,
+          "reference_error": null,
+          "localcloud_error": "IncorrectInstanceState",
+          "status_matches": false
+        },
+        {
+          "case": "missing-instance",
+          "operation": "describe_instances",
+          "reference_status": 400,
+          "localcloud_status": 400,
+          "reference_error": "InvalidInstanceID.NotFound",
+          "localcloud_error": "InvalidInstanceID.NotFound",
+          "status_matches": true
+        },
+        {
+          "case": "cleanup",
+          "operation": "terminate_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        }
+      ],
+      "missing_reference_instance_fields": [
+        "Architecture",
+        "BlockDeviceMappings",
+        "EbsOptimized",
+        "Hypervisor",
+        "NetworkInterfaces",
+        "RootDeviceName",
+        "RootDeviceType",
+        "SecurityGroups",
+        "SourceDestCheck",
+        "SriovNetSupport",
+        "StateReason",
+        "VirtualizationType",
+        "HibernationOptions",
+        "MetadataOptions",
+        "PrivateDnsName",
+        "PublicDnsName",
+        "StateTransitionReason",
+        "ProductCodes",
+        "Placement",
+        "Platform",
+        "Monitoring",
+        "SubnetId",
+        "VpcId",
+        "PrivateIpAddress",
+        "PublicIpAddress"
+      ]
+    },
+    "docker": {
+      "reference_evidence": "ev_c09ec103c60fae7785c242da74f22b4d0a785f686b6f50fe93825bd1870277f9",
+      "candidate_evidence": "ev_fc9960ea199226ca4a917ee08d65646bad2905cca600e705850033e1162edfad",
+      "cases": [
+        {
+          "case": "images",
+          "operation": "describe_images",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "missing-image",
+          "operation": "describe_images",
+          "reference_status": 400,
+          "localcloud_status": 400,
+          "reference_error": "InvalidAMIID.NotFound",
+          "localcloud_error": "InvalidAMIID.NotFound",
+          "status_matches": true
+        },
+        {
+          "case": "launch",
+          "operation": "run_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "replay",
+          "operation": "run_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "mismatched-replay",
+          "operation": "run_instances",
+          "reference_status": null,
+          "localcloud_status": 400,
+          "reference_error": null,
+          "localcloud_error": "IdempotentParameterMismatch",
+          "status_matches": false
+        },
+        {
+          "case": "describe",
+          "operation": "describe_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "filter-tag",
+          "operation": "describe_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "filter-empty",
+          "operation": "describe_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "filter-invalid",
+          "operation": "describe_instances",
+          "reference_status": 501,
+          "localcloud_status": 501,
+          "reference_error": "InternalFailure",
+          "localcloud_error": "InternalFailure",
+          "status_matches": true
+        },
+        {
+          "case": "tag-update",
+          "operation": "create_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tags",
+          "operation": "describe_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tag-delete-wrong-value",
+          "operation": "delete_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tag-delete",
+          "operation": "delete_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "tags-after-delete",
+          "operation": "describe_tags",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "attribute",
+          "operation": "describe_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "user-data-attribute",
+          "operation": "describe_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "stop",
+          "operation": "stop_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "stop-again",
+          "operation": "stop_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "modify",
+          "operation": "modify_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "attribute-after-modify",
+          "operation": "describe_instance_attribute",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "start",
+          "operation": "start_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "start-again",
+          "operation": "start_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "terminate",
+          "operation": "terminate_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "terminate-again",
+          "operation": "terminate_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        },
+        {
+          "case": "start-terminated",
+          "operation": "start_instances",
+          "reference_status": 200,
+          "localcloud_status": 400,
+          "reference_error": null,
+          "localcloud_error": "IncorrectInstanceState",
+          "status_matches": false
+        },
+        {
+          "case": "missing-instance",
+          "operation": "describe_instances",
+          "reference_status": 400,
+          "localcloud_status": 400,
+          "reference_error": "InvalidInstanceID.NotFound",
+          "localcloud_error": "InvalidInstanceID.NotFound",
+          "status_matches": true
+        },
+        {
+          "case": "cleanup",
+          "operation": "terminate_instances",
+          "reference_status": 200,
+          "localcloud_status": 200,
+          "reference_error": null,
+          "localcloud_error": null,
+          "status_matches": true
+        }
+      ],
+      "missing_reference_instance_fields": [
+        "Architecture",
+        "BlockDeviceMappings",
+        "EbsOptimized",
+        "Hypervisor",
+        "NetworkInterfaces",
+        "RootDeviceName",
+        "RootDeviceType",
+        "SecurityGroups",
+        "SourceDestCheck",
+        "SriovNetSupport",
+        "StateReason",
+        "VirtualizationType",
+        "HibernationOptions",
+        "MetadataOptions",
+        "PrivateDnsName",
+        "PublicDnsName",
+        "StateTransitionReason",
+        "ProductCodes",
+        "Placement",
+        "Monitoring",
+        "SubnetId",
+        "VpcId",
+        "PrivateIpAddress",
+        "PublicIpAddress"
+      ]
+    }
+  }
+}

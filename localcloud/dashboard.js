@@ -22,7 +22,7 @@ function disconnect(clearToken = true) {
   el('sidebar-instance').textContent = 'No instance connected';
   el('sidebar-endpoint').textContent = 'Start your server to begin';
   el('endpoint').textContent = 'No instance connected';
-  for (const id of ['instances','buckets','queues','object-list','message-list','ec2-detail-fields','ec2-json','queue-attributes','snapshot-list','trace-list','fault-list','execution-list','execution-logs','audit','instance-details']) el(id).replaceChildren();
+  for (const id of ['instances','buckets','queues','object-list','message-list','ec2-detail-fields','ec2-json','ec2-tags','ec2-console-output','ec2-resource-list','ec2-resource-details','queue-attributes','snapshot-list','trace-list','fault-list','execution-list','execution-logs','audit','instance-details']) el(id).replaceChildren();
   for (const id of ['ec2-detail','bucket-detail','queue-detail']) el(id).hidden = true;
   for (const id of ['ec2-count','s3-count','sqs-count']) el(id).textContent = '0';
   controls();
@@ -109,11 +109,13 @@ function renderInstances() {
     const start = button('Start',mutate('StartInstances')), stop = button('Stop',mutate('StopInstances'));
     const terminate = button('Terminate',mutate('TerminateInstances','Terminate '+(i.Name || i.InstanceId)+'? Its container will be removed.'),'danger');
     start.disabled = i.State.Name !== 'stopped'; stop.disabled = i.State.Name !== 'running'; terminate.disabled = i.State.Name === 'terminated';
-    return [identity,i.State.Name,i.ImageId+' / '+i.InstanceType,runtime,actions(start,stop,terminate)];
+    const reboot = button('Reboot',mutate('RebootInstances')); reboot.disabled = i.State.Name !== 'running';
+    return [identity,i.State.Name,i.ImageId+' / '+i.InstanceType,runtime,actions(start,stop,reboot,terminate)];
   }));
   if (selectedInstance) { const item = state.instances.find(i=>i.InstanceId === selectedInstance); if (item) showInstance(item); else el('ec2-detail').hidden = true; }
 }
 function showInstance(item) {
+  if(selectedInstance !== item.InstanceId) el('ec2-console-output').textContent='';
   selectedInstance = item.InstanceId; el('ec2-detail').hidden = false;
   details('ec2-detail-fields', {'Name':item.Name || 'Unnamed','Instance ID':item.InstanceId,'State':item.State.Name,'Image ID':item.ImageId,'Instance type':item.InstanceType,'Backend':item.Backend,'Launch time':item.LaunchTime,'Container ID':item.ContainerId,'Container name':item.ContainerName,'Port mappings':(item.PortMappings || []).map(p=>'127.0.0.1:'+p.HostPort+' → '+p.ContainerPort+'/tcp').join(', ') || 'None','Configured endpoints':(item.Endpoints || []).join(', ') || 'None'});
   el('ec2-detail-type').value = item.InstanceType;
@@ -126,6 +128,9 @@ function showInstance(item) {
     }
   }
   el('ec2-new-name').value = item.Name || ''; el('ec2-json').textContent = JSON.stringify(item,null,2);
+  dataTable('ec2-tags',['Key','Value','Actions'],(item.Tags || []).map(tag=>[tag.Key,tag.Value,button('Delete',async()=>{
+    await ec2('DeleteTags',{Resources:[item.InstanceId],Tags:[{Key:tag.Key}]}); await refresh();
+  },'danger')]));
 }
 function renderBuckets() {
   dataTable('buckets',['Bucket name','Objects','Actions'],state.buckets.map(b=>[button(b.name,()=>selectBucket(b.name),'text-link'),b.objects,button('View objects',()=>selectBucket(b.name))]));
@@ -195,13 +200,66 @@ function form(id, handler, success) { el(id).onsubmit = event => {event.preventD
 form('ec2-form',async()=>{
   const payload = {ImageId:el('ec2-image').value,InstanceType:el('ec2-type').value,MinCount:1,MaxCount:1};
   if(el('ec2-name').value) payload.Name=el('ec2-name').value;
+  if(el('ec2-subnet').value)payload.SubnetId=el('ec2-subnet').value;
+  if(el('ec2-groups').value)payload.SecurityGroupIds=el('ec2-groups').value.split(',').map(v=>v.trim()).filter(Boolean);
+  if(el('ec2-key-name').value)payload.KeyName=el('ec2-key-name').value;
+  if(el('ec2-volume-size').value)payload.BlockDeviceMappings=[{DeviceName:el('ec2-volume-path').value,Ebs:{VolumeSize:Number(el('ec2-volume-size').value),DeleteOnTermination:false}}];
+  if(el('ec2-client-token').value) payload.ClientToken=el('ec2-client-token').value;
+  if(el('ec2-user-data').value) {
+    const bytes=new TextEncoder().encode(el('ec2-user-data').value);
+    if(bytes.length>16384) throw Error('Maximum user-data size is 16 KiB.');
+    payload.UserData=btoa(String.fromCharCode(...bytes));
+  }
   const ports = el('ec2-publish').disabled ? '' : el('ec2-publish').value.trim();
   if(ports) payload.PortMappings=ports.split(',').map(value=>{if(!/^\s*\d+:\d+\s*$/.test(value))throw Error('Use comma-separated HOST_PORT:CONTAINER_PORT mappings.');const [HostPort,ContainerPort]=value.trim().split(':').map(Number);return {HostPort,ContainerPort};});
   const result = await ec2('RunInstances',payload);selectedInstance=result.Instances[0].InstanceId;await refresh();
 },'Instance launched. Open its details to see configured endpoints.');
 form('ec2-modify',async()=>{await ec2('ModifyInstanceAttribute',{InstanceIds:[selectedInstance],InstanceType:el('ec2-detail-type').value});await refresh();},'Instance type updated.');
 form('ec2-rename',async()=>{await ec2('NameInstance',{InstanceIds:[selectedInstance],Name:el('ec2-new-name').value});await refresh();},'Instance name saved.');
+form('ec2-tag-form',async()=>{
+  await ec2('CreateTags',{Resources:[selectedInstance],Tags:[{Key:el('ec2-tag-key').value,Value:el('ec2-tag-value').value}]});
+  el('ec2-tag-form').reset(); await refresh();
+},'Instance tag saved.');
 el('ec2-search').oninput = () => state && renderInstances();
+const infrastructure = {
+  vpc:{title:'VPC',list:'DescribeVpcs',collection:'Vpcs',create:'CreateVpc',remove:'DeleteVpc',id:'VpcId',fields:[['CidrBlock','IPv4 CIDR','10.90.0.0/16']]},
+  subnet:{title:'Subnet',list:'DescribeSubnets',collection:'Subnets',create:'CreateSubnet',remove:'DeleteSubnet',id:'SubnetId',fields:[['VpcId','VPC ID','vpc-...'],['CidrBlock','IPv4 CIDR','10.90.1.0/24'],['AvailabilityZone','Availability zone','us-east-1a']]},
+  group:{title:'Security group',list:'DescribeSecurityGroups',collection:'SecurityGroups',create:'CreateSecurityGroup',remove:'DeleteSecurityGroup',id:'GroupId',fields:[['VpcId','VPC ID','vpc-...'],['GroupName','Group name','web'],['Description','Description','Web application']]},
+  volume:{title:'Volume',list:'DescribeVolumes',collection:'Volumes',create:'CreateVolume',remove:'DeleteVolume',id:'VolumeId',fields:[['AvailabilityZone','Availability zone','us-east-1a'],['Size','Volume size metadata','1','number']]},
+  snapshot:{title:'Volume snapshot',list:'DescribeSnapshots',collection:'Snapshots',create:'CreateSnapshot',remove:'DeleteSnapshot',id:'SnapshotId',fields:[['VolumeId','Source volume ID','vol-...'],['Description','Description','Development snapshot']]},
+  key:{title:'SSH key pair',list:'DescribeKeyPairs',collection:'KeyPairs',create:'CreateKeyPair',remove:'DeleteKeyPair',id:'KeyPairId',fields:[['KeyName','Key name','dev-key']]}
+};
+function resourceForm() {
+  const config=infrastructure[el('ec2-resource-kind').value];el('ec2-resource-inputs').replaceChildren();
+  for(const [name,label,placeholder,type] of config.fields) {
+    const wrapper=text('label',label),input=document.createElement('input');input.name=name;input.placeholder=placeholder;input.required=true;input.type=type || 'text';
+    if(name==='AvailabilityZone') input.value='us-east-1a';if(type==='number'){input.min='1';input.max='1000';input.value='1';}
+    wrapper.append(input);el('ec2-resource-inputs').append(wrapper);
+  }
+}
+async function refreshInfrastructure() {
+  const config=infrastructure[el('ec2-resource-kind').value], result=await ec2(config.list);
+  dataTable('ec2-resource-list',['Resource','State / details','Actions'],(result[config.collection] || []).map(item=>[
+    item[config.id],item.State || item.GroupName || item.KeyName || item.CidrBlock || '',
+    actions(button('Details',async()=>{el('ec2-resource-details').textContent=JSON.stringify(item,null,2);}),
+      ...(config.id==='VolumeId' && item.Attachments?.length ? [button('Detach',async()=>{await ec2('DetachVolume',{VolumeId:item.VolumeId});await refreshInfrastructure();},'secondary')] : []),
+      button('Delete',async()=>{if(!confirm('Delete '+config.title+' '+item[config.id]+'?'))return;await ec2(config.remove,{[config.id]:item[config.id]});await refreshInfrastructure();},'danger'))
+  ]));
+}
+el('ec2-resource-kind').onchange=()=>{resourceForm();if(connected)run(refreshInfrastructure,'Resources refreshed.');};
+el('ec2-resource-refresh').onclick=()=>run(refreshInfrastructure,'Resources refreshed.');
+resourceForm();
+form('ec2-resource-create',async()=>{
+  const config=infrastructure[el('ec2-resource-kind').value],payload={};
+  for(const [name,,,type] of config.fields){const input=el('ec2-resource-create').elements.namedItem(name);payload[name]=type==='number'?Number(input.value):input.value;}
+  if(el('ec2-resource-kind').value==='key')payload.KeyType='ed25519';
+  const result=await ec2(config.create,payload);
+  if(result.KeyMaterial)saveFile(payload.KeyName+'.pem',result.KeyMaterial);
+  await refreshInfrastructure();
+},'Resource created. SSH private keys are downloaded once.');
+form('ec2-volume-attach',async()=>{await ec2('AttachVolume',{VolumeId:el('ec2-volume-id').value,InstanceId:el('ec2-volume-instance').value,Device:el('ec2-volume-device').value});await refreshInfrastructure();await refresh();},'Volume attached.');
+form('ec2-ingress-form',async()=>{const port=Number(el('ec2-ingress-port').value);await ec2('AuthorizeSecurityGroupIngress',{GroupId:el('ec2-ingress-group').value,IpPermissions:[{IpProtocol:'tcp',FromPort:port,ToPort:port,IpRanges:[{CidrIp:el('ec2-ingress-cidr').value}]}]});await refreshInfrastructure();},'Ingress rule saved for future launches.');
+el('ec2-console-button').onclick=()=>run(async()=>{const result=await ec2('GetConsoleOutput',{InstanceIds:[selectedInstance]});el('ec2-console-output').textContent=new TextDecoder().decode(Uint8Array.from(atob(result.Output || ''),c=>c.charCodeAt(0)));},'Console output loaded.');
 form('bucket-form',async()=>{const name=el('bucket-name').value;await s3('CreateBucket',{Bucket:name});await refresh();await selectBucket(name);},'Bucket created.');
 el('bucket-delete').onclick = () => run(async()=>{if(!confirm('Delete bucket '+selectedBucket+'? It must be empty.'))return;await s3('DeleteBucket',{Bucket:selectedBucket});selectedBucket=null;el('bucket-detail').hidden=true;await refresh();},'Bucket deleted.');
 form('object-form',async()=>{

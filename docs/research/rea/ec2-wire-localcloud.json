@@ -1,0 +1,119 @@
+{
+  "completed": true,
+  "records": [
+    {
+      "operation": "DescribeInstances",
+      "parameters": {},
+      "projection": {
+        "status": 200,
+        "root": "DescribeInstancesResponse"
+      },
+      "xml": "<DescribeInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>44ba9ada-7c4c-4385-adb4-965a16fff1a6</requestId><reservationSet /></DescribeInstancesResponse>"
+    },
+    {
+      "operation": "RunInstances",
+      "parameters": {
+        "ImageId": "ami-03cf127a",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "projection": {
+        "status": 200,
+        "root": "RunInstancesResponse",
+        "state": "running",
+        "type": "t3.micro"
+      },
+      "xml": "<RunInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>73aa8595-bea9-4f12-9fea-33cb3a611b90</requestId><reservationId>r-458abc17a3234b36a</reservationId><instancesSet><item><instanceId>i-de448834887244579</instanceId><imageId>ami-03cf127a</imageId><instanceType>t3.micro</instanceType><instanceState><code>16</code><name>running</name></instanceState><launchTime>2026-10-20T05:36:01.713524+00:00</launchTime></item></instancesSet></RunInstancesResponse>"
+    },
+    {
+      "operation": "DescribeInstances",
+      "parameters": {
+        "InstanceId.1": "i-de448834887244579"
+      },
+      "projection": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "running",
+        "type": "t3.micro"
+      },
+      "xml": "<DescribeInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>6c7cc40d-1dce-468d-afa4-31c5ff51a7c1</requestId><reservationSet><item><instancesSet><item><instanceId>i-de448834887244579</instanceId><imageId>ami-03cf127a</imageId><instanceType>t3.micro</instanceType><instanceState><code>16</code><name>running</name></instanceState><launchTime>2026-10-20T05:36:01.713524+00:00</launchTime></item></instancesSet></item></reservationSet></DescribeInstancesResponse>"
+    },
+    {
+      "operation": "StopInstances",
+      "parameters": {
+        "InstanceId.1": "i-de448834887244579"
+      },
+      "projection": {
+        "status": 200,
+        "root": "StopInstancesResponse",
+        "current": "stopped",
+        "previous": "running"
+      },
+      "xml": "<StopInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>0e7a1dff-623c-4de6-b568-f4dd97f35b6d</requestId><instancesSet><item><instanceId>i-de448834887244579</instanceId><previousState><code>16</code><name>running</name></previousState><currentState><code>80</code><name>stopped</name></currentState></item></instancesSet></StopInstancesResponse>"
+    },
+    {
+      "operation": "ModifyInstanceAttribute",
+      "parameters": {
+        "InstanceId": "i-de448834887244579",
+        "InstanceType.Value": "t3.small"
+      },
+      "projection": {
+        "status": 200,
+        "root": "ModifyInstanceAttributeResponse"
+      },
+      "xml": "<ModifyInstanceAttributeResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>8616f999-0930-440c-b2cb-474d8f2cb967</requestId></ModifyInstanceAttributeResponse>"
+    },
+    {
+      "operation": "DescribeInstances",
+      "parameters": {
+        "InstanceId.1": "i-de448834887244579"
+      },
+      "projection": {
+        "status": 200,
+        "root": "DescribeInstancesResponse",
+        "state": "stopped",
+        "type": "t3.small"
+      },
+      "xml": "<DescribeInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>2a2e445b-59b4-4aff-8f48-9a9a86358197</requestId><reservationSet><item><instancesSet><item><instanceId>i-de448834887244579</instanceId><imageId>ami-03cf127a</imageId><instanceType>t3.small</instanceType><instanceState><code>80</code><name>stopped</name></instanceState><launchTime>2026-10-20T05:36:01.713524+00:00</launchTime></item></instancesSet></item></reservationSet></DescribeInstancesResponse>"
+    },
+    {
+      "operation": "StartInstances",
+      "parameters": {
+        "InstanceId.1": "i-de448834887244579"
+      },
+      "projection": {
+        "status": 200,
+        "root": "StartInstancesResponse",
+        "current": "running",
+        "previous": "stopped"
+      },
+      "xml": "<StartInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>18709e7a-4035-45da-9ef1-d706d2c4ae1a</requestId><instancesSet><item><instanceId>i-de448834887244579</instanceId><previousState><code>80</code><name>stopped</name></previousState><currentState><code>16</code><name>running</name></currentState></item></instancesSet></StartInstancesResponse>"
+    },
+    {
+      "operation": "DescribeInstances",
+      "parameters": {
+        "InstanceId.1": "i-00000000000000000"
+      },
+      "projection": {
+        "status": 400,
+        "root": "Response",
+        "error": "InvalidInstanceID.NotFound"
+      },
+      "xml": "<Response><Errors><Error><Code>InvalidInstanceID.NotFound</Code><Message>i-00000000000000000</Message></Error></Errors><RequestID>ae00372a-5eec-48c4-abdc-6815b5fafc18</RequestID></Response>"
+    },
+    {
+      "operation": "TerminateInstances",
+      "parameters": {
+        "InstanceId.1": "i-de448834887244579"
+      },
+      "projection": {
+        "status": 200,
+        "root": "TerminateInstancesResponse",
+        "current": "terminated",
+        "previous": "running"
+      },
+      "xml": "<TerminateInstancesResponse xmlns=\"http://ec2.amazonaws.com/doc/2016-11-15/\"><requestId>f66338bc-4552-4149-93cc-5866714a9a08</requestId><instancesSet><item><instanceId>i-de448834887244579</instanceId><previousState><code>16</code><name>running</name></previousState><currentState><code>48</code><name>terminated</name></currentState></item></instancesSet></TerminateInstancesResponse>"
+    }
+  ]
+}

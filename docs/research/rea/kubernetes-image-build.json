@@ -1,0 +1,11 @@
+{
+  "image": "localcloud:rea-a4b89f87",
+  "build": {
+    "exit": 0,
+    "output": "#0 building with \"default\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 562B done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/python:3.13-slim\n#2 DONE 3.3s\n\n#3 [internal] load .dockerignore\n#3 transferring context: 181B done\n#3 DONE 0.0s\n\n#4 [1/5] FROM docker.io/library/python:3.13-slim@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f\n#4 resolve docker.io/library/python:3.13-slim@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f 0.0s done\n#4 DONE 0.0s\n\n#5 [internal] load build context\n#5 transferring context: 185.71kB done\n#5 DONE 0.0s\n\n#6 [2/5] WORKDIR /app\n#6 CACHED\n\n#7 [3/5] COPY localcloud /app/localcloud\n#7 DONE 0.0s\n\n#8 [4/5] COPY bin/localcloud /app/bin/localcloud\n#8 DONE 0.0s\n\n#9 [5/5] RUN mkdir -p /data && chown 10001:10001 /data     && chmod 0755 /app/bin/localcloud     && ln -s /app/bin/localcloud /usr/local/bin/localcloud\n#9 DONE 0.2s\n\n#10 exporting to image\n#10 exporting layers 0.1s done\n#10 exporting manifest sha256:69937a3fa457d728513635a67cb8cbef7831d6676aa819f4804cc145b1e10937 done\n#10 exporting config sha256:6c4119989412ed41b5b227bfb67badf7a6d64fb04ff45be1aad3521e153e5dcf done\n#10 exporting attestation manifest sha256:b7b301e53f31e722a352ab4816edc473252042d28e47315e935d84f3f728defa done\n#10 exporting manifest list sha256:d95a8f41b1edd48ecab44fe9ccc5b6649777281d6576b490af3ba0cf9b2c8e87 done\n#10 naming to docker.io/library/localcloud:rea-a4b89f87 done\n#10 unpacking to docker.io/library/localcloud:rea-a4b89f87 0.0s done\n#10 DONE 0.1s\n"
+  },
+  "load": {
+    "exit": 0,
+    "output": "Image: \"localcloud:rea-a4b89f87\" with ID \"sha256:d95a8f41b1edd48ecab44fe9ccc5b6649777281d6576b490af3ba0cf9b2c8e87\" not yet present on node \"localcloud-control-plane\", loading...\n"
+  }
+}

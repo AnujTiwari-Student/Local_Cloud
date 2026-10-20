@@ -4,6 +4,7 @@ import errno
 import hmac
 import os
 import json
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
@@ -24,8 +25,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', str(len(body)))
         self.send_header('X-Content-Type-Options', 'nosniff')
+        self.send_header('X-Amzn-RequestId', self.request_id)
         self.end_headers()
         self.wfile.write(body)
+
+    def service_request(self, service, operation, arguments, principal, protocol='local-json'):
+        return self.server.engine.gateway.invoke(service, operation, arguments, principal, protocol, self.request_id)
 
     def handle_request(self):
         engine = self.server.engine
@@ -66,6 +71,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send(200, executor.logs(parts[3]))
                 raise Error('NotFound', 'Unknown execution route', 404)
             query = parse_qs(urlsplit(self.path).query)
+            if self.command == 'GET' and path == '/_local/engine':
+                return self.send(200, engine.gateway.describe())
             if self.command == 'GET' and path == '/_local/state':
                 return self.send(200, engine.tools.export_state())
             if self.command == 'GET' and path == '/_local/traces':
@@ -95,7 +102,7 @@ class Handler(BaseHTTPRequestHandler):
                     raise Error('InvalidRequest', 'Expected a JSON object')
                 if path == '/_local/sqs':
                     operation = data.pop('Action')
-                    return self.send(200, engine.sqs(operation, data, principal))
+                    return self.send(200, self.service_request('sqs', operation, data, principal))
                 if path == '/_local/s3':
                     operation = data.get('Action')
                     methods = {'ListBuckets': 'GET', 'CreateBucket': 'PUT', 'DeleteBucket': 'DELETE', 'ListObjects': 'GET', 'PutObject': 'PUT', 'GetObject': 'GET', 'DeleteObject': 'DELETE'}
@@ -113,13 +120,13 @@ class Handler(BaseHTTPRequestHandler):
                     if operation in ('ListBuckets', 'CreateBucket', 'DeleteBucket', 'ListObjects') and key:
                         raise Error('InvalidRequest', 'This operation does not accept an object key')
                     content = base64.b64decode(data.get('ContentBase64', ''), validate=True) if operation == 'PutObject' else b''
-                    result = engine.s3(methods[operation], bucket, key, content, principal)
+                    result = self.service_request('s3', operation, {'Bucket': bucket, 'Key': key, 'Body': content}, principal)
                     if isinstance(result, bytes):
                         result = {'ContentBase64': base64.b64encode(result).decode(), 'ContentLength': len(result)}
                     return self.send(200, result)
                 if path == '/_local/ec2':
                     operation = data.pop('Action')
-                    return self.send(200, engine.ec2.call(operation, data, principal))
+                    return self.send(200, self.service_request('ec2', operation, data, principal))
                 if path == '/_local/state/import':
                     return self.send(200, engine.tools.import_state(data))
                 if path == '/_local/traces/clear':
@@ -142,24 +149,27 @@ class Handler(BaseHTTPRequestHandler):
             from .ec2 import query_request, query_response
             if engine.ec2.images:
                 required = getattr(self.server, 'management_token', None)
-                if not required or not hmac.compare_digest(self.headers.get('Authorization', '').encode(), ('Bearer ' + required).encode()):
+                bearer = required and hmac.compare_digest(self.headers.get('Authorization', '').encode(), ('Bearer ' + required).encode())
+                session = required and hmac.compare_digest(self.headers.get('X-Amz-Security-Token', '').encode(), required.encode())
+                if not (bearer or session):
                     raise Error('Unauthorized', 'Docker EC2 requires a management bearer token', 401)
             operation, arguments = query_request(body)
-            result = engine.ec2.call(operation, arguments, principal)
-            return self.send(200, query_response(operation, result), 'application/xml')
+            result = self.service_request('ec2', operation, arguments, principal, 'ec2-query')
+            return self.send(200, query_response(operation, result, self.request_id), 'application/xml')
         target = self.headers.get('X-Amz-Target', '')
         if target.startswith('AmazonSQS.') and self.command == 'POST':
             data = json.loads(body or b'{}')
             if not isinstance(data, dict):
                 raise Error('InvalidRequest', 'Expected a JSON object')
-            return self.send(200, engine.sqs(target.split('.', 1)[1], data, principal), 'application/x-amz-json-1.0')
+            return self.send(200, self.service_request('sqs', target.split('.', 1)[1], data, principal, 'aws-json'), 'application/x-amz-json-1.0')
         if self.command == 'POST':
             raise Error('UnsupportedOperation', 'Only SQS JSON protocol is supported for POST', 501)
         if urlsplit(self.path).query and urlsplit(self.path).query not in ('list-type=2',):
             raise Error('UnsupportedOperation', 'S3 query options are unsupported', 501)
         parts = path.lstrip('/').split('/', 1)
         bucket, key = parts[0], parts[1] if len(parts) > 1 else ''
-        result = engine.s3(self.command, bucket, key, body, principal)
+        operation = {'PUT': 'PutObject' if key else 'CreateBucket', 'GET': 'GetObject' if key else ('ListObjects' if bucket else 'ListBuckets'), 'DELETE': 'DeleteObject' if key else 'DeleteBucket'}.get(self.command, self.command)
+        result = self.service_request('s3', operation, {'Bucket': bucket, 'Key': key, 'Body': body}, principal, 'rest-xml')
         if isinstance(result, bytes):
             return self.send(200, result, 'application/octet-stream')
         if self.command == 'GET':
@@ -171,12 +181,12 @@ class Handler(BaseHTTPRequestHandler):
         return self.send(204 if self.command == 'DELETE' else 200, b'')
 
     def dispatch(self):
+        self.request_id = str(uuid.uuid4())
         try:
             self.handle_request()
         except Error as e:
             if self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
-                import uuid
-                self.send(e.status, '<Response><Errors><Error><Code>' + escape(e.code) + '</Code><Message>' + escape(e.message) + '</Message></Error></Errors><RequestID>' + str(uuid.uuid4()) + '</RequestID></Response>', 'application/xml')
+                self.send(e.status, '<Response><Errors><Error><Code>' + escape(e.code) + '</Code><Message>' + escape(e.message) + '</Message></Error></Errors><RequestID>' + self.request_id + '</RequestID></Response>', 'application/xml')
             elif self.headers.get('X-Amz-Target', '').startswith('AmazonSQS.') or self.path.startswith('/_local'):
                 self.send(e.status, {'__type': e.code, 'message': e.message})
             else:
@@ -204,6 +214,9 @@ def main(argv=None):
     parser.add_argument('--instance-name', default='localcloud')
     parser.add_argument('--instance-uid', help='Optional LocalCloudInstance UID for workload ownership')
     parser.add_argument('--ec2-image', action='append', default=[], metavar='AMI=DOCKER_IMAGE', help='Enable Docker EC2 with an explicit image mapping; repeatable')
+    parser.add_argument('--ec2-helper-image', help='Built LocalCloud Docker image for managed volumes and IMDS')
+    parser.add_argument('--ec2-imds', action='store_true', help='Enable per-instance metadata at 169.254.169.254 using the helper image')
+    parser.add_argument('--ec2-guest-mode', action='store_true', help='Opt in to root/writable EC2 guests; KeyName starts preinstalled OpenSSH in the image')
     args = parser.parse_args(argv)
     management_token = os.environ.get(args.management_token_env or 'LOCALCLOUD_MANAGEMENT_TOKEN')
     if args.management_token_env and not management_token:
@@ -216,6 +229,8 @@ def main(argv=None):
         ec2_images[ami] = image
     if ec2_images and not management_token:
         parser.error('Docker EC2 requires LOCALCLOUD_MANAGEMENT_TOKEN')
+    if args.ec2_imds and (not ec2_images or not args.ec2_helper_image):
+        parser.error('--ec2-imds requires --ec2-image and --ec2-helper-image')
     if args.executor == 'kubernetes' and (not management_token or not args.workload_image):
         parser.error('Kubernetes execution requires a management token and at least one --workload-image')
     if args.public_endpoint:
@@ -225,6 +240,9 @@ def main(argv=None):
     Path(args.data).parent.mkdir(parents=True, exist_ok=True)
     endpoint = args.public_endpoint or f'http://{args.host}:{args.port}'
     engine = Engine(args.data, endpoint, args.iam, ec2_images)
+    engine.ec2.runtime.helper_image = args.ec2_helper_image
+    engine.ec2.runtime.imds = args.ec2_imds
+    engine.ec2.runtime.guest_mode = args.ec2_guest_mode
     if args.load_state:
         try:
             engine.tools.import_state(json.loads(Path(args.load_state).read_text()))

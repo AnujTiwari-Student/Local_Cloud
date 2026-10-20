@@ -1,0 +1,73 @@
+{
+  "source_reference": {
+    "commit": "8b9a79f05846835cf4dff63ab7eefdde9df83783",
+    "path": "localstack-core/localstack/services/sqs/provider.py",
+    "line": 759,
+    "kind": "static source expectation; not latest-version runtime comparison"
+  },
+  "before": {
+    "evidence_id": "ev_2b273cda1caa2f19596aaf9161eaf6e743a285714a1b562a82d6ddacb3134adc",
+    "cases": [
+      {
+        "case": "omitted",
+        "result": "QueueNameExists"
+      },
+      {
+        "case": "empty",
+        "result": "QueueNameExists"
+      },
+      {
+        "case": "same",
+        "result": "success"
+      },
+      {
+        "case": "different",
+        "result": "QueueNameExists"
+      }
+    ]
+  },
+  "after": {
+    "evidence_id": "ev_8f25605a25af441990d353fd88410c8f7f50dba43d2e98a4edd705f377e1dc8a",
+    "cases": [
+      {
+        "case": "omitted",
+        "result": "success"
+      },
+      {
+        "case": "empty",
+        "result": "success"
+      },
+      {
+        "case": "same",
+        "result": "success"
+      },
+      {
+        "case": "different",
+        "result": "QueueNameExists"
+      }
+    ]
+  },
+  "comparison": {
+    "evidence_id": "ev_7424cbc18057b22c82340156f941cbbbb0e4a40154801f0562fc89a9e59dcd39",
+    "status": "changed",
+    "limitations": [
+      "Artifact identity is unavailable for this observation.",
+      "The executable digest is a prelaunch file sample; matching path metadata immediately after spawn does not prove an atomic operating-system image binding.",
+      "Process trees are sampled and may omit short-lived descendants.",
+      "Filesystem observations are before/after snapshots, not syscall traces.",
+      "Inherited host environment variables are not recorded and may affect results.",
+      "The executable digest is a prelaunch file sample; matching path metadata immediately after spawn does not prove an atomic operating-system image binding.",
+      "Process trees are sampled and may omit short-lived descendants.",
+      "Filesystem observations are before/after snapshots, not syscall traces.",
+      "Inherited host environment variables are not recorded and may affect results.",
+      "Process trees are sampled and may omit short-lived descendants.",
+      "The executable digest is a prelaunch file sample; operating-system image binding is not atomically observed.",
+      "Inherited host environment variables are not recorded.",
+      "Network activity is not observed by this capture.",
+      "Process trees are sampled and may omit short-lived descendants.",
+      "The executable digest is a prelaunch file sample; operating-system image binding is not atomically observed.",
+      "Inherited host environment variables are not recorded.",
+      "Network activity is not observed by this capture."
+    ]
+  }
+}

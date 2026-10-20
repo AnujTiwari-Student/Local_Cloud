@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "health",
+    "s3-binary-roundtrip",
+    "sqs-delivery",
+    "sqs-visibility",
+    "sqs-acknowledgement",
+    "kubernetes-job-endpoint-roundtrip"
+  ]
+}

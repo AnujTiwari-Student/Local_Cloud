@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-20",
+  "tool": "REA MCP 6.7.0",
+  "records": 47,
+  "bundle": "ec2-kubernetes-evidence.json.gz",
+  "compressed_sha256": "501a2f6802b4c570115ebc7e91fd3ba2cf8352c844a4032236b220134950ce3e",
+  "decompressed_sha256": "3bfa7c3ee219b1dd05659ebf79f41e81a2fbf885d9a9150f7ef25d5e64df8c8d",
+  "scripts": {
+    "scripts/ec2-wire-probe.py": "fbb965bffb8ad9c6719eecbc0410916e740f013a1194bc72267186d3b165c48b",
+    "scripts/kubernetes_smoke.py": "95de6579b91f7c8bc3c16bea8f639d5a356c5989d3017c51403b5cd1624ab407",
+    "scripts/rea-runtime-audit.py": "dc72d076440b58a80e02286aaebc85a3d383664d371d96aec561bdb5681c20c4"
+  },
+  "cleanup_evidence": "ev_22579d5bee20762e29c978004cb2d7f6d912ba2813d22e80883680a42adac4b9"
+}

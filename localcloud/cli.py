@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import os
+import re
 from pathlib import Path
 import sys
 import urllib.parse
@@ -106,11 +107,21 @@ def parser():
     launch.add_argument('--name', help='Unique persistent instance name')
     launch.add_argument('--instance-type', default='t3.micro')
     launch.add_argument('--count', type=int, default=1)
+    launch.add_argument('--client-token', help='Persistent launch idempotency key')
+    launch.add_argument('--tags', nargs='+', metavar='Key=NAME,Value=VALUE')
+    launch.add_argument('--user-data', help='Script text or file://PATH; executed once inside a Docker instance')
+    launch.add_argument('--subnet-id')
+    launch.add_argument('--security-group-ids', nargs='+')
+    launch.add_argument('--private-ip-address')
+    launch.add_argument('--key-name')
+    launch.add_argument('--metadata-options', help='JSON metadata options')
+    launch.add_argument('--block-device-mappings', help='JSON EBS filesystem mappings')
     launch.add_argument('--publish', action='append', default=[], metavar='HOST_PORT:CONTAINER_PORT', help='Publish a Docker TCP port on 127.0.0.1; repeatable')
-    for name in ('describe-instances', 'start-instances', 'stop-instances', 'terminate-instances', 'name-instance', 'modify-instance-attribute'):
+    for name in ('describe-instances', 'start-instances', 'stop-instances', 'terminate-instances', 'name-instance', 'modify-instance-attribute', 'reboot-instances', 'get-console-output', 'describe-instance-status', 'modify-instance-metadata-options'):
         op = operation(ec2, name)
-        selector = op.add_mutually_exclusive_group(required=name != 'describe-instances')
+        selector = op.add_mutually_exclusive_group(required=name not in ('describe-instances', 'describe-instance-status'))
         selector.add_argument('--instance-ids', nargs='+')
+        selector.add_argument('--instance-id', dest='instance_ids', action='append')
         selector.add_argument('--name', help='Select by instance name')
         selector.add_argument('--container-id', help='Full Docker ID or at least 12 hex characters')
         selector.add_argument('--container-name', help='Docker container name')
@@ -119,7 +130,34 @@ def parser():
             op.add_argument('--new-name', required=True)
         if name == 'modify-instance-attribute':
             op.add_argument('--instance-type', required=True, choices=['t3.micro', 't3.small', 't3.medium'])
+        if name in ('describe-instances', 'describe-instance-status'):
+            op.add_argument('--filters', help='AWS-style JSON list of Name/Values filters')
+            op.add_argument('--max-results', type=int)
+            op.add_argument('--next-token')
+        if name == 'describe-instance-status':
+            op.add_argument('--include-all-instances', action='store_true')
+        if name == 'modify-instance-metadata-options':
+            op.add_argument('--http-tokens', choices=['required', 'optional'])
+            op.add_argument('--http-endpoint', choices=['enabled', 'disabled'])
+            op.add_argument('--http-put-response-hop-limit', type=int)
+    images = operation(ec2, 'describe-images')
+    images.add_argument('--image-ids', nargs='+')
+    images.add_argument('--owners', nargs='+')
+    images.add_argument('--filters', help='AWS-style JSON list of Name/Values filters')
+    for name in ('create-tags', 'delete-tags'):
+        tags = operation(ec2, name)
+        tags.add_argument('--resources', nargs='+', required=True)
+        tags.add_argument('--tags', nargs='+', required=True, metavar='Key=NAME,Value=VALUE')
+    tags = operation(ec2, 'describe-tags')
+    tags.add_argument('--filters', help='AWS-style JSON list of Name/Values filters')
+    attribute = operation(ec2, 'describe-instance-attribute')
+    attribute.add_argument('--instance-id', required=True)
+    attribute.add_argument('--attribute', choices=['instanceType', 'userData'], required=True)
+    from .ec2_cli import register
+    register(ec2, operation)
 
+    engine = group('engine', 'Inspect engine routing and source reference')
+    operation(engine, 'status')
     s3 = group('s3', 'High-level S3 commands')
     for name in ('mb', 'rb', 'rm'):
         operation(s3, name).add_argument('uri')
@@ -250,12 +288,28 @@ def s3_command(args, client):
 
 def execute(args, client):
     group, op = args.group, getattr(args, 'operation', None)
+    if group == 'engine':
+        return client.request('GET', '/_local/engine')
     if group == 'status':
         return client.request('GET', '/_local/health')
     if group == 'resources':
         return client.request('GET', '/_local/resources')
     if group == 'ec2':
+        from .ec2_cli import payload as infrastructure_payload
+        infrastructure = infrastructure_payload(args, json_value)
+        if infrastructure is not None:
+            return client.request('POST', '/_local/ec2', infrastructure)
         payload = {'Action': ''.join(word.title() for word in op.split('-'))}
+        def tags(values):
+            result = []
+            for value in values:
+                match = re.fullmatch(r'Key=([^,]+)(?:,Value=(.*))?', value)
+                if not match:
+                    raise ValueError('Tags use Key=NAME,Value=VALUE (Value may be omitted for deletion)')
+                result.append({'Key': match[1], **({'Value': match[2]} if match[2] is not None else {})})
+            return result
+        if getattr(args, 'filters', None) is not None:
+            payload['Filters'] = json_value(args.filters)
         if op == 'run-instances':
             if args.name is not None:
                 payload['Name'] = args.name
@@ -263,6 +317,39 @@ def execute(args, client):
                 from .ec2 import parse_publish
                 payload['PortMappings'] = [parse_publish(value) for value in args.publish]
             payload.update(ImageId=args.image_id, InstanceType=args.instance_type, MinCount=args.count, MaxCount=args.count)
+            for attribute, key in [('subnet_id', 'SubnetId'), ('security_group_ids', 'SecurityGroupIds'), ('private_ip_address', 'PrivateIpAddress'), ('key_name', 'KeyName')]:
+                value = getattr(args, attribute, None)
+                if value is not None:
+                    payload[key] = value
+            for attribute, key in [('metadata_options', 'MetadataOptions'), ('block_device_mappings', 'BlockDeviceMappings')]:
+                value = getattr(args, attribute, None)
+                if value is not None:
+                    payload[key] = json_value(value)
+            if args.client_token is not None:
+                payload['ClientToken'] = args.client_token
+            if args.tags:
+                payload['TagSpecifications'] = [{'ResourceType': 'instance', 'Tags': tags(args.tags)}]
+            if args.user_data is not None:
+                import base64
+                if args.user_data.startswith('file://'):
+                    with Path(args.user_data[7:]).expanduser().open('rb') as script_file:
+                        script = script_file.read(16385)
+                else:
+                    script = args.user_data.encode()
+                if len(script) > 16384:
+                    raise ValueError('Maximum user-data size is 16 KiB')
+                payload['UserData'] = base64.b64encode(script).decode()
+        elif op == 'describe-images':
+            if args.image_ids:
+                payload['ImageIds'] = args.image_ids
+            if args.owners:
+                payload['Owners'] = args.owners
+        elif op in ('create-tags', 'delete-tags'):
+            payload.update(Resources=args.resources, Tags=tags(args.tags))
+        elif op == 'describe-tags':
+            pass
+        elif op == 'describe-instance-attribute':
+            payload.update(InstanceIds=[args.instance_id], Attribute=args.attribute)
         else:
             if args.instance_ids:
                 payload['InstanceIds'] = args.instance_ids
@@ -274,6 +361,12 @@ def execute(args, client):
                 payload['Name'] = args.new_name
             if op == 'modify-instance-attribute':
                 payload['InstanceType'] = args.instance_type
+            for attribute, key in [('max_results', 'MaxResults'), ('next_token', 'NextToken'), ('http_tokens', 'HttpTokens'), ('http_endpoint', 'HttpEndpoint'), ('http_put_response_hop_limit', 'HttpPutResponseHopLimit')]:
+                value = getattr(args, attribute, None)
+                if value is not None:
+                    payload[key] = value
+            if op == 'describe-instance-status' and args.include_all_instances:
+                payload['IncludeAllInstances'] = True
         return client.request('POST', '/_local/ec2', payload)
     if group == 's3api':
         if op == 'list-buckets':

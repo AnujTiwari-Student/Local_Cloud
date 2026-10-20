@@ -1,0 +1,472 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "images",
+      "operation": "describe_images",
+      "status": 200,
+      "result": {
+        "Images": [
+          {
+            "Name": "ami-local",
+            "Tags": [
+              {
+                "Key": "ec2_vm_manager",
+                "Value": "mock"
+              }
+            ],
+            "ImageId": "ami-local",
+            "State": "available",
+            "OwnerId": "000000000000",
+            "Public": false,
+            "Architecture": "x86_64",
+            "ImageType": "machine"
+          }
+        ]
+      }
+    },
+    {
+      "case": "missing-image",
+      "operation": "describe_images",
+      "status": 400,
+      "error": {
+        "Code": "InvalidAMIID.NotFound",
+        "Message": "The image id '[ami-00000000000000000]' does not exist"
+      }
+    },
+    {
+      "case": "launch",
+      "operation": "run_instances",
+      "status": 200,
+      "result": {
+        "ReservationId": "r-7706d8e072c747e1b",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "rea-idempotent-launch",
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "rea-web"
+              },
+              {
+                "Key": "Env",
+                "Value": "test"
+              }
+            ],
+            "InstanceId": "i-d398ae6628b1443cb",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 06:39:43.760161+00:00"
+          }
+        ]
+      }
+    },
+    {
+      "case": "replay",
+      "operation": "run_instances",
+      "status": 200,
+      "result": {
+        "ReservationId": "r-7706d8e072c747e1b",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "rea-idempotent-launch",
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "rea-web"
+              },
+              {
+                "Key": "Env",
+                "Value": "test"
+              }
+            ],
+            "InstanceId": "i-d398ae6628b1443cb",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 16,
+              "Name": "running"
+            },
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 06:39:43.760161+00:00"
+          }
+        ]
+      }
+    },
+    {
+      "case": "mismatched-replay",
+      "operation": "run_instances",
+      "status": 400,
+      "error": {
+        "Code": "IdempotentParameterMismatch",
+        "Message": "ClientToken was used with different launch parameters"
+      }
+    },
+    {
+      "case": "describe",
+      "operation": "describe_instances",
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-7706d8e072c747e1b",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "ClientToken": "rea-idempotent-launch",
+                "Tags": [
+                  {
+                    "Key": "Name",
+                    "Value": "rea-web"
+                  },
+                  {
+                    "Key": "Env",
+                    "Value": "test"
+                  }
+                ],
+                "InstanceId": "i-d398ae6628b1443cb",
+                "ImageId": "ami-local",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "AmiLaunchIndex": 0,
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 06:39:43.760161+00:00"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "filter-tag",
+      "operation": "describe_instances",
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-7706d8e072c747e1b",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "ClientToken": "rea-idempotent-launch",
+                "Tags": [
+                  {
+                    "Key": "Name",
+                    "Value": "rea-web"
+                  },
+                  {
+                    "Key": "Env",
+                    "Value": "test"
+                  }
+                ],
+                "InstanceId": "i-d398ae6628b1443cb",
+                "ImageId": "ami-local",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "AmiLaunchIndex": 0,
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 06:39:43.760161+00:00"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "filter-empty",
+      "operation": "describe_instances",
+      "status": 200,
+      "result": {
+        "Reservations": []
+      }
+    },
+    {
+      "case": "filter-invalid",
+      "operation": "describe_instances",
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "Unsupported filter: not-real"
+      }
+    },
+    {
+      "case": "tag-update",
+      "operation": "create_tags",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tags",
+      "operation": "describe_tags",
+      "status": 200,
+      "result": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "ResourceId": "i-d398ae6628b1443cb",
+            "ResourceType": "instance",
+            "Value": "rea-web"
+          },
+          {
+            "Key": "Env",
+            "ResourceId": "i-d398ae6628b1443cb",
+            "ResourceType": "instance",
+            "Value": "dev"
+          },
+          {
+            "Key": "Owner",
+            "ResourceId": "i-d398ae6628b1443cb",
+            "ResourceType": "instance",
+            "Value": "team"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-delete-wrong-value",
+      "operation": "delete_tags",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tag-delete",
+      "operation": "delete_tags",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tags-after-delete",
+      "operation": "describe_tags",
+      "status": 200,
+      "result": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "ResourceId": "i-d398ae6628b1443cb",
+            "ResourceType": "instance",
+            "Value": "rea-web"
+          },
+          {
+            "Key": "Env",
+            "ResourceId": "i-d398ae6628b1443cb",
+            "ResourceType": "instance",
+            "Value": "dev"
+          }
+        ]
+      }
+    },
+    {
+      "case": "attribute",
+      "operation": "describe_instance_attribute",
+      "status": 200,
+      "result": {
+        "InstanceId": "i-d398ae6628b1443cb",
+        "InstanceType": {
+          "Value": "t3.micro"
+        }
+      }
+    },
+    {
+      "case": "user-data-attribute",
+      "operation": "describe_instance_attribute",
+      "status": 200,
+      "result": {
+        "InstanceId": "i-d398ae6628b1443cb",
+        "UserData": {
+          "Value": "cHJpbnRmIHJlYS11c2VyLWRhdGEtb2sgPi90bXAvcmVhLXNkay11c2VyLWRhdGE="
+        }
+      }
+    },
+    {
+      "case": "stop",
+      "operation": "stop_instances",
+      "status": 200,
+      "result": {
+        "StoppingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 64,
+              "Name": "stopping"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "stop-again",
+      "operation": "stop_instances",
+      "status": 200,
+      "result": {
+        "StoppingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 64,
+              "Name": "stopping"
+            },
+            "PreviousState": {
+              "Code": 80,
+              "Name": "stopped"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "modify",
+      "operation": "modify_instance_attribute",
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "attribute-after-modify",
+      "operation": "describe_instance_attribute",
+      "status": 200,
+      "result": {
+        "InstanceId": "i-d398ae6628b1443cb",
+        "InstanceType": {
+          "Value": "t3.small"
+        }
+      }
+    },
+    {
+      "case": "start",
+      "operation": "start_instances",
+      "status": 200,
+      "result": {
+        "StartingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PreviousState": {
+              "Code": 80,
+              "Name": "stopped"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "start-again",
+      "operation": "start_instances",
+      "status": 200,
+      "result": {
+        "StartingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "terminate",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "terminate-again",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 48,
+              "Name": "terminated"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "start-terminated",
+      "operation": "start_instances",
+      "status": 400,
+      "error": {
+        "Code": "IncorrectInstanceState",
+        "Message": "Terminated instances cannot be started or stopped"
+      }
+    },
+    {
+      "case": "missing-instance",
+      "operation": "describe_instances",
+      "status": 400,
+      "error": {
+        "Code": "InvalidInstanceID.NotFound",
+        "Message": "The instance ID 'i-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "cleanup",
+      "operation": "terminate_instances",
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-d398ae6628b1443cb",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 48,
+              "Name": "terminated"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "stderr": ""
+}

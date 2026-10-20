@@ -6,6 +6,8 @@ Use the [AWS-style CLI guide](docs/CLI.md) for every supported service and tool.
 
 For browser-based creation, details and lifecycle controls, follow the [dashboard and instance connection guide](docs/DASHBOARD.md). Start a named server, connect, then manage EC2, S3 and SQS from the same endpoint.
 
+The [public-engine investigation](docs/ENGINE_RE.md) records pinned LocalStack source evidence, the first gateway/provider migration and remaining compatibility gaps. Inspect it at runtime with `localcloud engine status`.
+
 ## Run
 
 Requires Python 3.11 or newer. No pip dependencies.
@@ -82,7 +84,7 @@ Use `localcloud <service> <operation> --help` for flags, such as `localcloud sqs
 python3 -m unittest discover -s tests -v
 ```
 
-121 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+141 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
 
 ## Compatibility limits
 
@@ -175,3 +177,8 @@ This creates and reads `localcloud.toml`. The file declares your test command, s
 See [the complete Node.js walkthrough](docs/NODEJS_LOCAL_CI.md) and [the runnable app](examples/node-app/README.md). The example covers S3/SQS processing, IAM denial, snapshots, state transfer, faults and request inspection, with a separate optional Kubernetes workload recipe.
 
 For a reachable Docker-backed EC2 web app, see [the complete walkthrough](docs/EC2.md#deploy-a-web-application) and [sample app](examples/ec2-web/README.md).
+
+The [REA MCP service audit](docs/REA_SERVICES.md) records the latest reference image, original Evidence IDs, 11 live checks (including Docker), a source-backed SQS correction and unresolved compatibility work.
+
+See [EC2 networks, volumes, IMDS and SSH](docs/EC2_INFRASTRUCTURE.md) for the current
+70-operation subset, complete local setup and captured verification results.

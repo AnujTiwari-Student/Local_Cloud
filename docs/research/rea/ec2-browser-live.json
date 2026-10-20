@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "browser_evidence": "ev_f182312ba4701da5750a65e253471600b42f57c853f86aeed0d2b731381ff3c9",
+  "note": "Create succeeded; final browser wait used a non-unique locator and failed after creation.",
+  "cleanup": true
+}

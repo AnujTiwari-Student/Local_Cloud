@@ -34,7 +34,7 @@ class EC2Tests(unittest.TestCase):
         identifier = self.launch()
         self.engine.close()
         self.engine = Engine(self.path)
-        self.assertEqual(self.call('StopInstances', InstanceIds=[identifier])['StoppingInstances'][0]['CurrentState']['Name'], 'stopped')
+        self.assertEqual(self.call('StopInstances', InstanceIds=[identifier])['StoppingInstances'][0]['CurrentState']['Name'], 'stopping')
         self.assertEqual(self.call('StartInstances', InstanceIds=[identifier])['StartingInstances'][0]['PreviousState']['Name'], 'stopped')
         self.call('TerminateInstances', InstanceIds=[identifier])
         self.call('TerminateInstances', InstanceIds=[identifier])
@@ -44,7 +44,7 @@ class EC2Tests(unittest.TestCase):
     def test_validation_and_atomic_missing_id(self):
         identifier = self.launch()
         for operation, args in [('RunInstances', {'ImageId': 'bad'}), ('RunInstances', {'ImageId': 'ami-ok', 'MaxCount': 20}),
-                                ('StopInstances', {}), ('DescribeInstances', {'Filters': []}),
+                                ('StopInstances', {}), ('DescribeInstances', {'Filters': 'bad'}),
                                 ('StopInstances', {'InstanceIds': [identifier, 'i-' + '0'*17]})]:
             with self.assertRaises(Error):
                 self.call(operation, **args)
@@ -90,12 +90,42 @@ class EC2Tests(unittest.TestCase):
         execute(args, client)
         self.assertEqual(client.request.call_args.args[2]['MaxCount'], 2)
 
+    def test_aws_query_modify_instance_type(self):
+        identifier = self.launch()
+        self.call('StopInstances', InstanceIds=[identifier])
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        status, body = self.request(data=urlencode({
+            'Action': 'ModifyInstanceAttribute', 'Version': '2016-11-15',
+            'InstanceId': identifier, 'InstanceType.Value': 't3.small',
+        }).encode(), method='POST', headers=headers)
+        self.assertEqual(status, 200)
+        self.assertEqual(ET.fromstring(body).tag.rsplit('}', 1)[-1], 'ModifyInstanceAttributeResponse')
+        self.assertIsNone(ET.fromstring(body).find('{*}instance'))
+        described = self.call('DescribeInstances', InstanceIds=[identifier])
+        self.assertEqual(described['Reservations'][0]['Instances'][0]['InstanceType'], 't3.small')
+        status, _ = self.request(data=urlencode({
+            'Action': 'ModifyInstanceAttribute', 'InstanceId': identifier,
+            'InstanceId.1': identifier, 'InstanceType.Value': 't3.micro',
+        }).encode(), method='POST', headers=headers)
+        self.assertEqual(status, 400)
+
     def test_faults_and_traces(self):
         self.engine.tools.set_rule({'name': 'outage', 'service': 'ec2', 'operation': 'RunInstances', 'error': {'code': 'Unavailable', 'status': 503}})
         with self.assertRaises(Error):
             self.launch()
         self.assertEqual(self.engine.tools.traces()[0]['service'], 'ec2')
         self.assertEqual(self.engine.overview()['instances'], [])
+
+    def test_docker_query_sdk_session_token_authentication(self):
+        self.engine.ec2.images = {'ami-local': 'approved:dev'}
+        body = urlencode({'Action': 'DescribeImages', 'ImageId.1': 'ami-local'}).encode()
+        headers = {'Content-Type': 'application/x-www-form-urlencoded',
+                   'Authorization': 'AWS4-HMAC-SHA256 Credential=test/example'}
+        self.assertEqual(self.request(data=body, method='POST', headers=headers)[0], 401)
+        headers['X-Amz-Security-Token'] = 'wrong'
+        self.assertEqual(self.request(data=body, method='POST', headers=headers)[0], 401)
+        headers['X-Amz-Security-Token'] = 'private'
+        self.assertEqual(self.request(data=body, method='POST', headers=headers)[0], 200)
 
     def test_docker_allowlist_ownership_and_repeated_operations(self):
         self.engine.ec2.images = {'ami-local': 'approved:dev'}

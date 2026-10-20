@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "image": "sha256:59e4cdf06e294c2efeed5488804653a537878a36b7da2224e9010dcc3bce0e37",
+  "checks": {
+    "docker-client": {
+      "exit": 0,
+      "output": "Docker version 28.5.2, build ecc6942\n"
+    },
+    "keygen": {
+      "exit": 0,
+      "output": "ed25519 generation passed as server uid\n"
+    },
+    "schema": {
+      "exit": 0,
+      "output": "70\n"
+    }
+  }
+}
