@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-20",
+  "scope": "EC2 networking control-plane and selected Docker packet observations, not full AWS/LocalStack parity",
+  "archive": "ec2-network-evidence.json.gz",
+  "sha256": "580cc16e1eb0800be064b97078d8662d958a04dbc2c2f1afb2178b7a8aef42e3",
+  "records": 112,
+  "session_unknowns": 5,
+  "selected_records": "ec2-network-records.json",
+  "non_cleanup_cases_per_backend": 33,
+  "matching_http_statuses": 30,
+  "semantic_projections": 9,
+  "matching_semantic_projections": 6,
+  "tests_passed": 162,
+  "live_regression_checks": 11,
+  "source_sha256": {
+    "localcloud/ec2.py": "76bb4d5373b2e7eddf420d9e22d824f3987383330189cee4e4ff8b7a4b033b5d",
+    "localcloud/ec2_infrastructure.py": "115ec8f06771a49f169b0b3091a9ccb8f4457ba40243c8302b2b0763edd9260f",
+    "localcloud/ec2_networking.py": "0d296443f56ae6f83d0831f5e10ea73f3a14ce5b1fb81e7b2febbfaef7dc9fce",
+    "localcloud/ec2-model.json": "bc3eb747e91f349b4132c9483f8bfe1bffd3f7a5fba86cdeca3d223172da7212",
+    "localcloud/dashboard.js": "2cb8d7a523c0016784d2c1a4dfc624ccb0eadce120c62328fc3c6d048e6c8047",
+    "localcloud/dashboard.html": "9342044fe56f06d0e42c1d9fc018799b60f40fc2cb81f1e46230e1e52839eca7",
+    "tests/test_ec2_networking.py": "feb197d6c3ea70d16f272e923b8e553588a15ddd7407e4a6c1e5568759c25f13",
+    "scripts/ec2-network-scenario.py": "56f44c57ca6d520d75fbbd86ef3dc4495f823df5267f6bb51a3e855223b4a737",
+    "scripts/ec2-network-reference.py": "73056211648913ba977d715b04f4d7987c480813c3469058b25f9b4013f5c673",
+    "scripts/ec2-network-candidate.py": "5b65b1aea8721a4bf04d9c6e56360fe6db2828ffb446a0a9e478a14679abc9b1",
+    "scripts/ec2-network-runtime-reference.py": "6ddc48f359630fbd11b3c772cf10b763af01135c5dc94c19cd217ff513e5d2dd",
+    "scripts/ec2-network-docker-smoke.py": "49b89799a0f63355f92e0a3629050ea73b0ecd525e476f4b0192b8ef460a28c2",
+    "scripts/compare-ec2-network.py": "7ad476341486b5a9d35ef5b64e745ea65a79be9cb61867ac000549000291fabe",
+    "Dockerfile": "965bf78e1bc36031eecf97cba67522acdca3be71ba25c24cbf808a65cdb28c2e",
+    "pyproject.toml": "ff1793d58e7fe0e0a9e025d1a7b52fcff20f2f55ed349f744c4c73b708cdb97c"
+  },
+  "selected_records_in_separate_runtime_archive": {
+    "reference_docker": "ev_16864817f2bcd8fee5bdd9452a0cb92358c56e8a8e2bad6eb2da67d00d7ec264",
+    "reference_cleanup": "ev_026445f9ce6e3ece67a28cccfe3695e570a4afb65571d4738c3840c8d371447d"
+  },
+  "runtime_archive_index": "ec2-network-runtime-index.json",
+  "missing_selected_records": {}
+}

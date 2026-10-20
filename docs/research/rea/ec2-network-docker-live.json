@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "real-published-web-endpoint",
+    "docker-eni-secondary-ip-eip-control-plane-with-unchanged-guest-networks",
+    "sg-revoke-does-not-pretend-to-install-live-firewall"
+  ],
+  "cleanup_completed": true
+}

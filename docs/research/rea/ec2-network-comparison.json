@@ -1,0 +1,460 @@
+{
+  "scope": "Selected non-cleanup status and explicitly bounded semantic projections, not whole-response equality",
+  "cases": 33,
+  "matching_statuses": 30,
+  "semantic_projections": 9,
+  "matching_semantic_projections": 6,
+  "rows": [
+    {
+      "case": "eip",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eip-after-associate",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "Domain": "vpc",
+        "PrivateIpAddress": "10.86.2.10",
+        "has_instance": false
+      },
+      "localcloud_projection": {
+        "Domain": "vpc",
+        "PrivateIpAddress": "10.86.2.11",
+        "has_instance": true
+      },
+      "projection_equal": false
+    },
+    {
+      "case": "eip-after-instance",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eip-disassociate",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eip-disassociate-instance",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eip-filter",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eip-to-eni-secondary",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eip-to-instance",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eni",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "Description": "secondary",
+        "Status": "available",
+        "SourceDestCheck": true,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          }
+        ]
+      },
+      "localcloud_projection": {
+        "Description": "secondary",
+        "Status": "available",
+        "SourceDestCheck": true,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          }
+        ]
+      },
+      "projection_equal": true
+    },
+    {
+      "case": "eni-after-assign",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "Description": "updated",
+        "Status": "available",
+        "SourceDestCheck": false,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          },
+          {
+            "PrivateIpAddress": "10.86.2.11",
+            "Primary": false
+          },
+          {
+            "PrivateIpAddress": "10.86.2.12",
+            "Primary": false
+          }
+        ]
+      },
+      "localcloud_projection": {
+        "Description": "updated",
+        "Status": "available",
+        "SourceDestCheck": false,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          },
+          {
+            "PrivateIpAddress": "10.86.2.11",
+            "Primary": false
+          },
+          {
+            "PrivateIpAddress": "10.86.2.12",
+            "Primary": false
+          }
+        ]
+      },
+      "projection_equal": true
+    },
+    {
+      "case": "eni-after-attach",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "Description": "updated",
+        "Status": "in-use",
+        "SourceDestCheck": false,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          },
+          {
+            "PrivateIpAddress": "10.86.2.11",
+            "Primary": false
+          },
+          {
+            "PrivateIpAddress": "10.86.2.12",
+            "Primary": false
+          }
+        ],
+        "Attachment": {
+          "DeviceIndex": 1,
+          "Status": "attached",
+          "DeleteOnTermination": false
+        }
+      },
+      "localcloud_projection": {
+        "Description": "updated",
+        "Status": "in-use",
+        "SourceDestCheck": false,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          },
+          {
+            "PrivateIpAddress": "10.86.2.11",
+            "Primary": false
+          },
+          {
+            "PrivateIpAddress": "10.86.2.12",
+            "Primary": false
+          }
+        ],
+        "Attachment": {
+          "DeviceIndex": 1,
+          "Status": "attached",
+          "DeleteOnTermination": false
+        }
+      },
+      "projection_equal": true
+    },
+    {
+      "case": "eni-after-eip",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "interface_association": true,
+        "private_address_associations": []
+      },
+      "localcloud_projection": {
+        "interface_association": false,
+        "private_address_associations": [
+          "10.86.2.11"
+        ]
+      },
+      "projection_equal": false
+    },
+    {
+      "case": "eni-assign-secondary",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eni-attach",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eni-attribute",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "SourceDestCheck": {
+          "Value": false
+        }
+      },
+      "localcloud_projection": {
+        "SourceDestCheck": {
+          "Value": false
+        }
+      },
+      "projection_equal": true
+    },
+    {
+      "case": "eni-default-group",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "Description": "",
+        "Status": "available",
+        "SourceDestCheck": true,
+        "InterfaceType": "interface",
+        "Groups": [
+          "default"
+        ]
+      },
+      "localcloud_projection": {
+        "Description": "",
+        "Status": "available",
+        "SourceDestCheck": true,
+        "InterfaceType": "interface",
+        "Groups": [
+          "default"
+        ]
+      },
+      "projection_equal": true
+    },
+    {
+      "case": "eni-delete-in-use",
+      "reference_status": 200,
+      "localcloud_status": 400,
+      "status_equal": false
+    },
+    {
+      "case": "eni-duplicate-ip",
+      "reference_status": 200,
+      "localcloud_status": 400,
+      "status_equal": false
+    },
+    {
+      "case": "eni-filter",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "interfaces": [
+          "10.86.1.4",
+          "10.86.2.10"
+        ]
+      },
+      "localcloud_projection": {
+        "interfaces": [
+          "10.86.1.4",
+          "10.86.2.10"
+        ]
+      },
+      "projection_equal": true
+    },
+    {
+      "case": "eni-final",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true,
+      "reference_projection": {
+        "Description": "updated",
+        "Status": "in-use",
+        "SourceDestCheck": false,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.11",
+            "Primary": false
+          }
+        ],
+        "Attachment": {
+          "DeviceIndex": 1,
+          "Status": "attached",
+          "DeleteOnTermination": false
+        }
+      },
+      "localcloud_projection": {
+        "Description": "updated",
+        "Status": "in-use",
+        "SourceDestCheck": false,
+        "InterfaceType": "interface",
+        "Groups": [
+          "network-probe"
+        ],
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.10",
+            "Primary": true
+          },
+          {
+            "PrivateIpAddress": "10.86.2.11",
+            "Primary": false
+          }
+        ],
+        "Attachment": {
+          "DeviceIndex": 1,
+          "Status": "attached",
+          "DeleteOnTermination": false
+        }
+      },
+      "projection_equal": false
+    },
+    {
+      "case": "eni-modify-description",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eni-modify-source-check",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eni-unassign",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "eni-unassign-primary",
+      "reference_status": 200,
+      "localcloud_status": 400,
+      "status_equal": false
+    },
+    {
+      "case": "instance",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "instance-final",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "missing-interface",
+      "reference_status": 400,
+      "localcloud_status": 400,
+      "status_equal": true
+    },
+    {
+      "case": "sg",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "subnet",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "subnet-after-modify",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "subnet-map-public",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "subnet-second",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    },
+    {
+      "case": "vpc",
+      "reference_status": 200,
+      "localcloud_status": 200,
+      "status_equal": true
+    }
+  ],
+  "known_differences": [
+    "Reject duplicate private IPs",
+    "Reject primary IP removal",
+    "Reject deletion of attached ENI",
+    "Keep requested secondary-IP EIP target and owning instance rather than reference primary-IP/empty-instance response",
+    "Preserve primary IP after rejected removal",
+    "LocalCloud publishes only on localhost; reference SSH was wildcard-published"
+  ]
+}

@@ -1,0 +1,625 @@
+{
+  "exit": 0,
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "records": [
+    {
+      "case": "create",
+      "operation": "create_launch_template",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-8e264b67cb",
+        "ClientToken": "rea-create-001",
+        "VersionDescription": "initial",
+        "LaunchTemplateData": {
+          "ImageId": "ami-03cf127a",
+          "InstanceType": "t3.micro",
+          "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+        },
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "purpose",
+                "Value": "rea"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-1c4581588e0033dc8",
+          "LaunchTemplateName": "rea-template-8e264b67cb",
+          "CreateTime": "2026-10-20 09:37:25+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersionNumber": 1,
+          "LatestVersionNumber": 1,
+          "Tags": [
+            {
+              "Key": "purpose",
+              "Value": "rea"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "create-idempotent",
+      "operation": "create_launch_template",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-8e264b67cb",
+        "ClientToken": "rea-create-001",
+        "VersionDescription": "initial",
+        "LaunchTemplateData": {
+          "ImageId": "ami-03cf127a",
+          "InstanceType": "t3.micro",
+          "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+        },
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "purpose",
+                "Value": "rea"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidLaunchTemplateName.AlreadyExistsException",
+        "Message": "Launch template name already in use."
+      }
+    },
+    {
+      "case": "duplicate-name",
+      "operation": "create_launch_template",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-8e264b67cb",
+        "LaunchTemplateData": {
+          "ImageId": "ami-03cf127a"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidLaunchTemplateName.AlreadyExistsException",
+        "Message": "Launch template name already in use."
+      }
+    },
+    {
+      "case": "describe",
+      "operation": "describe_launch_templates",
+      "parameters": {
+        "LaunchTemplateNames": [
+          "rea-template-8e264b67cb"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplates": [
+          {
+            "LaunchTemplateId": "lt-1c4581588e0033dc8",
+            "LaunchTemplateName": "rea-template-8e264b67cb",
+            "CreateTime": "2026-10-20 09:37:25+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersionNumber": 1,
+            "LatestVersionNumber": 1,
+            "Tags": [
+              {
+                "Key": "purpose",
+                "Value": "rea"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "versions",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-1c4581588e0033dc8",
+            "LaunchTemplateName": "rea-template-8e264b67cb",
+            "VersionNumber": 1,
+            "VersionDescription": "initial",
+            "CreateTime": "2026-10-20 09:37:25+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": true,
+            "LaunchTemplateData": {
+              "ImageId": "ami-03cf127a",
+              "InstanceType": "t3.micro",
+              "UserData": "ZWNobyB0ZW1wbGF0ZQ==",
+              "TagSpecifications": [
+                {
+                  "ResourceType": "launch-template",
+                  "Tags": [
+                    {
+                      "Key": "purpose",
+                      "Value": "rea"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "version-create",
+      "operation": "create_launch_template_version",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8",
+        "SourceVersion": "$Latest",
+        "VersionDescription": "larger",
+        "LaunchTemplateData": {
+          "InstanceType": "t3.small"
+        }
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersion": {
+          "LaunchTemplateId": "lt-1c4581588e0033dc8",
+          "LaunchTemplateName": "rea-template-8e264b67cb",
+          "VersionNumber": 2,
+          "VersionDescription": "larger",
+          "CreateTime": "2026-10-20 09:37:25+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersion": false,
+          "LaunchTemplateData": {
+            "InstanceType": "t3.small"
+          }
+        }
+      }
+    },
+    {
+      "case": "versions-latest",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-8e264b67cb",
+        "Versions": [
+          "$Latest",
+          "$Default"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-1c4581588e0033dc8",
+            "LaunchTemplateName": "rea-template-8e264b67cb",
+            "VersionNumber": 2,
+            "VersionDescription": "larger",
+            "CreateTime": "2026-10-20 09:37:25+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": false,
+            "LaunchTemplateData": {
+              "InstanceType": "t3.small"
+            }
+          },
+          {
+            "LaunchTemplateId": "lt-1c4581588e0033dc8",
+            "LaunchTemplateName": "rea-template-8e264b67cb",
+            "VersionNumber": 1,
+            "VersionDescription": "initial",
+            "CreateTime": "2026-10-20 09:37:25+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": true,
+            "LaunchTemplateData": {
+              "ImageId": "ami-03cf127a",
+              "InstanceType": "t3.micro",
+              "UserData": "ZWNobyB0ZW1wbGF0ZQ==",
+              "TagSpecifications": [
+                {
+                  "ResourceType": "launch-template",
+                  "Tags": [
+                    {
+                      "Key": "purpose",
+                      "Value": "rea"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "default-change",
+      "operation": "modify_launch_template",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8",
+        "DefaultVersion": "2"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-1c4581588e0033dc8",
+          "LaunchTemplateName": "rea-template-8e264b67cb",
+          "CreateTime": "2026-10-20 09:37:25+00:00",
+          "DefaultVersionNumber": 2,
+          "LatestVersionNumber": 2,
+          "Tags": [
+            {}
+          ]
+        }
+      }
+    },
+    {
+      "case": "version-after-default",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8",
+        "Versions": [
+          "$Default"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-1c4581588e0033dc8",
+            "LaunchTemplateName": "rea-template-8e264b67cb",
+            "VersionNumber": 2,
+            "VersionDescription": "larger",
+            "CreateTime": "2026-10-20 09:37:25+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": true,
+            "LaunchTemplateData": {
+              "InstanceType": "t3.small"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "run-template",
+      "operation": "run_instances",
+      "parameters": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-1c4581588e0033dc8"
+        },
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-b1ade5b8591890880",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-20 09:37:25+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-cd60fd16cc7ac9655"
+                }
+              }
+            ],
+            "ClientToken": "1827ddea-7cae-4d07-a22b-da482bc12efe",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-28-61.ec2.internal",
+                  "PublicIp": "54.214.28.61"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-20 09:37:25+00:00",
+                  "AttachmentId": "eni-attach-b1684dfd0b5f59dda",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-55495275252d58186",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:21102x:12002x:21802x",
+                "NetworkInterfaceId": "eni-66e53e2265204a3da",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-102-185-4.ec2.internal",
+                "PrivateIpAddress": "10.102.185.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-28-61.ec2.internal",
+                      "PublicIp": "54.214.28.61"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.102.185.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-e2270948d17b50ec3",
+                "VpcId": "vpc-fd73eb17fd1ff0e3e",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-55495275252d58186",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "Tags": [
+              {
+                "Key": "aws:ec2launchtemplate:id",
+                "Value": "lt-1c4581588e0033dc8"
+              },
+              {
+                "Key": "aws:ec2launchtemplate:version",
+                "Value": "2"
+              }
+            ],
+            "VirtualizationType": "paravirtual",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-63ec18a694ce733b5",
+            "ImageId": "",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-102-185-4.ec2.internal",
+            "PublicDnsName": "ec2-54-214-28-61.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.small",
+            "LaunchTime": "2026-10-20 09:37:25+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "KernelId": "None",
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-e2270948d17b50ec3",
+            "VpcId": "vpc-fd73eb17fd1ff0e3e",
+            "PrivateIpAddress": "10.102.185.4",
+            "PublicIpAddress": "54.214.28.61"
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-template-data",
+      "operation": "get_launch_template_data",
+      "parameters": {
+        "InstanceId": "i-63ec18a694ce733b5"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateData": {
+          "EbsOptimized": false,
+          "BlockDeviceMappings": [
+            {
+              "DeviceName": "string",
+              "Ebs": {
+                "DeleteOnTermination": true,
+                "VolumeSize": 8
+              }
+            }
+          ],
+          "NetworkInterfaces": [
+            {
+              "AssociatePublicIpAddress": true,
+              "DeleteOnTermination": false,
+              "Description": "",
+              "DeviceIndex": 0,
+              "Groups": [
+                "{'GroupId': 'sg-55495275252d58186'}"
+              ],
+              "InterfaceType": "interface",
+              "PrivateIpAddresses": [
+                {
+                  "Primary": true,
+                  "PrivateIpAddress": "10.102.185.4"
+                }
+              ],
+              "SubnetId": "subnet-e2270948d17b50ec3",
+              "NetworkCardIndex": 0
+            }
+          ],
+          "ImageId": "",
+          "InstanceType": "t3.small",
+          "Monitoring": {
+            "Enabled": false
+          },
+          "Placement": {
+            "AvailabilityZone": "us-east-1a",
+            "GroupName": "",
+            "Tenancy": "default"
+          },
+          "DisableApiTermination": false,
+          "InstanceInitiatedShutdownBehavior": "stop",
+          "TagSpecifications": [
+            {
+              "ResourceType": "instance",
+              "Tags": [
+                {
+                  "Key": "aws:ec2launchtemplate:id",
+                  "Value": "lt-1c4581588e0033dc8"
+                },
+                {
+                  "Key": "aws:ec2launchtemplate:version",
+                  "Value": "2"
+                }
+              ]
+            }
+          ],
+          "CreditSpecification": {
+            "CpuCredits": "standard"
+          },
+          "CapacityReservationSpecification": {
+            "CapacityReservationPreference": "open"
+          },
+          "HibernationOptions": {
+            "Configured": false
+          },
+          "MetadataOptions": {
+            "HttpTokens": "optional",
+            "HttpPutResponseHopLimit": 1,
+            "HttpEndpoint": "enabled",
+            "HttpProtocolIpv6": "disabled",
+            "InstanceMetadataTags": "disabled"
+          },
+          "EnclaveOptions": {
+            "Enabled": false
+          },
+          "PrivateDnsNameOptions": {
+            "HostnameType": "ip-name",
+            "EnableResourceNameDnsARecord": true,
+            "EnableResourceNameDnsAAAARecord": false
+          },
+          "MaintenanceOptions": {
+            "AutoRecovery": "default"
+          },
+          "DisableApiStop": false
+        }
+      }
+    },
+    {
+      "case": "version-missing",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8",
+        "Versions": [
+          "999"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidLaunchTemplateId.VersionNotFound",
+        "Message": "Could not find the specified version 999 for the launch template with ID lt-1c4581588e0033dc8."
+      }
+    },
+    {
+      "case": "delete-default-version",
+      "operation": "delete_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8",
+        "Versions": [
+          "2"
+        ]
+      },
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The delete_launch_template_versions action has not been implemented"
+      }
+    },
+    {
+      "case": "delete-old-version",
+      "operation": "delete_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8",
+        "Versions": [
+          "1"
+        ]
+      },
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The delete_launch_template_versions action has not been implemented"
+      }
+    },
+    {
+      "case": "template-missing",
+      "operation": "describe_launch_templates",
+      "parameters": {
+        "LaunchTemplateIds": [
+          "lt-00000000000000000"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplates": []
+      }
+    },
+    {
+      "case": "cleanup-instance",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-63ec18a694ce733b5"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-63ec18a694ce733b5",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-template",
+      "operation": "delete_launch_template",
+      "parameters": {
+        "LaunchTemplateId": "lt-1c4581588e0033dc8"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-1c4581588e0033dc8",
+          "LaunchTemplateName": "rea-template-8e264b67cb",
+          "DefaultVersionNumber": 2
+        }
+      }
+    }
+  ],
+  "stderr": "",
+  "cleanup_completed": true
+}

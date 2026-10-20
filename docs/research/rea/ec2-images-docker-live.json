@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "stopped-owned-container-root-capture",
+    "launch-from-owned-persisted-ami",
+    "root-marker-preserved"
+  ],
+  "cleanup_completed": true
+}

@@ -1,0 +1,12 @@
+{
+  "archive": "ec2-network-runtime-evidence.json.gz",
+  "sha256": "daf81b77eecfe334a66b130660b79a45f642be5bf6c45f8c7f41cd8571e25683",
+  "record_count": 10,
+  "selected_evidence_ids": {
+    "runtime": "ev_16864817f2bcd8fee5bdd9452a0cb92358c56e8a8e2bad6eb2da67d00d7ec264",
+    "cleanup": "ev_026445f9ce6e3ece67a28cccfe3695e570a4afb65571d4738c3840c8d371447d"
+  },
+  "selected_ids_retained": true,
+  "report": "ec2-network-runtime-reference.json",
+  "script": "../../../scripts/ec2-network-runtime-reference.py"
+}

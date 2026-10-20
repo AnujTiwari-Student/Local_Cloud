@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "browser-connect",
+    "create-network-interface",
+    "allocate-elastic-ip",
+    "modify-source-destination-check"
+  ],
+  "browser_evidence": "ev_0e624b93d0f4f2a8ec49139b21c8e9ff43535e0baee94df165a04e16d5d452c1",
+  "action_evidence": "ev_7e9be5ca630ed15b40bafbd5247815aa8550f2e7e139d248186927f0ecf1e58c",
+  "page_errors": 0,
+  "cleanup_completed": true
+}

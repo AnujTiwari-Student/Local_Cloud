@@ -1,0 +1,530 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "create",
+      "operation": "create_launch_template",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-aa6b838f2c",
+        "ClientToken": "rea-create-001",
+        "VersionDescription": "initial",
+        "LaunchTemplateData": {
+          "ImageId": "ami-local",
+          "InstanceType": "t3.micro",
+          "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+        },
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "purpose",
+                "Value": "rea"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+          "LaunchTemplateName": "rea-template-aa6b838f2c",
+          "CreateTime": "2026-10-20 09:40:08.798267+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersionNumber": 1,
+          "LatestVersionNumber": 1,
+          "Tags": [
+            {
+              "Key": "purpose",
+              "Value": "rea"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "create-idempotent",
+      "operation": "create_launch_template",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-aa6b838f2c",
+        "ClientToken": "rea-create-001",
+        "VersionDescription": "initial",
+        "LaunchTemplateData": {
+          "ImageId": "ami-local",
+          "InstanceType": "t3.micro",
+          "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+        },
+        "TagSpecifications": [
+          {
+            "ResourceType": "launch-template",
+            "Tags": [
+              {
+                "Key": "purpose",
+                "Value": "rea"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+          "LaunchTemplateName": "rea-template-aa6b838f2c",
+          "CreateTime": "2026-10-20 09:40:08.798267+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersionNumber": 1,
+          "LatestVersionNumber": 1,
+          "Tags": [
+            {
+              "Key": "purpose",
+              "Value": "rea"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "duplicate-name",
+      "operation": "create_launch_template",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-aa6b838f2c",
+        "LaunchTemplateData": {
+          "ImageId": "ami-local"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidLaunchTemplateName.AlreadyExistsException",
+        "Message": "Launch template name already exists"
+      }
+    },
+    {
+      "case": "describe",
+      "operation": "describe_launch_templates",
+      "parameters": {
+        "LaunchTemplateNames": [
+          "rea-template-aa6b838f2c"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplates": [
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "CreateTime": "2026-10-20 09:40:08.798267+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersionNumber": 1,
+            "LatestVersionNumber": 1,
+            "Tags": [
+              {
+                "Key": "purpose",
+                "Value": "rea"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "versions",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "VersionNumber": 1,
+            "VersionDescription": "initial",
+            "CreateTime": "2026-10-20 09:40:08.798310+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": true,
+            "LaunchTemplateData": {
+              "ImageId": "ami-local",
+              "InstanceType": "t3.micro",
+              "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "version-create",
+      "operation": "create_launch_template_version",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+        "SourceVersion": "$Latest",
+        "VersionDescription": "larger",
+        "LaunchTemplateData": {
+          "InstanceType": "t3.small"
+        }
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersion": {
+          "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+          "LaunchTemplateName": "rea-template-aa6b838f2c",
+          "VersionNumber": 2,
+          "VersionDescription": "larger",
+          "CreateTime": "2026-10-20 09:40:08.816860+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersion": false,
+          "LaunchTemplateData": {
+            "ImageId": "ami-local",
+            "InstanceType": "t3.small",
+            "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+          }
+        }
+      }
+    },
+    {
+      "case": "versions-latest",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateName": "rea-template-aa6b838f2c",
+        "Versions": [
+          "$Latest",
+          "$Default"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "VersionNumber": 2,
+            "VersionDescription": "larger",
+            "CreateTime": "2026-10-20 09:40:08.816860+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": false,
+            "LaunchTemplateData": {
+              "ImageId": "ami-local",
+              "InstanceType": "t3.small",
+              "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+            }
+          },
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "VersionNumber": 1,
+            "VersionDescription": "initial",
+            "CreateTime": "2026-10-20 09:40:08.798310+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": true,
+            "LaunchTemplateData": {
+              "ImageId": "ami-local",
+              "InstanceType": "t3.micro",
+              "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "default-change",
+      "operation": "modify_launch_template",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+        "DefaultVersion": "2"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+          "LaunchTemplateName": "rea-template-aa6b838f2c",
+          "CreateTime": "2026-10-20 09:40:08.798267+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersionNumber": 2,
+          "LatestVersionNumber": 2,
+          "Tags": [
+            {
+              "Key": "purpose",
+              "Value": "rea"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "version-after-default",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+        "Versions": [
+          "$Default"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "VersionNumber": 2,
+            "VersionDescription": "larger",
+            "CreateTime": "2026-10-20 09:40:08.816860+00:00",
+            "CreatedBy": "arn:aws:iam::000000000000:root",
+            "DefaultVersion": true,
+            "LaunchTemplateData": {
+              "ImageId": "ami-local",
+              "InstanceType": "t3.small",
+              "UserData": "ZWNobyB0ZW1wbGF0ZQ=="
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "run-template",
+      "operation": "run_instances",
+      "parameters": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-4be133a2c5cb4b00b"
+        },
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-85adddff52e34a9d8",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "5a9f67b5-d41f-4d52-9a93-c2d2eb56f780",
+            "NetworkInterfaces": [
+              {
+                "Attachment": {
+                  "AttachTime": "2026-10-20 09:40:08.826194+00:00",
+                  "AttachmentId": "eni-attach-25a554fd6c984976b",
+                  "DeleteOnTermination": true,
+                  "DeviceIndex": 0,
+                  "Status": "attached"
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-f4bed6ddbfb64099b",
+                    "GroupName": "default"
+                  }
+                ],
+                "MacAddress": "02:00:c0:15:1e:c1",
+                "NetworkInterfaceId": "eni-ab79f801149949a18",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-172-31-0-4.ec2.internal",
+                "PrivateIpAddress": "172.31.0.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "172.31.0.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-4083ed52fda44b0eb",
+                "VpcId": "vpc-74aff4860eb147cca",
+                "InterfaceType": "interface"
+              }
+            ],
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-f4bed6ddbfb64099b",
+                "GroupName": "default"
+              }
+            ],
+            "Tags": [],
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-b1f16a116c0f4c3c8",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-172-31-0-4.ec2.internal",
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.small",
+            "LaunchTime": "2026-10-20 09:40:08.826070+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "SubnetId": "subnet-4083ed52fda44b0eb",
+            "VpcId": "vpc-74aff4860eb147cca",
+            "PrivateIpAddress": "172.31.0.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-template-data",
+      "operation": "get_launch_template_data",
+      "parameters": {
+        "InstanceId": "i-b1f16a116c0f4c3c8"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplateData": {
+          "NetworkInterfaces": [
+            {
+              "DeviceIndex": 0,
+              "Groups": [
+                "sg-f4bed6ddbfb64099b"
+              ],
+              "PrivateIpAddress": "172.31.0.4",
+              "SubnetId": "subnet-4083ed52fda44b0eb"
+            }
+          ],
+          "ImageId": "ami-local",
+          "InstanceType": "t3.small",
+          "UserData": "ZWNobyB0ZW1wbGF0ZQ==",
+          "MetadataOptions": {
+            "HttpTokens": "optional",
+            "HttpPutResponseHopLimit": 1,
+            "HttpEndpoint": "enabled",
+            "HttpProtocolIpv6": "disabled",
+            "InstanceMetadataTags": "disabled"
+          }
+        }
+      }
+    },
+    {
+      "case": "version-missing",
+      "operation": "describe_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+        "Versions": [
+          "999"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidLaunchTemplateId.VersionNotFound",
+        "Message": "Launch template version does not exist"
+      }
+    },
+    {
+      "case": "delete-default-version",
+      "operation": "delete_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+        "Versions": [
+          "2"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "SuccessfullyDeletedLaunchTemplateVersions": [],
+        "UnsuccessfullyDeletedLaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "VersionNumber": 2,
+            "ResponseError": {
+              "Code": "CannotDeleteDefaultVersion",
+              "Message": "Cannot delete default version"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "delete-old-version",
+      "operation": "delete_launch_template_versions",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+        "Versions": [
+          "1"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "SuccessfullyDeletedLaunchTemplateVersions": [
+          {
+            "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+            "LaunchTemplateName": "rea-template-aa6b838f2c",
+            "VersionNumber": 1
+          }
+        ],
+        "UnsuccessfullyDeletedLaunchTemplateVersions": []
+      }
+    },
+    {
+      "case": "template-missing",
+      "operation": "describe_launch_templates",
+      "parameters": {
+        "LaunchTemplateIds": [
+          "lt-00000000000000000"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplates": []
+      }
+    },
+    {
+      "case": "cleanup-instance",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-b1f16a116c0f4c3c8"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-b1f16a116c0f4c3c8",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-template",
+      "operation": "delete_launch_template",
+      "parameters": {
+        "LaunchTemplateId": "lt-4be133a2c5cb4b00b"
+      },
+      "status": 200,
+      "result": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": "lt-4be133a2c5cb4b00b",
+          "LaunchTemplateName": "rea-template-aa6b838f2c",
+          "CreateTime": "2026-10-20 09:40:08.798267+00:00",
+          "CreatedBy": "arn:aws:iam::000000000000:root",
+          "DefaultVersionNumber": 2,
+          "LatestVersionNumber": 2,
+          "Tags": [
+            {
+              "Key": "purpose",
+              "Value": "rea"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "stderr": ""
+}

@@ -1,0 +1,1144 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "vpc",
+      "operation": "create_vpc",
+      "parameters": {
+        "CidrBlock": "10.86.0.0/16"
+      },
+      "status": 200,
+      "result": {
+        "Vpc": {
+          "OwnerId": "000000000000",
+          "InstanceTenancy": "default",
+          "CidrBlockAssociationSet": [
+            {
+              "AssociationId": "vpc-cidr-assoc-b17dcec6204a46a4b",
+              "CidrBlock": "10.86.0.0/16",
+              "CidrBlockState": {
+                "State": "associated"
+              }
+            }
+          ],
+          "IsDefault": false,
+          "Tags": [],
+          "VpcId": "vpc-b1fbbeb15bd54e11b",
+          "State": "available",
+          "CidrBlock": "10.86.0.0/16",
+          "DhcpOptionsId": "default"
+        }
+      }
+    },
+    {
+      "case": "subnet",
+      "operation": "create_subnet",
+      "parameters": {
+        "VpcId": "vpc-b1fbbeb15bd54e11b",
+        "CidrBlock": "10.86.1.0/24",
+        "AvailabilityZone": "us-east-1a"
+      },
+      "status": 200,
+      "result": {
+        "Subnet": {
+          "AvailabilityZoneId": "use1-az6",
+          "OwnerId": "000000000000",
+          "AssignIpv6AddressOnCreation": false,
+          "Ipv6CidrBlockAssociationSet": [],
+          "Tags": [],
+          "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-09d25b6e18bd46699",
+          "Ipv6Native": false,
+          "SubnetId": "subnet-09d25b6e18bd46699",
+          "State": "available",
+          "VpcId": "vpc-b1fbbeb15bd54e11b",
+          "CidrBlock": "10.86.1.0/24",
+          "AvailableIpAddressCount": 251,
+          "AvailabilityZone": "us-east-1a",
+          "DefaultForAz": false,
+          "MapPublicIpOnLaunch": false
+        }
+      }
+    },
+    {
+      "case": "subnet-second",
+      "operation": "create_subnet",
+      "parameters": {
+        "VpcId": "vpc-b1fbbeb15bd54e11b",
+        "CidrBlock": "10.86.2.0/24",
+        "AvailabilityZone": "us-east-1a"
+      },
+      "status": 200,
+      "result": {
+        "Subnet": {
+          "AvailabilityZoneId": "use1-az6",
+          "OwnerId": "000000000000",
+          "AssignIpv6AddressOnCreation": false,
+          "Ipv6CidrBlockAssociationSet": [],
+          "Tags": [],
+          "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-5c41ba78e2e040168",
+          "Ipv6Native": false,
+          "SubnetId": "subnet-5c41ba78e2e040168",
+          "State": "available",
+          "VpcId": "vpc-b1fbbeb15bd54e11b",
+          "CidrBlock": "10.86.2.0/24",
+          "AvailableIpAddressCount": 251,
+          "AvailabilityZone": "us-east-1a",
+          "DefaultForAz": false,
+          "MapPublicIpOnLaunch": false
+        }
+      }
+    },
+    {
+      "case": "sg",
+      "operation": "create_security_group",
+      "parameters": {
+        "VpcId": "vpc-b1fbbeb15bd54e11b",
+        "GroupName": "network-probe",
+        "Description": "Isolated REA probe"
+      },
+      "status": 200,
+      "result": {
+        "GroupId": "sg-97f2b0feb75340fe9",
+        "SecurityGroupArn": "arn:aws:ec2:us-east-1:000000000000:security-group/sg-97f2b0feb75340fe9"
+      }
+    },
+    {
+      "case": "subnet-map-public",
+      "operation": "modify_subnet_attribute",
+      "parameters": {
+        "SubnetId": "subnet-09d25b6e18bd46699",
+        "MapPublicIpOnLaunch": {
+          "Value": true
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "subnet-after-modify",
+      "operation": "describe_subnets",
+      "parameters": {
+        "SubnetIds": [
+          "subnet-09d25b6e18bd46699"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Subnets": [
+          {
+            "AvailabilityZoneId": "use1-az6",
+            "OwnerId": "000000000000",
+            "AssignIpv6AddressOnCreation": false,
+            "Ipv6CidrBlockAssociationSet": [],
+            "Tags": [],
+            "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-09d25b6e18bd46699",
+            "Ipv6Native": false,
+            "SubnetId": "subnet-09d25b6e18bd46699",
+            "State": "available",
+            "VpcId": "vpc-b1fbbeb15bd54e11b",
+            "CidrBlock": "10.86.1.0/24",
+            "AvailableIpAddressCount": 251,
+            "AvailabilityZone": "us-east-1a",
+            "DefaultForAz": false,
+            "MapPublicIpOnLaunch": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-local",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "SubnetId": "subnet-09d25b6e18bd46699",
+        "SecurityGroupIds": [
+          "sg-97f2b0feb75340fe9"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-d3779e0b4a97494a9",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "1f0e1ec8-9e0c-4015-82ee-aad71d5784ad",
+            "NetworkInterfaces": [
+              {
+                "Attachment": {
+                  "AttachTime": "2026-10-20 09:21:38.619887+00:00",
+                  "AttachmentId": "eni-attach-97465693fcf34965b",
+                  "DeleteOnTermination": true,
+                  "DeviceIndex": 0,
+                  "Status": "attached"
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-97f2b0feb75340fe9",
+                    "GroupName": "network-probe"
+                  }
+                ],
+                "MacAddress": "02:00:d7:80:bf:8e",
+                "NetworkInterfaceId": "eni-781bf079672148699",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-86-1-4.ec2.internal",
+                "PrivateIpAddress": "10.86.1.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.86.1.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-09d25b6e18bd46699",
+                "VpcId": "vpc-b1fbbeb15bd54e11b",
+                "InterfaceType": "interface"
+              }
+            ],
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "Tags": [],
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-968cd0b2b96e4d79a",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-86-1-4.ec2.internal",
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 09:21:38.619784+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "SubnetId": "subnet-09d25b6e18bd46699",
+            "VpcId": "vpc-b1fbbeb15bd54e11b",
+            "PrivateIpAddress": "10.86.1.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eni",
+      "operation": "create_network_interface",
+      "parameters": {
+        "SubnetId": "subnet-5c41ba78e2e040168",
+        "PrivateIpAddress": "10.86.2.10",
+        "Groups": [
+          "sg-97f2b0feb75340fe9"
+        ],
+        "Description": "secondary"
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterface": {
+          "AvailabilityZone": "us-east-1a",
+          "Description": "secondary",
+          "Groups": [
+            {
+              "GroupId": "sg-97f2b0feb75340fe9",
+              "GroupName": "network-probe"
+            }
+          ],
+          "InterfaceType": "interface",
+          "MacAddress": "02:00:73:b4:19:57",
+          "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+          "OwnerId": "000000000000",
+          "PrivateIpAddress": "10.86.2.10",
+          "PrivateIpAddresses": [
+            {
+              "Primary": true,
+              "PrivateIpAddress": "10.86.2.10"
+            }
+          ],
+          "RequesterManaged": false,
+          "SourceDestCheck": true,
+          "Status": "available",
+          "SubnetId": "subnet-5c41ba78e2e040168",
+          "TagSet": [],
+          "VpcId": "vpc-b1fbbeb15bd54e11b"
+        }
+      }
+    },
+    {
+      "case": "eni-default-group",
+      "operation": "create_network_interface",
+      "parameters": {
+        "SubnetId": "subnet-5c41ba78e2e040168"
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterface": {
+          "AvailabilityZone": "us-east-1a",
+          "Description": "",
+          "Groups": [
+            {
+              "GroupId": "sg-123d269f388043d98",
+              "GroupName": "default"
+            }
+          ],
+          "InterfaceType": "interface",
+          "MacAddress": "02:00:aa:9d:82:1d",
+          "NetworkInterfaceId": "eni-917bc187659242748",
+          "OwnerId": "000000000000",
+          "PrivateIpAddress": "10.86.2.4",
+          "PrivateIpAddresses": [
+            {
+              "Primary": true,
+              "PrivateIpAddress": "10.86.2.4"
+            }
+          ],
+          "RequesterManaged": false,
+          "SourceDestCheck": true,
+          "Status": "available",
+          "SubnetId": "subnet-5c41ba78e2e040168",
+          "TagSet": [],
+          "VpcId": "vpc-b1fbbeb15bd54e11b"
+        }
+      }
+    },
+    {
+      "case": "eni-duplicate-ip",
+      "operation": "create_network_interface",
+      "parameters": {
+        "SubnetId": "subnet-5c41ba78e2e040168",
+        "PrivateIpAddress": "10.86.2.10"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidIPAddress.InUse",
+        "Message": "Private address is reserved, unavailable or outside subnet"
+      }
+    },
+    {
+      "case": "eni-modify-description",
+      "operation": "modify_network_interface_attribute",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "Description": {
+          "Value": "updated"
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "eni-modify-source-check",
+      "operation": "modify_network_interface_attribute",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "SourceDestCheck": {
+          "Value": false
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "eni-attribute",
+      "operation": "describe_network_interface_attribute",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "Attribute": "sourceDestCheck"
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "SourceDestCheck": {
+          "Value": false
+        }
+      }
+    },
+    {
+      "case": "eni-assign-secondary",
+      "operation": "assign_private_ip_addresses",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "PrivateIpAddresses": [
+          "10.86.2.11",
+          "10.86.2.12"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "AssignedPrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.86.2.11"
+          },
+          {
+            "PrivateIpAddress": "10.86.2.12"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eni-after-assign",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "NetworkInterfaceIds": [
+          "eni-7c6254c5edbe41038"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaces": [
+          {
+            "AvailabilityZone": "us-east-1a",
+            "Description": "updated",
+            "Groups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "InterfaceType": "interface",
+            "MacAddress": "02:00:73:b4:19:57",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "OwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.10",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.86.2.10"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.11"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.12"
+              }
+            ],
+            "RequesterManaged": false,
+            "SourceDestCheck": false,
+            "Status": "available",
+            "SubnetId": "subnet-5c41ba78e2e040168",
+            "TagSet": [],
+            "VpcId": "vpc-b1fbbeb15bd54e11b"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eni-attach",
+      "operation": "attach_network_interface",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "InstanceId": "i-968cd0b2b96e4d79a",
+        "DeviceIndex": 1
+      },
+      "status": 200,
+      "result": {
+        "AttachmentId": "eni-attach-685576e3114a4317a"
+      }
+    },
+    {
+      "case": "eni-after-attach",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "NetworkInterfaceIds": [
+          "eni-7c6254c5edbe41038"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaces": [
+          {
+            "Attachment": {
+              "AttachTime": "2026-10-20 09:21:38.653062+00:00",
+              "AttachmentId": "eni-attach-685576e3114a4317a",
+              "DeleteOnTermination": false,
+              "DeviceIndex": 1,
+              "InstanceId": "i-968cd0b2b96e4d79a",
+              "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "updated",
+            "Groups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "InterfaceType": "interface",
+            "MacAddress": "02:00:73:b4:19:57",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "OwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.10",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.86.2.10"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.11"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.12"
+              }
+            ],
+            "RequesterManaged": false,
+            "SourceDestCheck": false,
+            "Status": "in-use",
+            "SubnetId": "subnet-5c41ba78e2e040168",
+            "TagSet": [],
+            "VpcId": "vpc-b1fbbeb15bd54e11b"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eni-filter",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "Filters": [
+          {
+            "Name": "attachment.instance-id",
+            "Values": [
+              "i-968cd0b2b96e4d79a"
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaces": [
+          {
+            "Attachment": {
+              "AttachTime": "2026-10-20 09:21:38.619887+00:00",
+              "AttachmentId": "eni-attach-97465693fcf34965b",
+              "DeleteOnTermination": true,
+              "DeviceIndex": 0,
+              "InstanceId": "i-968cd0b2b96e4d79a",
+              "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "Primary network interface",
+            "Groups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "InterfaceType": "interface",
+            "MacAddress": "02:00:d7:80:bf:8e",
+            "NetworkInterfaceId": "eni-781bf079672148699",
+            "OwnerId": "000000000000",
+            "PrivateDnsName": "ip-10-86-1-4.ec2.internal",
+            "PrivateIpAddress": "10.86.1.4",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.86.1.4"
+              }
+            ],
+            "RequesterManaged": false,
+            "SourceDestCheck": true,
+            "Status": "in-use",
+            "SubnetId": "subnet-09d25b6e18bd46699",
+            "TagSet": [],
+            "VpcId": "vpc-b1fbbeb15bd54e11b"
+          },
+          {
+            "Attachment": {
+              "AttachTime": "2026-10-20 09:21:38.653062+00:00",
+              "AttachmentId": "eni-attach-685576e3114a4317a",
+              "DeleteOnTermination": false,
+              "DeviceIndex": 1,
+              "InstanceId": "i-968cd0b2b96e4d79a",
+              "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "updated",
+            "Groups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "InterfaceType": "interface",
+            "MacAddress": "02:00:73:b4:19:57",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "OwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.10",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.86.2.10"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.11"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.12"
+              }
+            ],
+            "RequesterManaged": false,
+            "SourceDestCheck": false,
+            "Status": "in-use",
+            "SubnetId": "subnet-5c41ba78e2e040168",
+            "TagSet": [],
+            "VpcId": "vpc-b1fbbeb15bd54e11b"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eip",
+      "operation": "allocate_address",
+      "parameters": {
+        "Domain": "vpc"
+      },
+      "status": 200,
+      "result": {
+        "AllocationId": "eipalloc-cb36be1aa952468bb",
+        "PublicIpv4Pool": "amazon",
+        "Domain": "vpc",
+        "PublicIp": "127.240.0.1"
+      }
+    },
+    {
+      "case": "eip-to-eni-secondary",
+      "operation": "associate_address",
+      "parameters": {
+        "AllocationId": "eipalloc-cb36be1aa952468bb",
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "PrivateIpAddress": "10.86.2.11"
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "eipassoc-155c4e836a534f65b"
+      }
+    },
+    {
+      "case": "eip-after-associate",
+      "operation": "describe_addresses",
+      "parameters": {
+        "AllocationIds": [
+          "eipalloc-cb36be1aa952468bb"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Addresses": [
+          {
+            "AllocationId": "eipalloc-cb36be1aa952468bb",
+            "AssociationId": "eipassoc-155c4e836a534f65b",
+            "Domain": "vpc",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "NetworkInterfaceOwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.11",
+            "Tags": [],
+            "PublicIpv4Pool": "amazon",
+            "InstanceId": "i-968cd0b2b96e4d79a",
+            "PublicIp": "127.240.0.1"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eni-after-eip",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "NetworkInterfaceIds": [
+          "eni-7c6254c5edbe41038"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaces": [
+          {
+            "Attachment": {
+              "AttachTime": "2026-10-20 09:21:38.653062+00:00",
+              "AttachmentId": "eni-attach-685576e3114a4317a",
+              "DeleteOnTermination": false,
+              "DeviceIndex": 1,
+              "InstanceId": "i-968cd0b2b96e4d79a",
+              "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "updated",
+            "Groups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "InterfaceType": "interface",
+            "MacAddress": "02:00:73:b4:19:57",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "OwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.10",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.86.2.10"
+              },
+              {
+                "Association": {
+                  "AllocationId": "eipalloc-cb36be1aa952468bb",
+                  "AssociationId": "eipassoc-155c4e836a534f65b",
+                  "IpOwnerId": "000000000000",
+                  "PublicIp": "127.240.0.1"
+                },
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.11"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.12"
+              }
+            ],
+            "RequesterManaged": false,
+            "SourceDestCheck": false,
+            "Status": "in-use",
+            "SubnetId": "subnet-5c41ba78e2e040168",
+            "TagSet": [],
+            "VpcId": "vpc-b1fbbeb15bd54e11b"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eip-filter",
+      "operation": "describe_addresses",
+      "parameters": {
+        "Filters": [
+          {
+            "Name": "network-interface-id",
+            "Values": [
+              "eni-7c6254c5edbe41038"
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Addresses": [
+          {
+            "AllocationId": "eipalloc-cb36be1aa952468bb",
+            "AssociationId": "eipassoc-155c4e836a534f65b",
+            "Domain": "vpc",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "NetworkInterfaceOwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.11",
+            "Tags": [],
+            "PublicIpv4Pool": "amazon",
+            "InstanceId": "i-968cd0b2b96e4d79a",
+            "PublicIp": "127.240.0.1"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eip-disassociate",
+      "operation": "disassociate_address",
+      "parameters": {
+        "AssociationId": "eipassoc-155c4e836a534f65b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "eip-to-instance",
+      "operation": "associate_address",
+      "parameters": {
+        "AllocationId": "eipalloc-cb36be1aa952468bb",
+        "InstanceId": "i-968cd0b2b96e4d79a"
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "eipassoc-33cb8f74d09e497ba"
+      }
+    },
+    {
+      "case": "eip-after-instance",
+      "operation": "describe_addresses",
+      "parameters": {
+        "AllocationIds": [
+          "eipalloc-cb36be1aa952468bb"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Addresses": [
+          {
+            "AllocationId": "eipalloc-cb36be1aa952468bb",
+            "AssociationId": "eipassoc-33cb8f74d09e497ba",
+            "Domain": "vpc",
+            "NetworkInterfaceId": "eni-781bf079672148699",
+            "NetworkInterfaceOwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.1.4",
+            "Tags": [],
+            "PublicIpv4Pool": "amazon",
+            "InstanceId": "i-968cd0b2b96e4d79a",
+            "PublicIp": "127.240.0.1"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eip-disassociate-instance",
+      "operation": "disassociate_address",
+      "parameters": {
+        "AssociationId": "eipassoc-33cb8f74d09e497ba"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "eni-unassign",
+      "operation": "unassign_private_ip_addresses",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "PrivateIpAddresses": [
+          "10.86.2.12"
+        ]
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "eni-unassign-primary",
+      "operation": "unassign_private_ip_addresses",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+        "PrivateIpAddresses": [
+          "10.86.2.10"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidParameterValue",
+        "Message": "Cannot remove primary or unassigned addresses"
+      }
+    },
+    {
+      "case": "eni-final",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "NetworkInterfaceIds": [
+          "eni-7c6254c5edbe41038"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaces": [
+          {
+            "Attachment": {
+              "AttachTime": "2026-10-20 09:21:38.653062+00:00",
+              "AttachmentId": "eni-attach-685576e3114a4317a",
+              "DeleteOnTermination": false,
+              "DeviceIndex": 1,
+              "InstanceId": "i-968cd0b2b96e4d79a",
+              "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "updated",
+            "Groups": [
+              {
+                "GroupId": "sg-97f2b0feb75340fe9",
+                "GroupName": "network-probe"
+              }
+            ],
+            "InterfaceType": "interface",
+            "MacAddress": "02:00:73:b4:19:57",
+            "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+            "OwnerId": "000000000000",
+            "PrivateIpAddress": "10.86.2.10",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.86.2.10"
+              },
+              {
+                "Primary": false,
+                "PrivateIpAddress": "10.86.2.11"
+              }
+            ],
+            "RequesterManaged": false,
+            "SourceDestCheck": false,
+            "Status": "in-use",
+            "SubnetId": "subnet-5c41ba78e2e040168",
+            "TagSet": [],
+            "VpcId": "vpc-b1fbbeb15bd54e11b"
+          }
+        ]
+      }
+    },
+    {
+      "case": "eni-delete-in-use",
+      "operation": "delete_network_interface",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidNetworkInterface.InUse",
+        "Message": "Interface is attached"
+      }
+    },
+    {
+      "case": "instance-final",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-968cd0b2b96e4d79a"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-d3779e0b4a97494a9",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "ClientToken": "1f0e1ec8-9e0c-4015-82ee-aad71d5784ad",
+                "NetworkInterfaces": [
+                  {
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 09:21:38.619887+00:00",
+                      "AttachmentId": "eni-attach-97465693fcf34965b",
+                      "DeleteOnTermination": true,
+                      "DeviceIndex": 0,
+                      "Status": "attached"
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-97f2b0feb75340fe9",
+                        "GroupName": "network-probe"
+                      }
+                    ],
+                    "MacAddress": "02:00:d7:80:bf:8e",
+                    "NetworkInterfaceId": "eni-781bf079672148699",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-86-1-4.ec2.internal",
+                    "PrivateIpAddress": "10.86.1.4",
+                    "PrivateIpAddresses": [
+                      {
+                        "Primary": true,
+                        "PrivateIpAddress": "10.86.1.4"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-09d25b6e18bd46699",
+                    "VpcId": "vpc-b1fbbeb15bd54e11b",
+                    "InterfaceType": "interface"
+                  },
+                  {
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 09:21:38.653062+00:00",
+                      "AttachmentId": "eni-attach-685576e3114a4317a",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 1,
+                      "Status": "attached"
+                    },
+                    "Description": "updated",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-97f2b0feb75340fe9",
+                        "GroupName": "network-probe"
+                      }
+                    ],
+                    "MacAddress": "02:00:73:b4:19:57",
+                    "NetworkInterfaceId": "eni-7c6254c5edbe41038",
+                    "OwnerId": "000000000000",
+                    "PrivateIpAddress": "10.86.2.10",
+                    "PrivateIpAddresses": [
+                      {
+                        "Primary": true,
+                        "PrivateIpAddress": "10.86.2.10"
+                      },
+                      {
+                        "Primary": false,
+                        "PrivateIpAddress": "10.86.2.11"
+                      }
+                    ],
+                    "SourceDestCheck": false,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-5c41ba78e2e040168",
+                    "VpcId": "vpc-b1fbbeb15bd54e11b",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-97f2b0feb75340fe9",
+                    "GroupName": "network-probe"
+                  }
+                ],
+                "Tags": [],
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-968cd0b2b96e4d79a",
+                "ImageId": "ami-local",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-86-1-4.ec2.internal",
+                "AmiLaunchIndex": 0,
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 09:21:38.619784+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "SubnetId": "subnet-09d25b6e18bd46699",
+                "VpcId": "vpc-b1fbbeb15bd54e11b",
+                "PrivateIpAddress": "10.86.1.4"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "missing-interface",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "NetworkInterfaceIds": [
+          "eni-00000000000000000"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidNetworkInterfaceID.NotFound",
+        "Message": "NetworkInterface 'eni-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "cleanup-release_address",
+      "operation": "release_address",
+      "parameters": {
+        "AllocationId": "eipalloc-cb36be1aa952468bb"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-detach_network_interface",
+      "operation": "detach_network_interface",
+      "parameters": {
+        "AttachmentId": "eni-attach-685576e3114a4317a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_network_interface",
+      "operation": "delete_network_interface",
+      "parameters": {
+        "NetworkInterfaceId": "eni-917bc187659242748"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_network_interface",
+      "operation": "delete_network_interface",
+      "parameters": {
+        "NetworkInterfaceId": "eni-7c6254c5edbe41038"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-968cd0b2b96e4d79a"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-968cd0b2b96e4d79a",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_security_group",
+      "operation": "delete_security_group",
+      "parameters": {
+        "GroupId": "sg-97f2b0feb75340fe9"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_subnet",
+      "operation": "delete_subnet",
+      "parameters": {
+        "SubnetId": "subnet-5c41ba78e2e040168"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_subnet",
+      "operation": "delete_subnet",
+      "parameters": {
+        "SubnetId": "subnet-09d25b6e18bd46699"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_vpc",
+      "operation": "delete_vpc",
+      "parameters": {
+        "VpcId": "vpc-b1fbbeb15bd54e11b"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": ""
+}

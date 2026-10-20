@@ -136,3 +136,23 @@ statuses), live Docker web/IMDSv2/file snapshot restore and SSH/root preservatio
 These checks do not certify complete EC2 equivalence. See
 [the full guide](EC2_INFRASTRUCTURE.md) for resource limits, unsupported behavior
 and reproducible usage. CI/CD and EKS retain their separate existing scopes.
+
+### EC2 networking REA follow-up, 20 October 2026
+
+The EC2 subset now has 74 AWS operations plus NameInstance. ENI attributes,
+secondary-IP assignment/removal, default groups, IP reservation and EIP
+associations are implemented, including dashboard controls. Both mock and Docker
+backends support these control-plane records. REA demonstrated that the tested
+LocalStack Docker backend did not enforce SG changes or add actual guest NICs,
+and its EIP did not forward the tested HTTP port. LocalCloud likewise makes no
+claim of AWS packet-level networking. See [the networking evidence and usage](EC2_NETWORKING.md),
+including deliberate validation/response differences.
+
+### EC2 release checkpoint — 20 October 2026
+
+97 selected AWS operations plus NameInstance now have registered handlers. The
+new checkpoint adds image lifecycle, owned stopped Docker-root AMI capture,
+launch templates/versions and template launches, snapshot copies and batches,
+volume/snapshot attributes and single-region discovery. 181 tests passed, with
+Boto3 replays and an actual Docker AMI clone test. This is a verified local
+subset, not full LocalStack EC2 equivalence. See [usage and limits](EC2_RELEASE.md).

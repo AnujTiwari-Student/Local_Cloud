@@ -1,0 +1,401 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "regions",
+      "operation": "describe_regions",
+      "parameters": {
+        "RegionNames": [
+          "us-east-1"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Regions": [
+          {
+            "OptInStatus": "opt-in-not-required",
+            "RegionName": "us-east-1",
+            "Endpoint": "ec2.us-east-1.amazonaws.com"
+          }
+        ]
+      }
+    },
+    {
+      "case": "account-vpc",
+      "operation": "describe_account_attributes",
+      "parameters": {
+        "AttributeNames": [
+          "supported-platforms",
+          "default-vpc"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "AccountAttributes": [
+          {
+            "AttributeName": "supported-platforms",
+            "AttributeValues": [
+              {
+                "AttributeValue": "VPC"
+              }
+            ]
+          },
+          {
+            "AttributeName": "default-vpc",
+            "AttributeValues": [
+              {
+                "AttributeValue": "vpc-230dffac1c7c477b8"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "volume",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "Iops": 100,
+        "Tags": [],
+        "VolumeType": "gp2",
+        "VolumeId": "vol-fa291acdc31a425b9",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-20 11:42:23.806475+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "volume-auto-io",
+      "operation": "describe_volume_attribute",
+      "parameters": {
+        "VolumeId": "vol-fa291acdc31a425b9",
+        "Attribute": "autoEnableIO"
+      },
+      "status": 200,
+      "result": {
+        "AutoEnableIO": {
+          "Value": false
+        },
+        "VolumeId": "vol-fa291acdc31a425b9"
+      }
+    },
+    {
+      "case": "volume-modify",
+      "operation": "modify_volume_attribute",
+      "parameters": {
+        "VolumeId": "vol-fa291acdc31a425b9",
+        "AutoEnableIO": {
+          "Value": true
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "volume-auto-io-modified",
+      "operation": "describe_volume_attribute",
+      "parameters": {
+        "VolumeId": "vol-fa291acdc31a425b9",
+        "Attribute": "autoEnableIO"
+      },
+      "status": 200,
+      "result": {
+        "AutoEnableIO": {
+          "Value": true
+        },
+        "VolumeId": "vol-fa291acdc31a425b9"
+      }
+    },
+    {
+      "case": "snapshot",
+      "operation": "create_snapshot",
+      "parameters": {
+        "VolumeId": "vol-fa291acdc31a425b9",
+        "Description": "Before copy"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "VolumeId": "vol-fa291acdc31a425b9",
+        "State": "pending",
+        "StartTime": "2026-10-20 11:42:23.814982+00:00",
+        "Progress": "60%",
+        "OwnerId": "000000000000",
+        "Description": "Before copy",
+        "VolumeSize": 1,
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "snapshot-permissions",
+      "operation": "describe_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "CreateVolumePermissions": []
+      }
+    },
+    {
+      "case": "snapshot-permission-add",
+      "operation": "modify_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "CreateVolumePermission": {
+          "Add": [
+            {
+              "UserId": "111111111111"
+            }
+          ]
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "snapshot-permissions-modified",
+      "operation": "describe_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "CreateVolumePermissions": [
+          {
+            "UserId": "111111111111"
+          }
+        ]
+      }
+    },
+    {
+      "case": "snapshot-permission-reset",
+      "operation": "reset_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "snapshot-permissions-reset",
+      "operation": "describe_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-840dba3269984bd1b",
+        "CreateVolumePermissions": []
+      }
+    },
+    {
+      "case": "copy-snapshot",
+      "operation": "copy_snapshot",
+      "parameters": {
+        "SourceRegion": "us-east-1",
+        "SourceSnapshotId": "snap-840dba3269984bd1b",
+        "Description": "Copied"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-f28b552f9c7f43b19"
+      }
+    },
+    {
+      "case": "describe-copy",
+      "operation": "describe_snapshots",
+      "parameters": {
+        "SnapshotIds": [
+          "snap-f28b552f9c7f43b19"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Tags": [],
+            "SnapshotId": "snap-f28b552f9c7f43b19",
+            "VolumeId": "vol-fa291acdc31a425b9",
+            "State": "completed",
+            "StartTime": "2026-10-20 11:42:23.828935+00:00",
+            "Progress": "100%",
+            "OwnerId": "000000000000",
+            "Description": "Copied",
+            "VolumeSize": 1,
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-local",
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-6c04a94fb04a413bb",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "7b159841-7798-49fe-8ee0-d5177880003f",
+            "NetworkInterfaces": [
+              {
+                "Attachment": {
+                  "AttachTime": "2026-10-20 11:42:23.833666+00:00",
+                  "AttachmentId": "eni-attach-4e0b344d3c4f4f069",
+                  "DeleteOnTermination": true,
+                  "DeviceIndex": 0,
+                  "Status": "attached"
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-0217e5e1768640969",
+                    "GroupName": "default"
+                  }
+                ],
+                "MacAddress": "02:00:5a:89:0d:d1",
+                "NetworkInterfaceId": "eni-0683ed1546cc4061a",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-172-31-0-4.ec2.internal",
+                "PrivateIpAddress": "172.31.0.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "172.31.0.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-a50b15be9d904d30b",
+                "VpcId": "vpc-230dffac1c7c477b8",
+                "InterfaceType": "interface"
+              }
+            ],
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-0217e5e1768640969",
+                "GroupName": "default"
+              }
+            ],
+            "Tags": [],
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-f1b697dcb56449418",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-172-31-0-4.ec2.internal",
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 11:42:23.833562+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "SubnetId": "subnet-a50b15be9d904d30b",
+            "VpcId": "vpc-230dffac1c7c477b8",
+            "PrivateIpAddress": "172.31.0.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "snapshot-batch",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-f1b697dcb56449418"
+        },
+        "Description": "Batch"
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": []
+      }
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-f1b697dcb56449418"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-f1b697dcb56449418",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-f28b552f9c7f43b19"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-840dba3269984bd1b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-fa291acdc31a425b9"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": ""
+}

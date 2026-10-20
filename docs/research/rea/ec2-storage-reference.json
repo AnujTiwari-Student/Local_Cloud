@@ -1,0 +1,499 @@
+{
+  "exit": 0,
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "records": [
+    {
+      "case": "regions",
+      "operation": "describe_regions",
+      "parameters": {
+        "RegionNames": [
+          "us-east-1"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Regions": [
+          {
+            "OptInStatus": "opt-in-not-required",
+            "RegionName": "us-east-1",
+            "Endpoint": "ec2.us-east-1.amazonaws.com"
+          }
+        ]
+      }
+    },
+    {
+      "case": "account-vpc",
+      "operation": "describe_account_attributes",
+      "parameters": {
+        "AttributeNames": [
+          "supported-platforms",
+          "default-vpc"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "AccountAttributes": [
+          {
+            "AttributeName": "vpc-max-security-groups-per-interface",
+            "AttributeValues": [
+              {
+                "AttributeValue": "5"
+              }
+            ]
+          },
+          {
+            "AttributeName": "max-instances",
+            "AttributeValues": [
+              {
+                "AttributeValue": "20"
+              }
+            ]
+          },
+          {
+            "AttributeName": "supported-platforms",
+            "AttributeValues": [
+              {
+                "AttributeValue": "EC2"
+              },
+              {
+                "AttributeValue": "VPC"
+              }
+            ]
+          },
+          {
+            "AttributeName": "default-vpc",
+            "AttributeValues": [
+              {
+                "AttributeValue": "none"
+              }
+            ]
+          },
+          {
+            "AttributeName": "max-elastic-ips",
+            "AttributeValues": [
+              {
+                "AttributeValue": "5"
+              }
+            ]
+          },
+          {
+            "AttributeName": "vpc-max-elastic-ips",
+            "AttributeValues": [
+              {
+                "AttributeValue": "5"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "volume",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-54ce7dd33bc521c9a",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-20 09:35:31+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "volume-auto-io",
+      "operation": "describe_volume_attribute",
+      "parameters": {
+        "VolumeId": "vol-54ce7dd33bc521c9a",
+        "Attribute": "autoEnableIO"
+      },
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "ElasticBlockStore.describe_volume_attribute is not yet implemented"
+      }
+    },
+    {
+      "case": "volume-modify",
+      "operation": "modify_volume_attribute",
+      "parameters": {
+        "VolumeId": "vol-54ce7dd33bc521c9a",
+        "AutoEnableIO": {
+          "Value": true
+        }
+      },
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "ElasticBlockStore.modify_volume_attribute is not yet implemented"
+      }
+    },
+    {
+      "case": "volume-auto-io-modified",
+      "operation": "describe_volume_attribute",
+      "parameters": {
+        "VolumeId": "vol-54ce7dd33bc521c9a",
+        "Attribute": "autoEnableIO"
+      },
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "ElasticBlockStore.describe_volume_attribute is not yet implemented"
+      }
+    },
+    {
+      "case": "snapshot",
+      "operation": "create_snapshot",
+      "parameters": {
+        "VolumeId": "vol-54ce7dd33bc521c9a",
+        "Description": "Before copy"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-f1f222dbb628282a1",
+        "VolumeId": "vol-54ce7dd33bc521c9a",
+        "State": "pending",
+        "StartTime": "2026-10-20 09:35:31+00:00",
+        "Progress": "60%",
+        "OwnerId": "000000000000",
+        "Description": "Before copy",
+        "VolumeSize": 1,
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "snapshot-permissions",
+      "operation": "describe_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-f1f222dbb628282a1",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-a0332ee0",
+        "CreateVolumePermissions": []
+      }
+    },
+    {
+      "case": "snapshot-permission-add",
+      "operation": "modify_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-f1f222dbb628282a1",
+        "CreateVolumePermission": {
+          "Add": [
+            {
+              "UserId": "111111111111"
+            }
+          ]
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "snapshot-permissions-modified",
+      "operation": "describe_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-f1f222dbb628282a1",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-a0332ee0",
+        "CreateVolumePermissions": []
+      }
+    },
+    {
+      "case": "snapshot-permission-reset",
+      "operation": "reset_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-f1f222dbb628282a1",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "ElasticBlockStore.reset_snapshot_attribute is not yet implemented"
+      }
+    },
+    {
+      "case": "snapshot-permissions-reset",
+      "operation": "describe_snapshot_attribute",
+      "parameters": {
+        "SnapshotId": "snap-f1f222dbb628282a1",
+        "Attribute": "createVolumePermission"
+      },
+      "status": 200,
+      "result": {
+        "SnapshotId": "snap-a0332ee0",
+        "CreateVolumePermissions": []
+      }
+    },
+    {
+      "case": "copy-snapshot",
+      "operation": "copy_snapshot",
+      "parameters": {
+        "SourceRegion": "us-east-1",
+        "SourceSnapshotId": "snap-f1f222dbb628282a1",
+        "Description": "Copied"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-2d276cb76d6ff5a28"
+      }
+    },
+    {
+      "case": "describe-copy",
+      "operation": "describe_snapshots",
+      "parameters": {
+        "SnapshotIds": [
+          "snap-2d276cb76d6ff5a28"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Tags": [],
+            "SnapshotId": "snap-2d276cb76d6ff5a28",
+            "VolumeId": "vol-54ce7dd33bc521c9a",
+            "State": "completed",
+            "StartTime": "2026-10-20 09:35:31+00:00",
+            "Progress": "100%",
+            "OwnerId": "000000000000",
+            "Description": "Copied",
+            "VolumeSize": 1,
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-03cf127a",
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-af3f6e2cb06724031",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-20 09:35:31+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-b0b85e56a15ad9300"
+                }
+              }
+            ],
+            "ClientToken": "9d1ae957-8601-422a-88a3-1557b9fe5ef0",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-214-237.ec2.internal",
+                  "PublicIp": "54.214.214.237"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-20 09:35:31+00:00",
+                  "AttachmentId": "eni-attach-b1d17200356f23217",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-704220eeae5a047ae",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:23002x:19002x:18302x",
+                "NetworkInterfaceId": "eni-1fcdb4a4752ef73a0",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-8-182-167.ec2.internal",
+                "PrivateIpAddress": "10.8.182.167",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-214-237.ec2.internal",
+                      "PublicIp": "54.214.214.237"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.8.182.167"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-51e47ad052a15321e",
+                "VpcId": "vpc-798e74c276593fba3",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-704220eeae5a047ae",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-9aa975d629c1430ff",
+            "ImageId": "ami-03cf127a",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-8-182-167.ec2.internal",
+            "PublicDnsName": "ec2-54-214-214-237.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "m1.small",
+            "LaunchTime": "2026-10-20 09:35:31+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Platform": "windows",
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-51e47ad052a15321e",
+            "VpcId": "vpc-798e74c276593fba3",
+            "PrivateIpAddress": "10.8.182.167",
+            "PublicIpAddress": "54.214.214.237"
+          }
+        ]
+      }
+    },
+    {
+      "case": "snapshot-batch",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-9aa975d629c1430ff"
+        },
+        "Description": "Batch"
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "Batch",
+            "Tags": [],
+            "Encrypted": false,
+            "VolumeId": "vol-b0b85e56a15ad9300",
+            "VolumeSize": 8,
+            "StartTime": "2026-10-20 09:35:31+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-344c7803984e61608"
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-344c7803984e61608"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-9aa975d629c1430ff"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-9aa975d629c1430ff",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-2d276cb76d6ff5a28"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-f1f222dbb628282a1"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-54ce7dd33bc521c9a"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": "",
+  "cleanup_completed": true
+}

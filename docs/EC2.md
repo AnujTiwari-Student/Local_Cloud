@@ -1,5 +1,8 @@
 # Local EC2 service
 
+Current checkpoint: [EC2 release and verification](EC2_RELEASE.md). The later
+checkpoint expands the operation set described below to 97 selected AWS operations.
+
 LocalCloud implements a small EC2 lifecycle provider. Mock mode creates durable instance records. Optional Docker mode runs real containers behind those records. Neither mode provides an AWS virtual machine, AWS networking or complete EC2 compatibility.
 
 The latest [EC2 networking, storage, IMDS and SSH guide](EC2_INFRASTRUCTURE.md)

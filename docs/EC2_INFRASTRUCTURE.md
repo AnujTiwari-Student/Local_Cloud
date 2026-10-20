@@ -1,10 +1,15 @@
 # EC2 networking, storage and guest execution
 
+Current checkpoint: [EC2 release and verification](EC2_RELEASE.md). The later
+checkpoint expands the operation set described below to 97 selected AWS operations.
+
 20 October 2026. This expands the earlier [lifecycle reference report](EC2_REFERENCE.md).
-LocalCloud implements **70 selected AWS EC2 operations plus `NameInstance`**.
+LocalCloud implements **74 selected AWS EC2 operations plus `NameInstance`**.
 The implementation was informed by REA captures of the normally activated
 LocalStack 2026.10.0 image, followed by independent implementation and replay.
 It is a usable local EC2 subset, not a complete EC2 or LocalStack replacement.
+The [networking REA follow-up](EC2_NETWORKING.md) documents ENI/private-IP/EIP
+operations and what the reference actually does with traffic.
 CI/CD and EKS are separate work; the existing Kubernetes operator is not EKS.
 
 ## What works
@@ -17,7 +22,7 @@ CI/CD and EKS are separate work; the existing Kubernetes operator is not EKS.
 | Guest access | RSA/ed25519 key creation, public-key import and optional SSH into an allowlisted image containing `sshd`. Writable guest roots survive stopped volume reconfiguration. |
 | Metadata | Optional guest-local `169.254.169.254` endpoint, IMDSv1/v2, token expiry, user data and identity document; metadata options can be changed. |
 | Discovery | Local allowlisted AMIs, six `us-east-1` zones, three bounded instance types. |
-| Mock-only networking | Secondary interface and elastic-address records. These do not create working Docker NICs or public IPs. |
+| Network control plane | ENI attributes, secondary private IPs, attachment and elastic-IP associations work in mock and Docker modes; they do not add guest NICs or NAT. |
 | Interfaces | LocalCloud CLI, authenticated management API, AWS EC2 Query XML, Boto3/AWS CLI, dashboard infrastructure forms. |
 
 ## Start from a stopped server
@@ -255,8 +260,8 @@ VPC bridges do not reproduce AWS routing or security-group firewalls. CIDRs,
 DNS attributes and route tables are configuration records; the guest's actual
 Docker IP can differ from its emulated private IP. Ingress currently controls
 launch-time TCP port publishing only. CIDR source restrictions and later rule
-changes are not enforced on running Docker traffic. Elastic IPs use a
-non-routable documentation address pool and secondary NICs are mock-only.
+changes are not enforced on running Docker traffic. New elastic IPs use a loopback identifier pool; they do not bind host listeners.
+Secondary NICs and EIP associations are control-plane records in both modes.
 
 Volume encryption, raw EBS devices, disk quotas, full AMI import/catalog, real VM
 boot, Windows, IAM instance profiles/credentials, full policy semantics,

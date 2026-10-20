@@ -355,3 +355,11 @@ route/gateway, volume/snapshot, key-pair, metadata, reboot/status and console
 commands. Run `localcloud ec2 --help` to list commands and each command with
 `--help` for supported flags. Structured infrastructure arguments accept JSON
 or `file://PATH`; string lists accept space-separated values.
+
+For ENI attributes, private-IP assignment, interface attachment and elastic-IP
+association commands, see [the networking walkthrough](EC2_NETWORKING.md).
+These manage emulated records; published ports provide actual app access.
+
+The [latest EC2 checkpoint](EC2_RELEASE.md) adds image lifecycle, snapshot copying
+and launch-template/version commands. `run-instances --launch-template JSON`
+can supply image/type defaults; explicit flags override them.

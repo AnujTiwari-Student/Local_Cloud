@@ -1,0 +1,109 @@
+{
+  "contracts": {
+    "errors": 0,
+    "failures": 0,
+    "modules": {
+      "test_ci_runner": 5,
+      "test_cli": 2,
+      "test_cli_commands": 27,
+      "test_dashboard": 6,
+      "test_ec2": 22,
+      "test_ec2_contract": 8,
+      "test_ec2_images": 8,
+      "test_ec2_infrastructure": 14,
+      "test_ec2_networking": 7,
+      "test_ec2_storage": 4,
+      "test_ec2_templates": 7,
+      "test_engine": 11,
+      "test_gateway": 8,
+      "test_http": 10,
+      "test_kubernetes": 16,
+      "test_node_example": 2,
+      "test_project_ci": 12,
+      "test_startup": 3,
+      "test_tooling": 9
+    },
+    "passed": true,
+    "skipped": 0,
+    "tests_run": 181
+  },
+  "live_checks": [
+    {
+      "check": "s3-live-http-binary-list-and-nonempty-delete-error",
+      "passed": true
+    },
+    {
+      "check": "sqs-live-http-delivery-visibility-receipts-ack-settings-and-idempotence",
+      "passed": true
+    },
+    {
+      "check": "ec2-mock-live-http-names-lifecycle-and-type",
+      "passed": true
+    },
+    {
+      "check": "iam-live-http-allow-and-deny",
+      "passed": true
+    },
+    {
+      "check": "snapshot-portable-state-restore-and-checksum-rejection",
+      "passed": true
+    },
+    {
+      "check": "fault-injection-management-isolation-and-recovery",
+      "passed": true
+    },
+    {
+      "check": "traces-request-identity-and-policy-proposals",
+      "passed": true
+    },
+    {
+      "check": "cli-verified-profile-and-live-resource-access",
+      "passed": true
+    },
+    {
+      "check": "persistence-after-backend-restart",
+      "passed": true
+    },
+    {
+      "check": "ci-live-isolated-server-application-command-and-cleanup",
+      "passed": true
+    },
+    {
+      "check": "ec2-real-docker-web-port-stop-resize-start-terminate",
+      "image_id": "sha256:faa7dfcfbaac782bb673b859646c3871c0690bb010dcef124a962dc7d463f693",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "reference_parity": "not established",
+  "source_hashes": {
+    "Dockerfile": "965bf78e1bc36031eecf97cba67522acdca3be71ba25c24cbf808a65cdb28c2e",
+    "localcloud/__init__.py": "e4269b508c431c877c2361f9c08915a0fa6f14e9499035f8e9edd6c25ceadb8e",
+    "localcloud/__main__.py": "2109646e986d84c7f1f3d8331ceb579b3fe2ce7839cb7387334689447e15e795",
+    "localcloud/ci.py": "0333582c9d41bf3634595470814a756282edcb84d9fb29e1c644e9f01875dcb1",
+    "localcloud/cli.py": "42ba141df4aa9debe94fabdb58ff0c2485f038e7d32b0b024ff05712d47f2edd",
+    "localcloud/client.py": "f07ddd8c3b892170d8c9ff679b054c61b18005e8aa77f81195b6d6fce7070fef",
+    "localcloud/dashboard.html": "9342044fe56f06d0e42c1d9fc018799b60f40fc2cb81f1e46230e1e52839eca7",
+    "localcloud/dashboard.js": "2cb8d7a523c0016784d2c1a4dfc624ccb0eadce120c62328fc3c6d048e6c8047",
+    "localcloud/ec2-model.json": "662c849705389989eba7fc38ac7efae5d5f722d8c8d736361f274e6f996a7cea",
+    "localcloud/ec2.py": "e328a080368eb09a0b5fa6889067efaff320c03128f7aefc12255bfdb2b42408",
+    "localcloud/ec2_cli.py": "a8caf35b3e81340b401a5e5e143498de807a8facb310be5a16c2fd2685f639c3",
+    "localcloud/ec2_images.py": "c4e1aba99b26a176ef6d6c31e1cc8e58a138b1e2a36a32d7cf9eaa3fe696f779",
+    "localcloud/ec2_infrastructure.py": "f0db03542d6fe6cc44208bc642b88e7e0a6041e0fb61b40b3a80794050fe7363",
+    "localcloud/ec2_metadata.py": "ac982625ff07e6df02a5d486dbb3e9cb2e2d38d294180d3ac77d630d229ad843",
+    "localcloud/ec2_networking.py": "0d296443f56ae6f83d0831f5e10ea73f3a14ce5b1fb81e7b2febbfaef7dc9fce",
+    "localcloud/ec2_protocol.py": "b7f23a39bec081c317efd346602392854fbcddaeb4c72ce3808b483bc4f025eb",
+    "localcloud/ec2_runtime.py": "3d4161cf4265bcb7a25af04c8353e749e33d25b4e443b08d551e9b3105c31ff0",
+    "localcloud/ec2_storage.py": "6d5c624b9e459b98683f25284ae456d25441a80853ddcb49e3bc61701d2c0750",
+    "localcloud/ec2_templates.py": "eba585a9b1f282a423f2223135317a8802e738be82947ce3e00e6e173be1bb21",
+    "localcloud/engine.py": "3fa98e857e6b41a2e5bc3da79625561b1c6a44bff499031f4dcd7e5853732278",
+    "localcloud/gateway.py": "e81bcbf5e64afca0b78aa8f66ec4a4473b64944183cc68542080b728ebf8410a",
+    "localcloud/kube.py": "9e2404213c7158f47ae962dbd95946dce5be82e6e68aae6a4a2fafb4183354ce",
+    "localcloud/kube_manifests.py": "dca481efc3b2018d0596e4e4e0f348243fab9340b565c5bc5712bbff64e97d5a",
+    "localcloud/operator.py": "9bd7d0e709fb50fea798fe3eb36312e5fb28bfa321144117dfa8777434958b41",
+    "localcloud/project.py": "48f4ab0ca84f1d147f90f77008b72d9f472138d91e682e3adc6b0a8a769e6a71",
+    "localcloud/providers.py": "6afbd42af1930e780e2c2ae08c78b4340865b963b904442a0acda4b64f75019c",
+    "localcloud/tooling.py": "1527c60a1e3d1e6f8f422b12203df4bd6aab1887b60f83c0abb5971ed8fa5e36"
+  },
+  "target": "LocalCloud"
+}

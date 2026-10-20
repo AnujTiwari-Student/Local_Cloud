@@ -125,7 +125,7 @@ class Engine:
                     raise Error('NotFound', 'Snapshot does not exist', 404)
                 from .ec2 import validate_instances
                 try:
-                    validate_instances(json.loads(row[0]).get('instances', {}))
+                    self.tools.validate_state(json.loads(row[0]))
                 except ValueError as error:
                     raise Error('InvalidState', str(error))
                 self.db.execute('UPDATE state SET body=? WHERE id=1', (row[0],))

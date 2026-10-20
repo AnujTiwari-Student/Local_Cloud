@@ -227,6 +227,8 @@ const infrastructure = {
   group:{title:'Security group',list:'DescribeSecurityGroups',collection:'SecurityGroups',create:'CreateSecurityGroup',remove:'DeleteSecurityGroup',id:'GroupId',fields:[['VpcId','VPC ID','vpc-...'],['GroupName','Group name','web'],['Description','Description','Web application']]},
   volume:{title:'Volume',list:'DescribeVolumes',collection:'Volumes',create:'CreateVolume',remove:'DeleteVolume',id:'VolumeId',fields:[['AvailabilityZone','Availability zone','us-east-1a'],['Size','Volume size metadata','1','number']]},
   snapshot:{title:'Volume snapshot',list:'DescribeSnapshots',collection:'Snapshots',create:'CreateSnapshot',remove:'DeleteSnapshot',id:'SnapshotId',fields:[['VolumeId','Source volume ID','vol-...'],['Description','Description','Development snapshot']]},
+  interface:{title:'Network interface',list:'DescribeNetworkInterfaces',collection:'NetworkInterfaces',create:'CreateNetworkInterface',remove:'DeleteNetworkInterface',id:'NetworkInterfaceId',fields:[['SubnetId','Subnet ID','subnet-...'],['Description','Description','Secondary interface']]},
+  address:{title:'Elastic IP',list:'DescribeAddresses',collection:'Addresses',create:'AllocateAddress',remove:'ReleaseAddress',id:'AllocationId',fields:[]},
   key:{title:'SSH key pair',list:'DescribeKeyPairs',collection:'KeyPairs',create:'CreateKeyPair',remove:'DeleteKeyPair',id:'KeyPairId',fields:[['KeyName','Key name','dev-key']]}
 };
 function resourceForm() {
@@ -240,9 +242,11 @@ function resourceForm() {
 async function refreshInfrastructure() {
   const config=infrastructure[el('ec2-resource-kind').value], result=await ec2(config.list);
   dataTable('ec2-resource-list',['Resource','State / details','Actions'],(result[config.collection] || []).map(item=>[
-    item[config.id],item.State || item.GroupName || item.KeyName || item.CidrBlock || '',
+    item[config.id],item.State || item.Status || item.PublicIp || item.GroupName || item.KeyName || item.CidrBlock || '',
     actions(button('Details',async()=>{el('ec2-resource-details').textContent=JSON.stringify(item,null,2);}),
       ...(config.id==='VolumeId' && item.Attachments?.length ? [button('Detach',async()=>{await ec2('DetachVolume',{VolumeId:item.VolumeId});await refreshInfrastructure();},'secondary')] : []),
+      ...(config.id==='NetworkInterfaceId' && item.Attachment?.DeviceIndex>0 ? [button('Detach',async()=>{await ec2('DetachNetworkInterface',{AttachmentId:item.Attachment.AttachmentId});await refreshInfrastructure();await refresh();},'secondary')] : []),
+      ...(config.id==='AllocationId' && item.AssociationId ? [button('Disassociate',async()=>{await ec2('DisassociateAddress',{AssociationId:item.AssociationId});await refreshInfrastructure();await refresh();},'secondary')] : []),
       button('Delete',async()=>{if(!confirm('Delete '+config.title+' '+item[config.id]+'?'))return;await ec2(config.remove,{[config.id]:item[config.id]});await refreshInfrastructure();},'danger'))
   ]));
 }
@@ -257,6 +261,29 @@ form('ec2-resource-create',async()=>{
   if(result.KeyMaterial)saveFile(payload.KeyName+'.pem',result.KeyMaterial);
   await refreshInfrastructure();
 },'Resource created. SSH private keys are downloaded once.');
+const networkActions = {
+  attach:{operation:'AttachNetworkInterface',fields:[['NetworkInterfaceId','Interface ID'],['InstanceId','Instance ID'],['DeviceIndex','Device index (1–7)','number']]},
+  assign:{operation:'AssignPrivateIpAddresses',fields:[['NetworkInterfaceId','Interface ID'],['PrivateIpAddresses','Private IPv4 addresses (comma separated)','list']]},
+  unassign:{operation:'UnassignPrivateIpAddresses',fields:[['NetworkInterfaceId','Interface ID'],['PrivateIpAddresses','Private IPv4 addresses (comma separated)','list']]},
+  associate:{operation:'AssociateAddress',fields:[['AllocationId','Allocation ID'],['NetworkInterfaceId','Target interface ID'],['PrivateIpAddress','Private IPv4 address (optional)','optional']]},
+  description:{operation:'ModifyNetworkInterfaceAttribute',fields:[['NetworkInterfaceId','Interface ID'],['Description','Description','attribute']]},
+  sourcecheck:{operation:'ModifyNetworkInterfaceAttribute',fields:[['NetworkInterfaceId','Interface ID'],['SourceDestCheck','Source/destination check','boolean']]}
+};
+function networkForm() {
+  el('ec2-network-inputs').replaceChildren();
+  for(const [name,label,type] of networkActions[el('ec2-network-operation').value].fields) {
+    const wrapper=text('label',label),input=document.createElement(type==='boolean'?'select':'input');input.name=name;input.required=type!=='optional';
+    if(type==='boolean') for(const value of ['true','false']){const option=text('option',value);option.value=value;input.append(option);}
+    if(type==='number'){input.type='number';input.min='1';input.max='7';input.value='1';}
+    wrapper.append(input);el('ec2-network-inputs').append(wrapper);
+  }
+}
+el('ec2-network-operation').onchange=networkForm;networkForm();
+form('ec2-network-action',async()=>{
+  const config=networkActions[el('ec2-network-operation').value],payload={};
+  for(const [name,,type] of config.fields){const value=el('ec2-network-action').elements.namedItem(name).value;if(type==='optional' && !value)continue;payload[name]=type==='number'?Number(value):type==='list'?value.split(',').map(v=>v.trim()).filter(Boolean):type==='attribute'?{Value:value}:type==='boolean'?{Value:value==='true'}:value;}
+  await ec2(config.operation,payload);await refreshInfrastructure();await refresh();
+},'Network settings saved.');
 form('ec2-volume-attach',async()=>{await ec2('AttachVolume',{VolumeId:el('ec2-volume-id').value,InstanceId:el('ec2-volume-instance').value,Device:el('ec2-volume-device').value});await refreshInfrastructure();await refresh();},'Volume attached.');
 form('ec2-ingress-form',async()=>{const port=Number(el('ec2-ingress-port').value);await ec2('AuthorizeSecurityGroupIngress',{GroupId:el('ec2-ingress-group').value,IpPermissions:[{IpProtocol:'tcp',FromPort:port,ToPort:port,IpRanges:[{CidrIp:el('ec2-ingress-cidr').value}]}]});await refreshInfrastructure();},'Ingress rule saved for future launches.');
 el('ec2-console-button').onclick=()=>run(async()=>{const result=await ec2('GetConsoleOutput',{InstanceIds:[selectedInstance]});el('ec2-console-output').textContent=new TextDecoder().decode(Uint8Array.from(atob(result.Output || ''),c=>c.charCodeAt(0)));},'Console output loaded.');

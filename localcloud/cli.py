@@ -103,9 +103,10 @@ def parser():
     operation(auth, 'status')
     ec2 = group('ec2', 'Local EC2 instance lifecycle')
     launch = operation(ec2, 'run-instances')
-    launch.add_argument('--image-id', required=True)
+    launch.add_argument('--image-id')
+    launch.add_argument('--launch-template', help='JSON or file:// launch template selector')
     launch.add_argument('--name', help='Unique persistent instance name')
-    launch.add_argument('--instance-type', default='t3.micro')
+    launch.add_argument('--instance-type')
     launch.add_argument('--count', type=int, default=1)
     launch.add_argument('--client-token', help='Persistent launch idempotency key')
     launch.add_argument('--tags', nargs='+', metavar='Key=NAME,Value=VALUE')
@@ -316,7 +317,15 @@ def execute(args, client):
             if args.publish:
                 from .ec2 import parse_publish
                 payload['PortMappings'] = [parse_publish(value) for value in args.publish]
-            payload.update(ImageId=args.image_id, InstanceType=args.instance_type, MinCount=args.count, MaxCount=args.count)
+            if not args.image_id and not args.launch_template:
+                raise ValueError('Specify --image-id or --launch-template')
+            payload.update(MinCount=args.count, MaxCount=args.count)
+            if args.image_id:
+                payload['ImageId'] = args.image_id
+            if args.launch_template:
+                payload['LaunchTemplate'] = json_value(args.launch_template)
+            if args.instance_type is not None or not args.launch_template:
+                payload['InstanceType'] = args.instance_type or 't3.micro'
             for attribute, key in [('subnet_id', 'SubnetId'), ('security_group_ids', 'SecurityGroupIds'), ('private_ip_address', 'PrivateIpAddress'), ('key_name', 'KeyName')]:
                 value = getattr(args, attribute, None)
                 if value is not None:

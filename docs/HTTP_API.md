@@ -295,3 +295,9 @@ parameters and emits SDK-compatible XML for these operations. In Docker mode,
 Query requests may authenticate with the management token in X-Amz-Security-Token
 (the AWS session-token header), in addition to the existing bearer header. This
 is local bearer authentication, not verification of AWS SigV4 signatures.
+
+The EC2 provider also accepts `ModifyNetworkInterfaceAttribute`,
+`DescribeNetworkInterfaceAttribute`, `AssignPrivateIpAddresses` and
+`UnassignPrivateIpAddresses` through the management and Query endpoints.
+[Networking scope and examples](EC2_NETWORKING.md) distinguish control-plane
+records from guest networking and list deliberate reference differences.

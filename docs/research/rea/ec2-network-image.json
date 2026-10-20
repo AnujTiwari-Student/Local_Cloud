@@ -1,0 +1,5 @@
+{
+  "passed": true,
+  "image": "sha256:fee4cac32a39cd77e3180b085d4cfd1b1efcddc40ea1c749aaa524e490329bef",
+  "output": "74 operations; nonroot interface and address allocation passed"
+}

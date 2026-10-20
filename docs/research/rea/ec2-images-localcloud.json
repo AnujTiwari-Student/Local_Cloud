@@ -1,0 +1,423 @@
+{
+  "exit": 0,
+  "records": [
+    {
+      "case": "register",
+      "operation": "register_image",
+      "parameters": {
+        "Name": "rea-images-one",
+        "Description": "reference probe",
+        "Architecture": "x86_64",
+        "RootDeviceName": "/dev/sda1"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-3e59979a47d44d83b"
+      }
+    },
+    {
+      "case": "describe-registered",
+      "operation": "describe_images",
+      "parameters": {
+        "ImageIds": [
+          "ami-3e59979a47d44d83b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Images": [
+          {
+            "BlockDeviceMappings": [],
+            "Description": "reference probe",
+            "Name": "rea-images-one",
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "instance-store",
+            "Tags": [],
+            "VirtualizationType": "hvm",
+            "BootMode": "uefi",
+            "ImageId": "ami-3e59979a47d44d83b",
+            "State": "available",
+            "OwnerId": "000000000000",
+            "CreationDate": "2026-10-20T11:41:35.178303+00:00",
+            "Public": false,
+            "ProductCodes": [],
+            "Architecture": "x86_64",
+            "ImageType": "machine"
+          }
+        ]
+      }
+    },
+    {
+      "case": "register-duplicate",
+      "operation": "register_image",
+      "parameters": {
+        "Name": "rea-images-one"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-180990f0952640119"
+      }
+    },
+    {
+      "case": "attribute-description",
+      "operation": "describe_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "Attribute": "description"
+      },
+      "status": 200,
+      "result": {
+        "Description": {
+          "Value": "reference probe"
+        },
+        "ImageId": "ami-3e59979a47d44d83b"
+      }
+    },
+    {
+      "case": "modify-description",
+      "operation": "modify_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "Description": {
+          "Value": "updated"
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "attribute-updated",
+      "operation": "describe_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "Attribute": "description"
+      },
+      "status": 200,
+      "result": {
+        "Description": {
+          "Value": "updated"
+        },
+        "ImageId": "ami-3e59979a47d44d83b"
+      }
+    },
+    {
+      "case": "modify-public",
+      "operation": "modify_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "LaunchPermission": {
+          "Add": [
+            {
+              "Group": "all"
+            }
+          ]
+        }
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "attribute-permissions",
+      "operation": "describe_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "Attribute": "launchPermission"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "LaunchPermissions": [
+          {
+            "Group": "all"
+          }
+        ]
+      }
+    },
+    {
+      "case": "describe-public",
+      "operation": "describe_images",
+      "parameters": {
+        "ImageIds": [
+          "ami-3e59979a47d44d83b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Images": [
+          {
+            "BlockDeviceMappings": [],
+            "Description": "updated",
+            "Name": "rea-images-one",
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "instance-store",
+            "Tags": [],
+            "VirtualizationType": "hvm",
+            "BootMode": "uefi",
+            "ImageId": "ami-3e59979a47d44d83b",
+            "State": "available",
+            "OwnerId": "000000000000",
+            "CreationDate": "2026-10-20T11:41:35.178303+00:00",
+            "Public": true,
+            "ProductCodes": [],
+            "Architecture": "x86_64",
+            "ImageType": "machine"
+          }
+        ]
+      }
+    },
+    {
+      "case": "reset-permissions",
+      "operation": "reset_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "Attribute": "launchPermission"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "permissions-reset",
+      "operation": "describe_image_attribute",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "Attribute": "launchPermission"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-3e59979a47d44d83b",
+        "LaunchPermissions": []
+      }
+    },
+    {
+      "case": "run",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-local",
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-dea9d7d5fab94108b",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "ClientToken": "f84f3fd3-ea6b-4385-aec4-fa163aab9c6f",
+            "NetworkInterfaces": [
+              {
+                "Attachment": {
+                  "AttachTime": "2026-10-20 11:41:35.198496+00:00",
+                  "AttachmentId": "eni-attach-9b84d4993cdf46419",
+                  "DeleteOnTermination": true,
+                  "DeviceIndex": 0,
+                  "Status": "attached"
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-829c803d20f74f0ea",
+                    "GroupName": "default"
+                  }
+                ],
+                "MacAddress": "02:00:5f:e6:d1:a6",
+                "NetworkInterfaceId": "eni-be3f95d91679444eb",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-172-31-0-4.ec2.internal",
+                "PrivateIpAddress": "172.31.0.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "172.31.0.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-2d719df3a7774c96b",
+                "VpcId": "vpc-7d59fa9fa80f49f28",
+                "InterfaceType": "interface"
+              }
+            ],
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-829c803d20f74f0ea",
+                "GroupName": "default"
+              }
+            ],
+            "Tags": [],
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-eacdb3df16984438b",
+            "ImageId": "ami-local",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-172-31-0-4.ec2.internal",
+            "AmiLaunchIndex": 0,
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 11:41:35.198387+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "SubnetId": "subnet-2d719df3a7774c96b",
+            "VpcId": "vpc-7d59fa9fa80f49f28",
+            "PrivateIpAddress": "172.31.0.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "create-image",
+      "operation": "create_image",
+      "parameters": {
+        "InstanceId": "i-eacdb3df16984438b",
+        "Name": "rea-created-image",
+        "Description": "created",
+        "NoReboot": true
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-19ac7eec8b514b3e8"
+      }
+    },
+    {
+      "case": "describe-created",
+      "operation": "describe_images",
+      "parameters": {
+        "ImageIds": [
+          "ami-19ac7eec8b514b3e8"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Images": [
+          {
+            "BlockDeviceMappings": [],
+            "Description": "created",
+            "Name": "rea-created-image",
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "instance-store",
+            "Tags": [],
+            "VirtualizationType": "hvm",
+            "BootMode": "uefi",
+            "SourceInstanceId": "i-eacdb3df16984438b",
+            "ImageId": "ami-19ac7eec8b514b3e8",
+            "State": "available",
+            "OwnerId": "000000000000",
+            "CreationDate": "2026-10-20T11:41:35.201351+00:00",
+            "Public": false,
+            "ProductCodes": [],
+            "Architecture": "x86_64",
+            "ImageType": "machine"
+          }
+        ]
+      }
+    },
+    {
+      "case": "deregister",
+      "operation": "deregister_image",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b"
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "describe-deregistered",
+      "operation": "describe_images",
+      "parameters": {
+        "ImageIds": [
+          "ami-3e59979a47d44d83b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Images": []
+      }
+    },
+    {
+      "case": "deregister-twice",
+      "operation": "deregister_image",
+      "parameters": {
+        "ImageId": "ami-3e59979a47d44d83b"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidAMIID.Unavailable",
+        "Message": "The image 'ami-3e59979a47d44d83b' is no longer available"
+      }
+    },
+    {
+      "case": "missing-image",
+      "operation": "describe_image_attribute",
+      "parameters": {
+        "ImageId": "ami-00000000000000000",
+        "Attribute": "description"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidAMIID.NotFound",
+        "Message": "The image 'ami-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "cleanup-image",
+      "operation": "deregister_image",
+      "parameters": {
+        "ImageId": "ami-180990f0952640119"
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "cleanup-image",
+      "operation": "deregister_image",
+      "parameters": {
+        "ImageId": "ami-19ac7eec8b514b3e8"
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "cleanup-instance",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-eacdb3df16984438b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-eacdb3df16984438b",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "stderr": ""
+}

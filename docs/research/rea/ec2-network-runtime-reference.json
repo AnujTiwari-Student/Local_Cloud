@@ -1,0 +1,1016 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "guest_image": "ami-61ad6e59d7b0",
+  "reference_container": "localcloud-rea-net-runtime-de3787a529",
+  "baseline_link_local_network": {
+    "CreatedAt": "2026-10-14 00:24:08.134819461 +0530 IST",
+    "Driver": "bridge",
+    "ID": "d68d24cb4217",
+    "IPv4": "true",
+    "IPv6": "false",
+    "Internal": "false",
+    "Labels": "",
+    "Name": "localstack-ec2-link-local",
+    "Scope": "local"
+  },
+  "scope_limits": [
+    "One normally licensed Docker guest and one secondary ENI in one VPC.",
+    "Direct bridge reachability does not establish every host publishing path.",
+    "IPv6, routing, egress filters, custom port mappings and multi-guest EIP uniqueness were not tested.",
+    "No encrypted provider code was inspected; no host firewall or route was modified."
+  ],
+  "exit": 0,
+  "records": [
+    {
+      "case": "create-vpc",
+      "operation": "create_vpc",
+      "parameters": {
+        "CidrBlock": "10.97.0.0/16"
+      },
+      "status": 200,
+      "result": {
+        "Vpc": {
+          "OwnerId": "000000000000",
+          "InstanceTenancy": "default",
+          "Ipv6CidrBlockAssociationSet": [],
+          "CidrBlockAssociationSet": [
+            {
+              "AssociationId": "vpc-cidr-assoc-9bf57743650a3607a",
+              "CidrBlock": "10.97.0.0/16",
+              "CidrBlockState": {
+                "State": "associated"
+              }
+            }
+          ],
+          "IsDefault": false,
+          "Tags": [],
+          "VpcId": "vpc-6ad01d90ef2dcd2d6",
+          "State": "available",
+          "CidrBlock": "10.97.0.0/16",
+          "DhcpOptionsId": "default"
+        }
+      }
+    },
+    {
+      "case": "create-subnet",
+      "operation": "create_subnet",
+      "parameters": {
+        "VpcId": "vpc-6ad01d90ef2dcd2d6",
+        "CidrBlock": "10.97.1.0/24"
+      },
+      "status": 200,
+      "result": {
+        "Subnet": {
+          "AvailabilityZoneId": "use1-az1",
+          "OwnerId": "000000000000",
+          "AssignIpv6AddressOnCreation": false,
+          "Ipv6CidrBlockAssociationSet": [],
+          "Tags": [],
+          "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-302b60946bf1834d9",
+          "Ipv6Native": false,
+          "PrivateDnsNameOptionsOnLaunch": {
+            "HostnameType": "ip-name",
+            "EnableResourceNameDnsARecord": false,
+            "EnableResourceNameDnsAAAARecord": false
+          },
+          "SubnetId": "subnet-302b60946bf1834d9",
+          "State": "available",
+          "VpcId": "vpc-6ad01d90ef2dcd2d6",
+          "CidrBlock": "10.97.1.0/24",
+          "AvailableIpAddressCount": 251,
+          "AvailabilityZone": "us-east-1b",
+          "DefaultForAz": false,
+          "MapPublicIpOnLaunch": false
+        }
+      }
+    },
+    {
+      "case": "create-sg",
+      "operation": "create_security_group",
+      "parameters": {
+        "VpcId": "vpc-6ad01d90ef2dcd2d6",
+        "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6",
+        "Description": "Isolated runtime probe"
+      },
+      "status": 200,
+      "result": {
+        "GroupId": "sg-5a81e7ca28edb378b",
+        "SecurityGroupArn": "arn:aws:ec2:us-east-1:000000000000:security-group/sg-5a81e7ca28edb378b"
+      }
+    },
+    {
+      "case": "launch-no-ingress",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "InstanceType": "t3.micro",
+        "SubnetId": "subnet-302b60946bf1834d9",
+        "SecurityGroupIds": [
+          "sg-5a81e7ca28edb378b"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-0685b59f5245d0544",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-20 09:19:50+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-b6705ea0147784658"
+                }
+              }
+            ],
+            "ClientToken": "ebaded54-5f18-478c-b609-ae3704b5b666",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {},
+                "Attachment": {
+                  "AttachTime": "2026-10-20 09:19:50+00:00",
+                  "AttachmentId": "eni-attach-5594a026aa07c8437",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-5a81e7ca28edb378b",
+                    "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:14402x:1302x:5402x",
+                "NetworkInterfaceId": "eni-66b7d36b54ac42c35",
+                "OwnerId": "000000000000",
+                "PrivateIpAddress": "10.97.1.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.97.1.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-302b60946bf1834d9",
+                "VpcId": "vpc-6ad01d90ef2dcd2d6",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-5a81e7ca28edb378b",
+                "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-b9c5d523dc621a918",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-97-1-4.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-20 09:19:50+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1b"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-302b60946bf1834d9",
+            "VpcId": "vpc-6ad01d90ef2dcd2d6",
+            "PrivateIpAddress": "10.97.1.4",
+            "PublicIpAddress": "172.17.0.3"
+          }
+        ]
+      }
+    },
+    {
+      "case": "guest-tools",
+      "tools": {
+        "exit": 127,
+        "output": "/usr/bin/python3\n"
+      }
+    },
+    {
+      "case": "start-guest-web",
+      "result": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "case": "no-ingress-network",
+      "docker": {
+        "id": "5e57a8a524984aec29086ea7af403d1762dbc82b0326ba5ce4e2806cf7646b51",
+        "name": "localstack-ec2.i-b9c5d523dc621a918",
+        "state": "running",
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "3e:c1:55:38:f2:b6",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "96:6e:73:9a:2a:9b",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          }
+        },
+        "host_port_bindings": {
+          "22/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": "22"
+            }
+          ]
+        }
+      },
+      "guest_addresses": {
+        "exit": 0,
+        "output": "172.17.0.3 172.18.0.2 169.254.120.184 \n"
+      }
+    },
+    {
+      "case": "no-ingress-reachability",
+      "probes": [
+        {
+          "address": "172.17.0.3",
+          "reachable": true,
+          "status": 200,
+          "body": "rea-network-ok"
+        },
+        {
+          "address": "172.18.0.2",
+          "reachable": false,
+          "error": "URLError: <urlopen error timed out>"
+        }
+      ]
+    },
+    {
+      "case": "allow-ingress",
+      "operation": "authorize_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-5a81e7ca28edb378b",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true,
+        "SecurityGroupRules": [
+          {
+            "SecurityGroupRuleId": "sgr-c65d12aa9ea6cb8aa",
+            "GroupId": "sg-5a81e7ca28edb378b",
+            "GroupOwnerId": "000000000000",
+            "IsEgress": false,
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "CidrIpv4": "0.0.0.0/0",
+            "SecurityGroupRuleArn": "arn:aws:ec2:us-east-1:000000000000:security-group-rule/sgr-c65d12aa9ea6cb8aa"
+          }
+        ]
+      }
+    },
+    {
+      "case": "allowed-network",
+      "docker": {
+        "id": "5e57a8a524984aec29086ea7af403d1762dbc82b0326ba5ce4e2806cf7646b51",
+        "name": "localstack-ec2.i-b9c5d523dc621a918",
+        "state": "running",
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "3e:c1:55:38:f2:b6",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "96:6e:73:9a:2a:9b",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          }
+        },
+        "host_port_bindings": {
+          "22/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": "22"
+            }
+          ]
+        }
+      },
+      "guest_addresses": {
+        "exit": 0,
+        "output": "172.17.0.3 172.18.0.2 169.254.120.184 \n"
+      }
+    },
+    {
+      "case": "allowed-reachability",
+      "probes": [
+        {
+          "address": "172.17.0.3",
+          "reachable": true,
+          "status": 200,
+          "body": "rea-network-ok"
+        },
+        {
+          "address": "172.18.0.2",
+          "reachable": false,
+          "error": "URLError: <urlopen error timed out>"
+        }
+      ]
+    },
+    {
+      "case": "revoke-ingress",
+      "operation": "revoke_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-5a81e7ca28edb378b",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 8080,
+            "ToPort": 8080,
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "revoked-network",
+      "docker": {
+        "id": "5e57a8a524984aec29086ea7af403d1762dbc82b0326ba5ce4e2806cf7646b51",
+        "name": "localstack-ec2.i-b9c5d523dc621a918",
+        "state": "running",
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "3e:c1:55:38:f2:b6",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "96:6e:73:9a:2a:9b",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          }
+        },
+        "host_port_bindings": {
+          "22/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": "22"
+            }
+          ]
+        }
+      },
+      "guest_addresses": {
+        "exit": 0,
+        "output": "172.17.0.3 172.18.0.2 169.254.120.184 \n"
+      }
+    },
+    {
+      "case": "revoked-reachability",
+      "probes": [
+        {
+          "address": "172.17.0.3",
+          "reachable": true,
+          "status": 200,
+          "body": "rea-network-ok"
+        },
+        {
+          "address": "172.18.0.2",
+          "reachable": false,
+          "error": "URLError: <urlopen error timed out>"
+        }
+      ]
+    },
+    {
+      "case": "allocate-eip",
+      "operation": "allocate_address",
+      "parameters": {
+        "Domain": "vpc"
+      },
+      "status": 200,
+      "result": {
+        "AllocationId": "eipalloc-a2c7dd6386dda0da7",
+        "Domain": "vpc",
+        "PublicIp": "127.167.63.239"
+      }
+    },
+    {
+      "case": "associate-eip",
+      "operation": "associate_address",
+      "parameters": {
+        "AllocationId": "eipalloc-a2c7dd6386dda0da7",
+        "InstanceId": "i-b9c5d523dc621a918"
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "eipassoc-fff97cd1d8864eb1b"
+      }
+    },
+    {
+      "case": "describe-eip-instance",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-b9c5d523dc621a918"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-0685b59f5245d0544",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-20 09:19:50+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-b6705ea0147784658"
+                    }
+                  }
+                ],
+                "ClientToken": "ebaded54-5f18-478c-b609-ae3704b5b666",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-127-167-63-239.ec2.internal",
+                      "PublicIp": "127.167.63.239"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-20 09:19:50+00:00",
+                      "AttachmentId": "eni-attach-5594a026aa07c8437",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-5a81e7ca28edb378b",
+                        "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:14402x:1302x:5402x",
+                    "NetworkInterfaceId": "eni-66b7d36b54ac42c35",
+                    "OwnerId": "000000000000",
+                    "PrivateIpAddress": "10.97.1.4",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-127-167-63-239.ec2.internal",
+                          "PublicIp": "127.167.63.239"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.97.1.4"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-302b60946bf1834d9",
+                    "VpcId": "vpc-6ad01d90ef2dcd2d6",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-5a81e7ca28edb378b",
+                    "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-b9c5d523dc621a918",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-97-1-4.ec2.internal",
+                "PublicDnsName": "ec2-127-167-63-239.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-20 09:19:50+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1b"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-302b60946bf1834d9",
+                "VpcId": "vpc-6ad01d90ef2dcd2d6",
+                "PrivateIpAddress": "10.97.1.4",
+                "PublicIpAddress": "127.167.63.239"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "eip-network",
+      "docker": {
+        "id": "5e57a8a524984aec29086ea7af403d1762dbc82b0326ba5ce4e2806cf7646b51",
+        "name": "localstack-ec2.i-b9c5d523dc621a918",
+        "state": "running",
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "3e:c1:55:38:f2:b6",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "96:6e:73:9a:2a:9b",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          }
+        },
+        "host_port_bindings": {
+          "22/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": "22"
+            }
+          ]
+        }
+      },
+      "guest_addresses": {
+        "exit": 0,
+        "output": "172.17.0.3 172.18.0.2 169.254.120.184 \n"
+      }
+    },
+    {
+      "case": "eip-existing-reachability",
+      "probes": [
+        {
+          "address": "172.17.0.3",
+          "reachable": true,
+          "status": 200,
+          "body": "rea-network-ok"
+        },
+        {
+          "address": "172.18.0.2",
+          "reachable": false,
+          "error": "URLError: <urlopen error timed out>"
+        }
+      ]
+    },
+    {
+      "case": "eip-vs-docker-address",
+      "allocated_public_ip": "127.167.63.239",
+      "guest_addresses": {
+        "exit": 0,
+        "output": "172.17.0.3 172.18.0.2 169.254.120.184 \n"
+      }
+    },
+    {
+      "case": "eip-host-reachability",
+      "public_ip": "127.167.63.239",
+      "result": {
+        "http8080": {
+          "reachable": false,
+          "error": "URLError: <urlopen error [Errno 111] Connection refused>"
+        },
+        "ssh22": {
+          "reachable": true,
+          "banner": "SSH-2.0-OpenSSH_10.2p1 Ubuntu-2ubuntu3.5\r\n"
+        }
+      }
+    },
+    {
+      "case": "create-secondary-interface",
+      "operation": "create_network_interface",
+      "parameters": {
+        "SubnetId": "subnet-302b60946bf1834d9",
+        "Groups": [
+          "sg-5a81e7ca28edb378b"
+        ],
+        "PrivateIpAddress": "10.97.1.50"
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterface": {
+          "Association": {},
+          "AvailabilityZone": "us-east-1b",
+          "Description": "",
+          "Groups": [
+            {
+              "GroupId": "sg-5a81e7ca28edb378b",
+              "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6"
+            }
+          ],
+          "InterfaceType": "interface",
+          "Ipv6Addresses": [],
+          "MacAddress": "02:00:00:9502x:13702x:2002x",
+          "NetworkInterfaceId": "eni-bba77bfcaa907ce71",
+          "OwnerId": "000000000000",
+          "PrivateIpAddress": "10.97.1.50",
+          "PrivateIpAddresses": [
+            {
+              "Primary": true,
+              "PrivateIpAddress": "10.97.1.50"
+            }
+          ],
+          "RequesterId": "AIDAIT2UOQQY3AUEMOTO",
+          "RequesterManaged": false,
+          "SourceDestCheck": true,
+          "Status": "available",
+          "SubnetId": "subnet-302b60946bf1834d9",
+          "TagSet": [],
+          "VpcId": "vpc-6ad01d90ef2dcd2d6"
+        }
+      }
+    },
+    {
+      "case": "attach-secondary-interface",
+      "operation": "attach_network_interface",
+      "parameters": {
+        "NetworkInterfaceId": "eni-bba77bfcaa907ce71",
+        "InstanceId": "i-b9c5d523dc621a918",
+        "DeviceIndex": 1
+      },
+      "status": 200,
+      "result": {
+        "AttachmentId": "eni-attach-8eb3c6aa0ab9ee7c1",
+        "NetworkCardIndex": 0
+      }
+    },
+    {
+      "case": "describe-secondary-interface",
+      "operation": "describe_network_interfaces",
+      "parameters": {
+        "NetworkInterfaceIds": [
+          "eni-bba77bfcaa907ce71"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "NetworkInterfaces": [
+          {
+            "Attachment": {
+              "AttachTime": "2026-10-20 09:20:01+00:00",
+              "AttachmentId": "eni-attach-8eb3c6aa0ab9ee7c1",
+              "DeleteOnTermination": false,
+              "DeviceIndex": 1,
+              "NetworkCardIndex": 0,
+              "InstanceId": "i-b9c5d523dc621a918",
+              "InstanceOwnerId": "000000000000",
+              "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1b",
+            "Description": "",
+            "Groups": [
+              {
+                "GroupId": "sg-5a81e7ca28edb378b",
+                "GroupName": "rea-dataplane-vpc-6ad01d90ef2dcd2d6"
+              }
+            ],
+            "InterfaceType": "interface",
+            "Ipv6Addresses": [],
+            "MacAddress": "02:00:00:9502x:13702x:2002x",
+            "NetworkInterfaceId": "eni-bba77bfcaa907ce71",
+            "OwnerId": "000000000000",
+            "PrivateIpAddress": "10.97.1.50",
+            "PrivateIpAddresses": [
+              {
+                "Primary": true,
+                "PrivateIpAddress": "10.97.1.50"
+              }
+            ],
+            "RequesterId": "AIDAIT2UOQQY3AUEMOTO",
+            "RequesterManaged": false,
+            "SourceDestCheck": true,
+            "Status": "in-use",
+            "SubnetId": "subnet-302b60946bf1834d9",
+            "TagSet": [],
+            "VpcId": "vpc-6ad01d90ef2dcd2d6"
+          }
+        ]
+      }
+    },
+    {
+      "case": "secondary-interface-network",
+      "docker": {
+        "id": "5e57a8a524984aec29086ea7af403d1762dbc82b0326ba5ce4e2806cf7646b51",
+        "name": "localstack-ec2.i-b9c5d523dc621a918",
+        "state": "running",
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "3e:c1:55:38:f2:b6",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "96:6e:73:9a:2a:9b",
+            "IPPrefixLen": 16,
+            "Aliases": null
+          }
+        },
+        "host_port_bindings": {
+          "22/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": "22"
+            }
+          ]
+        }
+      },
+      "guest_addresses": {
+        "exit": 0,
+        "output": "172.17.0.3 172.18.0.2 169.254.120.184 \n"
+      }
+    },
+    {
+      "case": "secondary-interface-existing-reachability",
+      "probes": [
+        {
+          "address": "172.17.0.3",
+          "reachable": true,
+          "status": 200,
+          "body": "rea-network-ok"
+        },
+        {
+          "address": "172.18.0.2",
+          "reachable": false,
+          "error": "URLError: <urlopen error timed out>"
+        }
+      ]
+    },
+    {
+      "case": "cleanup-detach_network_interface",
+      "operation": "detach_network_interface",
+      "parameters": {
+        "AttachmentId": "eni-attach-8eb3c6aa0ab9ee7c1",
+        "Force": true
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_network_interface",
+      "operation": "delete_network_interface",
+      "parameters": {
+        "NetworkInterfaceId": "eni-bba77bfcaa907ce71"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-disassociate_address",
+      "operation": "disassociate_address",
+      "parameters": {
+        "AssociationId": "eipassoc-fff97cd1d8864eb1b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-release_address",
+      "operation": "release_address",
+      "parameters": {
+        "AllocationId": "eipalloc-a2c7dd6386dda0da7"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-b9c5d523dc621a918"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-b9c5d523dc621a918",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_security_group",
+      "operation": "delete_security_group",
+      "parameters": {
+        "GroupId": "sg-5a81e7ca28edb378b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_subnet",
+      "operation": "delete_subnet",
+      "parameters": {
+        "SubnetId": "subnet-302b60946bf1834d9"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_vpc",
+      "operation": "delete_vpc",
+      "parameters": {
+        "VpcId": "vpc-6ad01d90ef2dcd2d6"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": "",
+  "reference_container_removed": true,
+  "captured_guest_containers_remaining": [],
+  "link_local_network_cleanup": "preexisting shared network preserved",
+  "evidence_id": "ev_16864817f2bcd8fee5bdd9452a0cb92358c56e8a8e2bad6eb2da67d00d7ec264",
+  "observed_comparisons": {
+    "allow_ingress_kept_docker_networking": true,
+    "revoke_ingress_kept_docker_networking": true,
+    "eip_association_kept_docker_networking": true,
+    "secondary_eni_attachment_kept_docker_networking": true,
+    "secondary_eni_attachment_kept_guest_addresses": true
+  },
+  "cleanup_evidence_id": "ev_026445f9ce6e3ece67a28cccfe3695e570a4afb65571d4738c3840c8d371447d",
+  "captured_resources_absent": {
+    "reference": true,
+    "guest": true,
+    "disposable_probe_prefix": true
+  }
+}

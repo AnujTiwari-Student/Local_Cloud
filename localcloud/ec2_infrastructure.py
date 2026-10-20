@@ -15,6 +15,9 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from .engine import Error, integer, wildcard
+from .ec2_networking import Networking
+from .ec2_storage import PARAMETERS as STORAGE_PARAMETERS, StorageExtension
+from .ec2_images import PARAMETERS as IMAGE_PARAMETERS, ImageLifecycle
 
 ACCOUNT = '000000000000'
 REGION = 'us-east-1'
@@ -67,6 +70,8 @@ COLLECTIONS = {
 }
 
 PARAMETERS = {
+    **STORAGE_PARAMETERS,
+    **IMAGE_PARAMETERS,
     'CreateVpc': {'CidrBlock', 'InstanceTenancy', 'TagSpecifications'},
     'DeleteVpc': {'VpcId'}, 'DescribeVpcs': {'VpcIds', 'Filters', 'MaxResults', 'NextToken'},
     'DescribeVpcAttribute': {'VpcId', 'Attribute'}, 'ModifyVpcAttribute': {'VpcId', 'EnableDnsSupport', 'EnableDnsHostnames'},
@@ -92,9 +97,13 @@ PARAMETERS = {
     'DescribeKeyPairs': {'KeyNames', 'KeyPairIds', 'IncludePublicKey', 'Filters'}, 'DeleteKeyPair': {'KeyName', 'KeyPairId'},
     'DescribeAvailabilityZones': {'ZoneNames', 'ZoneIds', 'Filters', 'AllAvailabilityZones'},
     'DescribeInstanceTypes': {'InstanceTypes', 'Filters', 'MaxResults', 'NextToken'},
-    'CreateNetworkInterface': {'SubnetId', 'Description', 'PrivateIpAddress', 'Groups', 'TagSpecifications'},
+    'CreateNetworkInterface': {'SubnetId', 'Description', 'PrivateIpAddress', 'Groups', 'TagSpecifications', 'ClientToken'},
     'DescribeNetworkInterfaces': {'NetworkInterfaceIds', 'Filters', 'MaxResults', 'NextToken'}, 'DeleteNetworkInterface': {'NetworkInterfaceId'},
     'AttachNetworkInterface': {'NetworkInterfaceId', 'InstanceId', 'DeviceIndex'}, 'DetachNetworkInterface': {'AttachmentId', 'Force'},
+    'ModifyNetworkInterfaceAttribute': {'NetworkInterfaceId', 'Description', 'SourceDestCheck', 'Groups', 'Attachment'},
+    'DescribeNetworkInterfaceAttribute': {'NetworkInterfaceId', 'Attribute'},
+    'AssignPrivateIpAddresses': {'NetworkInterfaceId', 'PrivateIpAddresses', 'SecondaryPrivateIpAddressCount', 'AllowReassignment'},
+    'UnassignPrivateIpAddresses': {'NetworkInterfaceId', 'PrivateIpAddresses'},
     'AllocateAddress': {'Domain', 'TagSpecifications'}, 'DescribeAddresses': {'AllocationIds', 'PublicIps', 'Filters'},
     'AssociateAddress': {'AllocationId', 'InstanceId', 'NetworkInterfaceId', 'PrivateIpAddress', 'AllowReassociation'},
     'DisassociateAddress': {'AssociationId', 'PublicIp'}, 'ReleaseAddress': {'AllocationId', 'PublicIp'},
@@ -135,7 +144,7 @@ def paginated(result, key, args):
     return output
 
 
-class Infrastructure:
+class Infrastructure(Networking):
     def __init__(self, ec2):
         self.ec2, self.engine = ec2, ec2.engine
 
@@ -217,7 +226,10 @@ class Infrastructure:
                    'group-id': 'GroupId', 'group-name': 'GroupName', 'state': 'State', 'status': 'State',
                    'volume-id': 'VolumeId', 'snapshot-id': 'SnapshotId', 'availability-zone': 'AvailabilityZone',
                    'is-default': 'IsDefault', 'route-table-id': 'RouteTableId', 'internet-gateway-id': 'InternetGatewayId',
-                   'attachment.vpc-id': 'Attachments.VpcId', 'attachment.instance-id': 'Attachments.InstanceId',
+                   'attachment.vpc-id': 'Attachments.VpcId', 'attachment.instance-id': 'Attachment.InstanceId',
+                   'attachment.attachment-id': 'Attachment.AttachmentId', 'attachment.device-index': 'Attachment.DeviceIndex',
+                   'addresses.private-ip-address': 'PrivateIpAddresses.PrivateIpAddress', 'private-ip-address': 'PrivateIpAddress',
+                   'association.public-ip': 'Association.PublicIp', 'allocation-id': 'AllocationId', 'association-id': 'AssociationId', 'public-ip': 'PublicIp',
                    'key-name': 'KeyName', 'network-interface-id': 'NetworkInterfaceId', 'owner-id': 'OwnerId', 'instance-type': 'InstanceType',
                    'zone-name': 'ZoneName', 'zone-id': 'ZoneId', 'region-name': 'RegionName'}
         result = list(values)
@@ -236,7 +248,7 @@ class Infrastructure:
             if name not in aliases and not name.startswith('tag:'):
                 raise Error('InternalFailure', 'Unsupported filter: ' + name, 501)
             def matches(item):
-                candidates = [t['Value'] for t in item.get('Tags', []) if t['Key'] == name[4:]] if name.startswith('tag:') else walk(item, aliases[name].split('.'))
+                candidates = [t['Value'] for t in item.get('Tags', item.get('TagSet', [])) if t['Key'] == name[4:]] if name.startswith('tag:') else walk(item, ('Status' if name == 'status' and 'Status' in item else 'Attachments.InstanceId' if name == 'attachment.instance-id' and 'Attachments' in item else aliases[name]).split('.'))
                 return any(wildcard(v, p) for v in candidates for p in entry['Values'])
             result = [item for item in result if matches(item)]
         return result
@@ -282,7 +294,14 @@ class Infrastructure:
                 for key in args['Resources']:
                     if not isinstance(key, str):
                         raise Error('InvalidParameterValue', 'Invalid resource identifier')
-                    if key.startswith('i-'):
+                    if key.startswith('ami-'):
+                        target, kind, field = ImageLifecycle(self).tagtarget(data, key), 'image', 'Tags'
+                    elif key.startswith('lt-'):
+                        target = r.get('launch_templates', {}).get(key)
+                        if target is None:
+                            raise Error('InvalidLaunchTemplateId.NotFound', 'Launch template does not exist')
+                        kind, field = 'launch-template', 'Tags'
+                    elif key.startswith('i-'):
                         target, kind, field = self.instance(data, key), 'instance', 'Tags'
                     else:
                         entry = next(((k, values) for k, values in COLLECTIONS.items() if key in r[values[0]]), None)
@@ -311,6 +330,10 @@ class Infrastructure:
         with self.engine.transaction() as data:
             self.engine.authorize(data, principal, 'ec2:' + operation, '*')
             r = self.store(data)
+            if operation in STORAGE_PARAMETERS:
+                return StorageExtension(self).perform(data, r, operation, args)
+            if operation in IMAGE_PARAMETERS:
+                return ImageLifecycle(self).perform(operation, args, data, principal)
             if operation == 'CreateVpc':
                 if args.get('InstanceTenancy', 'default') != 'default':
                     raise Error('InvalidParameterValue', 'Only default tenancy is supported')
@@ -383,7 +406,7 @@ class Infrastructure:
                 groups = [g for g in r['groups'].values() if g['GroupName'] == args.get('GroupName')]
                 group = self.get(r, 'SecurityGroup', args.get('GroupId') or (groups[0]['GroupId'] if len(groups) == 1 else None))
                 if operation == 'DeleteSecurityGroup':
-                    if group['GroupName'] == 'default' or any(group['GroupId'] in [g['GroupId'] for g in i.get('SecurityGroups', [])] for i in self.active(data)):
+                    if group['GroupName'] == 'default' or any(group['GroupId'] in [g['GroupId'] for g in i.get('SecurityGroups', [])] for i in self.active(data)) or any(group['GroupId'] in [g['GroupId'] for g in i.get('Groups', [])] for i in r['interfaces'].values()):
                         raise Error('DependencyViolation', 'Security group is in use or is the default')
                     del r['groups'][group['GroupId']]
                     return {}
@@ -432,6 +455,10 @@ class Infrastructure:
                     raise Error('InvalidInstanceType', 'Only configured local presets are supported')
                 values = [{'InstanceType': t, 'VCpuInfo': {'DefaultVCpus': 2}, 'MemoryInfo': {'SizeInMiB': {'t3.micro': 1024, 't3.small': 2048, 't3.medium': 4096}[t]}, 'ProcessorInfo': {'SupportedArchitectures': ['x86_64']}, 'SupportedUsageClasses': ['on-demand'], 'SupportedRootDeviceTypes': ['ebs'], 'SupportedVirtualizationTypes': ['hvm']} for t in types]
                 return paginated({'InstanceTypes': self.filter(values, args.get('Filters', []))}, 'InstanceTypes', args)
+            if operation in ('ModifyNetworkInterfaceAttribute', 'DescribeNetworkInterfaceAttribute'):
+                return self.interface_attributes(data, r, operation, args)
+            if operation in ('AssignPrivateIpAddresses', 'UnassignPrivateIpAddresses'):
+                return self.private_addresses(data, r, operation, args)
             if operation in ('CreateNetworkInterface', 'AttachNetworkInterface', 'DetachNetworkInterface', 'DeleteNetworkInterface', 'AllocateAddress', 'AssociateAddress', 'DisassociateAddress', 'ReleaseAddress'):
                 return self.interfaces(data, r, operation, args)
             plurals = {'DescribeVpcs': ('Vpc', 'Vpcs'), 'DescribeSubnets': ('Subnet', 'Subnets'), 'DescribeSecurityGroups': ('SecurityGroup', 'SecurityGroups'),
@@ -446,7 +473,7 @@ class Infrastructure:
                 values = [v for v in values if v['PublicIp'] in args['PublicIps']]
             if operation == 'DescribeSubnets':
                 for subnet in values:
-                    used = {i.get('PrivateIpAddress') for i in self.active(data) if i.get('SubnetId') == subnet['SubnetId']} | {i['PrivateIpAddress'] for i in r['interfaces'].values() if i['SubnetId'] == subnet['SubnetId']}
+                    used = {i.get('PrivateIpAddress') for i in self.active(data) if i.get('SubnetId') == subnet['SubnetId']} | {a['PrivateIpAddress'] for i in r['interfaces'].values() if i['SubnetId'] == subnet['SubnetId'] for a in i.get('PrivateIpAddresses', [{'PrivateIpAddress': i['PrivateIpAddress']}])}
                     subnet['AvailableIpAddressCount'] = cidr(subnet['CidrBlock']).num_addresses - 5 - len(used)
             if operation == 'DescribeSecurityGroups' and args.get('GroupNames'):
                 names = args['GroupNames']
@@ -595,6 +622,8 @@ class Infrastructure:
         if operation in ('CreateSnapshot', 'DeleteSnapshot'):
             if operation == 'DeleteSnapshot':
                 snapshot = self.get(r, 'Snapshot', args.get('SnapshotId'))
+                if any(not image.get('_deregistered') and any(m.get('Ebs', {}).get('SnapshotId') == snapshot['SnapshotId'] for m in image.get('BlockDeviceMappings', [])) for image in ImageLifecycle(self).catalogue(data).values()):
+                    raise Error('DependencyViolation', 'Deregister images using this snapshot first')
                 self.ec2.runtime.delete_volume(snapshot['SnapshotId'])
                 del r['snapshots'][snapshot['SnapshotId']]
                 return {}
@@ -702,7 +731,7 @@ class Infrastructure:
 
     def allocate_ip(self, data, resources, subnet, requested=None):
         network = cidr(subnet['CidrBlock'])
-        used = {i.get('PrivateIpAddress') for i in self.active(data)} | {i.get('PrivateIpAddress') for i in resources['interfaces'].values()}
+        used = {i.get('PrivateIpAddress') for i in self.active(data) if i.get('SubnetId') == subnet['SubnetId']} | {a['PrivateIpAddress'] for i in resources['interfaces'].values() if i['SubnetId'] == subnet['SubnetId'] for a in i.get('PrivateIpAddresses', [{'PrivateIpAddress': i['PrivateIpAddress']}])}
         if requested:
             try:
                 address = ipaddress.IPv4Address(requested)
@@ -807,14 +836,14 @@ class Infrastructure:
                     interface['Status'] = 'available'
         for address in r['addresses'].values():
             if address.get('InstanceId') == instance['InstanceId']:
-                for key in ('AssociationId', 'InstanceId', 'PrivateIpAddress'):
-                    address.pop(key, None)
+                self.clear_association(data, r, address)
 
     def primary_interface(self, data, instance):
         r = self.store(data)
         key = identifier('eni')
         item = {'NetworkInterfaceId': key, 'SubnetId': instance['SubnetId'], 'VpcId': instance['VpcId'], 'OwnerId': ACCOUNT,
                 'PrivateIpAddress': instance['PrivateIpAddress'], 'PrivateDnsName': instance['PrivateDnsName'], 'Description': 'Primary network interface',
+                'AvailabilityZone': instance['Placement']['AvailabilityZone'], 'InterfaceType': 'interface', 'RequesterManaged': False,
                 'Status': 'in-use', 'SourceDestCheck': True, 'Groups': copy.deepcopy(instance['SecurityGroups']), 'TagSet': [],
                 'MacAddress': '02:00:' + ':'.join(uuid.uuid4().hex[i:i + 2] for i in range(0, 8, 2)),
                 'PrivateIpAddresses': [{'PrivateIpAddress': instance['PrivateIpAddress'], 'Primary': True}],
@@ -836,48 +865,61 @@ class Infrastructure:
 
     def interfaces(self, data, r, operation, args):
         if operation == 'CreateNetworkInterface':
+            replay = self.replay(r['interfaces'], args)
+            if replay:
+                return {'NetworkInterface': copy.deepcopy(replay)}
             subnet = self.get(r, 'Subnet', args.get('SubnetId'))
             address = self.allocate_ip(data, r, subnet, args.get('PrivateIpAddress'))
-            groups = [self.get(r, 'SecurityGroup', g) for g in args.get('Groups', [])]
+            groups = [self.get(r, 'SecurityGroup', g) for g in args.get('Groups', [])] or [g for g in r['groups'].values() if g['VpcId'] == subnet['VpcId'] and g['GroupName'] == 'default']
             if any(g['VpcId'] != subnet['VpcId'] for g in groups):
                 raise Error('InvalidGroup.NotFound', 'Interface groups must belong to the subnet VPC')
             key = identifier('eni')
             item = {'NetworkInterfaceId': key, 'SubnetId': subnet['SubnetId'], 'VpcId': subnet['VpcId'], 'AvailabilityZone': subnet['AvailabilityZone'],
                     'PrivateIpAddress': address, 'PrivateIpAddresses': [{'PrivateIpAddress': address, 'Primary': True}], 'Description': args.get('Description', ''),
+                    'InterfaceType': 'interface', 'RequesterManaged': False, 'MacAddress': '02:00:' + ':'.join(uuid.uuid4().hex[i:i+2] for i in range(0, 8, 2)),
                     'Status': 'available', 'OwnerId': ACCOUNT, 'SourceDestCheck': True, 'Groups': [{'GroupId': g['GroupId'], 'GroupName': g['GroupName']} for g in groups],
                     'TagSet': tag_specs(args.get('TagSpecifications'), 'network-interface')}
             r['interfaces'][key] = item
+            item.update(self.token_fields(args))
             return {'NetworkInterface': copy.deepcopy(item)}
         if operation in ('AttachNetworkInterface', 'DetachNetworkInterface', 'DeleteNetworkInterface'):
             if operation == 'DetachNetworkInterface':
                 interface = next((i for i in r['interfaces'].values() if i.get('Attachment', {}).get('AttachmentId') == args.get('AttachmentId')), None)
                 if not interface:
                     raise Error('InvalidAttachmentID.NotFound', 'Interface attachment not found')
+                if interface['Attachment']['DeviceIndex'] == 0:
+                    raise Error('OperationNotPermitted', 'Cannot detach the primary network interface')
+                instance = self.instance(data, interface['Attachment']['InstanceId'])
                 interface.pop('Attachment')
                 interface['Status'] = 'available'
+                self.sync_network_views(data, r, interface)
+                instance['NetworkInterfaces'] = [self.interface_view(i) for i in r['interfaces'].values() if i.get('Attachment', {}).get('InstanceId') == instance['InstanceId']]
                 return {}
             interface = self.get(r, 'NetworkInterface', args.get('NetworkInterfaceId'))
             if interface.get('Attachment'):
                 raise Error('InvalidNetworkInterface.InUse', 'Interface is attached')
             if operation == 'DeleteNetworkInterface':
+                if any(a.get('NetworkInterfaceId') == interface['NetworkInterfaceId'] for a in r['addresses'].values()):
+                    raise Error('InvalidNetworkInterface.InUse', 'Disassociate elastic addresses first')
                 del r['interfaces'][interface['NetworkInterfaceId']]
                 return {}
             instance = self.instance(data, args.get('InstanceId'))
-            if self.ec2.images:
-                raise Error('UnsupportedOperation', 'Secondary Docker NIC attachment is not implemented', 501)
             if interface['VpcId'] != instance.get('VpcId') or instance['State']['Name'] == 'terminated':
                 raise Error('InvalidParameterValue', 'Instance and interface must be active in the same VPC')
+            if interface.get('AvailabilityZone') != instance['Placement']['AvailabilityZone']:
+                raise Error('InvalidParameterValue', 'Interface and instance must be in the same availability zone')
             index = integer(args.get('DeviceIndex'), 1, 7)
             if any(i.get('Attachment', {}).get('InstanceId') == instance['InstanceId'] and i['Attachment']['DeviceIndex'] == index for i in r['interfaces'].values()):
                 raise Error('InvalidParameterValue', 'Device index is already occupied')
             attachment = {'AttachmentId': identifier('eni-attach'), 'InstanceId': instance['InstanceId'], 'DeviceIndex': index, 'Status': 'attached', 'DeleteOnTermination': False, 'AttachTime': now()}
             interface.update(Attachment=attachment, Status='in-use')
+            self.sync_network_views(data, r, interface)
             return {'AttachmentId': attachment['AttachmentId']}
         if operation == 'AllocateAddress':
             if args.get('Domain', 'vpc') != 'vpc':
                 raise Error('UnsupportedOperation', 'Only VPC elastic address records are supported', 501)
             used = {a['PublicIp'] for a in r['addresses'].values()}
-            address = next(('203.0.113.' + str(i) for i in range(1, 255) if '203.0.113.' + str(i) not in used), None)
+            address = next(('127.240.' + str(i // 254) + '.' + str(i % 254 + 1) for i in range(4096) if '127.240.' + str(i // 254) + '.' + str(i % 254 + 1) not in used), None)
             if address is None:
                 raise Error('AddressLimitExceeded', 'Local address pool exhausted')
             item = {'AllocationId': identifier('eipalloc'), 'PublicIp': address, 'Domain': 'vpc', 'PublicIpv4Pool': 'amazon', 'Tags': tag_specs(args.get('TagSpecifications'), 'elastic-ip')}
@@ -887,33 +929,13 @@ class Infrastructure:
         if not address:
             raise Error('InvalidAddress.NotFound', 'Elastic address not found')
         if operation == 'AssociateAddress':
-            if self.ec2.images:
-                raise Error('UnsupportedOperation', 'Elastic addresses are mock records, not routable Docker addresses', 501)
-            if args.get('NetworkInterfaceId'):
-                raise Error('UnsupportedOperation', 'AssociateAddress currently requires InstanceId', 501)
-            instance = self.instance(data, args.get('InstanceId'))
-            if args.get('PrivateIpAddress', instance['PrivateIpAddress']) != instance['PrivateIpAddress']:
-                raise Error('InvalidAddress.NotFound', 'Private address does not belong to this instance')
-            if instance['State']['Name'] == 'terminated':
-                raise Error('IncorrectInstanceState', 'Instance is terminated')
-            if address.get('AssociationId') and not args.get('AllowReassociation', False):
-                raise Error('Resource.AlreadyAssociated', 'Address already associated')
-            previous = data.get('instances', {}).get(address.get('InstanceId'))
-            if previous:
-                previous.pop('PublicIpAddress', None)
-            address.update(InstanceId=instance['InstanceId'], PrivateIpAddress=instance['PrivateIpAddress'], AssociationId=identifier('eipassoc'))
-            instance['PublicIpAddress'] = address['PublicIp']
-            return {'AssociationId': address['AssociationId']}
+            return self.associate_address(data, r, args, address)
         if operation == 'ReleaseAddress':
             if address.get('AssociationId'):
                 raise Error('InvalidIPAddress.InUse', 'Disassociate address before releasing')
             del r['addresses'][address['AllocationId']]
         else:
-            instance = data.get('instances', {}).get(address.get('InstanceId'))
-            if instance:
-                instance.pop('PublicIpAddress', None)
-            for key in ('AssociationId', 'InstanceId', 'PrivateIpAddress'):
-                address.pop(key, None)
+            self.clear_association(data, r, address)
         return {}
 
 
@@ -964,16 +986,21 @@ def validate_input(operation, args):
 def validate_instance_fields(item):
     from .ec2_protocol import MODEL
     fields = MODEL['shapes']['Instance']['members']
-    for key in ('VpcId', 'SubnetId', 'PrivateIpAddress', 'PrivateDnsName', 'PublicIpAddress', 'SecurityGroups', 'Placement', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'NetworkInterfaces'):
+    for key in ('VpcId', 'SubnetId', 'PrivateIpAddress', 'PrivateDnsName', 'PublicIpAddress', 'SecurityGroups', 'Placement', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'NetworkInterfaces', 'LaunchTemplate'):
         if key in item:
             validate_model(item[key], fields[key]['shape'])
 
 
 def validate_infrastructure(resources):
-    if not isinstance(resources, dict) or set(resources) != {'initialized', *[v[0] for v in COLLECTIONS.values()]}:
+    required_collections = {'initialized', *[v[0] for v in COLLECTIONS.values()]}
+    if not isinstance(resources, dict) or not required_collections <= set(resources) or set(resources) - required_collections - {'images', 'launch_templates'}:
         raise ValueError('Invalid EC2 infrastructure state')
     if type(resources.get('initialized', False)) is not bool:
         raise ValueError('Invalid EC2 initialization flag')
+    from .ec2_images import validate_images
+    from .ec2_templates import validate_templates
+    validate_images(resources.get('images', {}))
+    validate_templates(resources)
     from .ec2_protocol import MODEL
     shapes = {'Vpc': 'Vpc', 'Subnet': 'Subnet', 'SecurityGroup': 'SecurityGroup', 'InternetGateway': 'InternetGateway', 'RouteTable': 'RouteTable',
               'Volume': 'Volume', 'Snapshot': 'Snapshot', 'KeyPair': 'KeyPairInfo', 'NetworkInterface': 'NetworkInterface', 'Address': 'Address'}
@@ -995,7 +1022,13 @@ def validate_infrastructure(resources):
                         'Address': {'AllocationId', 'PublicIp', 'Domain'}}[kind]
             if not required <= set(item):
                 raise ValueError('Missing EC2 resource fields')
-            standard = {k: v for k, v in item.items() if k not in ({'EnableDnsSupport', 'EnableDnsHostnames'} if kind == 'Vpc' else {'Modification'} if kind == 'Volume' else set()) | {'_client_token', '_request_hash'}}
+            standard = {k: v for k, v in item.items() if k not in ({'EnableDnsSupport', 'EnableDnsHostnames'} if kind == 'Vpc' else {'Modification', '_auto_enable_io'} if kind == 'Volume' else {'_permissions'} if kind == 'Snapshot' else set()) | {'_client_token', '_request_hash'}}
+            if '_auto_enable_io' in item and (kind != 'Volume' or type(item['_auto_enable_io']) is not bool):
+                raise ValueError('Invalid volume auto-enable IO metadata')
+            if '_permissions' in item:
+                permissions = item['_permissions']
+                if kind != 'Snapshot' or not isinstance(permissions, list) or len(permissions) > 100 or any(not isinstance(p, dict) or not (p == {'Group': 'all'} or set(p) == {'UserId'} and isinstance(p['UserId'], str) and re.fullmatch(r'[0-9]{12}', p['UserId'])) for p in permissions):
+                    raise ValueError('Invalid snapshot permission metadata')
             if '_client_token' in item and (not isinstance(item['_client_token'], str) or not 1 <= len(item['_client_token']) <= 64 or not isinstance(item.get('_request_hash'), str) or not re.fullmatch(r'[0-9a-f]{64}', item['_request_hash'])):
                 raise ValueError('Invalid resource idempotency metadata')
             validate_model(standard, shapes[kind])

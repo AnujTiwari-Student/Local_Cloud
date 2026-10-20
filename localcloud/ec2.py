@@ -9,10 +9,12 @@ import uuid
 from datetime import datetime, timezone
 from .engine import Error, integer, valid_name, wildcard
 from .ec2_infrastructure import PARAMETERS, paginated, COLLECTIONS
+from .ec2_templates import PARAMETERS as TEMPLATE_PARAMETERS, TemplateManager
+from .ec2_images import ImageLifecycle
 
 CODES = {'pending': 0, 'running': 16, 'shutting-down': 32, 'terminated': 48, 'stopping': 64, 'stopped': 80}
 OPERATIONS = {'RunInstances', 'DescribeInstances', 'StartInstances', 'StopInstances', 'TerminateInstances', 'NameInstance', 'ModifyInstanceAttribute', 'DescribeImages', 'CreateTags', 'DeleteTags', 'DescribeTags', 'DescribeInstanceAttribute'}
-OPERATIONS |= set(PARAMETERS) | {'RebootInstances', 'GetConsoleOutput', 'DescribeInstanceStatus', 'ModifyInstanceMetadataOptions'}
+OPERATIONS |= set(PARAMETERS) | set(TEMPLATE_PARAMETERS) | {'RebootInstances', 'GetConsoleOutput', 'DescribeInstanceStatus', 'ModifyInstanceMetadataOptions'}
 
 
 def state(name):
@@ -93,6 +95,8 @@ class EC2:
         from .ec2_infrastructure import Infrastructure
         self.runtime = Runtime(self)
         self.infrastructure = Infrastructure(self)
+        self.templates = TemplateManager(self)
+        self.image_lifecycle = ImageLifecycle(self.infrastructure)
 
     def container_args(self, item, mappings=None):
         ports = item.get('PortMappings', [])
@@ -140,13 +144,21 @@ class EC2:
                         raise Error('DryRunOperation', 'Request would have succeeded, but DryRun flag is set', 412)
                 return self.engine.tools.call('ec2', operation, principal, '*', check)
             args = {key: value for key, value in args.items() if key != 'DryRun'}
+        if operation in TEMPLATE_PARAMETERS:
+            return self.templates.call(operation, args, principal)
+        if operation == 'RunInstances' and isinstance(args, dict) and 'LaunchTemplate' in args:
+            with self.engine.lock:
+                data = json.loads(self.engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+                defaults = self.templates.resolve(data, args['LaunchTemplate'])
+                identity = defaults.pop('_LaunchTemplate')
+                args = {**defaults, **args, 'LaunchTemplate': identity}
         if operation in PARAMETERS:
             return self.infrastructure.call(operation, args, principal)
         if operation in ('CreateTags', 'DeleteTags') and isinstance(args, dict) and isinstance(args.get('Resources'), list) and any(not str(key).startswith('i-') for key in args['Resources']):
             return self.infrastructure.resource_tags(operation, args, principal)
         selectors_allowed = {'InstanceIds', 'InstanceName', 'ContainerId', 'ContainerName', 'HostPort'}
         allowed = {
-            'RunInstances': {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name', 'ClientToken', 'TagSpecifications', 'UserData', 'SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings'},
+            'RunInstances': {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name', 'ClientToken', 'TagSpecifications', 'UserData', 'SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'LaunchTemplate'},
             'DescribeImages': {'ImageIds', 'Filters', 'Owners', 'MaxResults', 'NextToken'},
             'CreateTags': {'Resources', 'Tags'}, 'DeleteTags': {'Resources', 'Tags'},
             'DescribeTags': {'Filters', 'MaxResults', 'NextToken'},
@@ -215,22 +227,7 @@ class EC2:
                 self.engine.authorize(data, principal, 'ec2:' + operation, resource)
             instances = data.setdefault('instances', {})
             if operation == 'DescribeImages':
-                catalogue = self.images or {'ami-local': None}
-                catalogue = {**{i['ImageId']: None for i in instances.values() if i['Backend'] == 'mock'}, **catalogue}
-                requested = args.get('ImageIds', [])
-                if not isinstance(requested, list) or any(not isinstance(i, str) for i in requested):
-                    raise Error('InvalidParameterValue', 'ImageIds must be a list of strings')
-                missing = [i for i in requested if i not in catalogue]
-                if missing:
-                    raise Error('InvalidAMIID.NotFound', "The image id '[" + ', '.join(missing) + "]' does not exist")
-                owners = args.get('Owners', [])
-                if not isinstance(owners, list) or any(not isinstance(i, str) for i in owners):
-                    raise Error('InvalidParameterValue', 'Owners must be a list of strings')
-                images = [{'ImageId': i, 'Name': i, 'State': 'available', 'OwnerId': '000000000000',
-                           'Public': False, 'Architecture': 'x86_64', 'ImageType': 'machine',
-                           'Tags': [{'Key': 'ec2_vm_manager', 'Value': 'docker' if self.images else 'mock'}]}
-                          for i in catalogue if (not requested or i in requested) and (not owners or set(owners) & {'self', '000000000000'})]
-                return paginated({'Images': filtered(images, args.get('Filters', []), 'image')}, 'Images', args)
+                return self.image_lifecycle.describe(data, args)
             for identifier in ids:
                 if identifier not in instances:
                     raise Error('InvalidInstanceID.NotFound', "The instance ID '" + identifier + "' does not exist", 400)
@@ -255,6 +252,8 @@ class EC2:
                 for kind, (collection, field, prefix, _) in COLLECTIONS.items():
                     resource_type = {'SecurityGroup': 'security-group', 'InternetGateway': 'internet-gateway', 'RouteTable': 'route-table', 'KeyPair': 'key-pair', 'NetworkInterface': 'network-interface', 'Address': 'elastic-ip'}.get(kind, kind.lower())
                     tags.extend({'ResourceId': i[field], 'ResourceType': resource_type, **tag} for i in data.get('ec2', {}).get(collection, {}).values() for tag in i.get('TagSet' if kind == 'NetworkInterface' else 'Tags', []))
+                tags.extend({'ResourceId': i['ImageId'], 'ResourceType': 'image', **tag} for i in self.image_lifecycle.store(data).values() if not i.get('_deregistered') for tag in i.get('Tags', []))
+                tags.extend({'ResourceId': i['LaunchTemplateId'], 'ResourceType': 'launch-template', **tag} for i in data.get('ec2', {}).get('launch_templates', {}).values() for tag in i.get('Tags', []))
                 return paginated({'Tags': filtered(tags, args.get('Filters', []), 'tag')}, 'Tags', args)
             if operation == 'DescribeInstanceStatus':
                 chosen = [instances[i] for i in ids] if ids else list(instances.values())
@@ -344,11 +343,16 @@ class EC2:
                 token = args.get('ClientToken', '')
                 if not isinstance(token, str) or len(token) > 64 or any(ord(c) < 32 or ord(c) > 126 for c in token):
                     raise Error('InvalidParameterValue', 'ClientToken must be at most 64 printable ASCII characters')
+                image_data = self.image_lifecycle.store(data).get(args.get('ImageId'))
+                if self.images or image_data:
+                    image_data = self.image_lifecycle.resolve(data, args.get('ImageId'))
+                    if image_data.get('BlockDeviceMappings') and 'BlockDeviceMappings' not in args:
+                        args = {**args, 'BlockDeviceMappings': copy.deepcopy(image_data['BlockDeviceMappings'])}
                 normalized = dict(ImageId=args.get('ImageId'), InstanceType=args.get('InstanceType', 't3.micro'),
                                   MinCount=integer(args.get('MinCount', 1), 1, 10), MaxCount=integer(args.get('MaxCount', 1), 1, 10),
                                   PortMappings=args.get('PortMappings', []), TagSpecifications=args.get('TagSpecifications', []),
                                   UserData=args.get('UserData', ''))
-                normalized.update({k: v for k, v in args.items() if k in ('SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings')})
+                normalized.update({k: v for k, v in args.items() if k in ('SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'LaunchTemplate')})
                 if 'Name' in args:
                     normalized['Name'] = args['Name']
                 fingerprint = hashlib.sha256(json.dumps(normalized, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
@@ -402,6 +406,8 @@ class EC2:
                             'Backend': 'docker' if self.images else 'mock', 'Owner': uuid.uuid4().hex,
                             'ReservationId': reservation, 'Tags': tags, 'ClientToken': token,
                             'LaunchFingerprint': fingerprint, 'UserData': user_data, 'AmiLaunchIndex': len(created)}
+                    if 'LaunchTemplate' in args:
+                        item['LaunchTemplate'] = copy.deepcopy(args['LaunchTemplate'])
                     item.update(self.infrastructure.launch_network(data, args))
                     self.infrastructure.primary_interface(data, item)
                     if self.images and self.runtime.guest_mode:
@@ -535,7 +541,7 @@ def validate_instances(instances):
     for key, item in instances.items():
         optional = {'Name', 'ReservationId', 'Tags', 'ClientToken', 'LaunchFingerprint', 'UserData', 'AmiLaunchIndex',
                     'VpcId', 'SubnetId', 'PrivateIpAddress', 'PrivateDnsName', 'PublicIpAddress', 'SecurityGroups', 'Placement',
-                    'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'NetworkInterfaces', 'ConsoleOutput'}
+                    'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'NetworkInterfaces', 'ConsoleOutput', 'LaunchTemplate'}
         if (not isinstance(item, dict) or set(item) - required - optional or not required <= set(item) or key != item['InstanceId']
                 or not re.fullmatch(r'i-[0-9a-f]{17}', key)
                 or item['Backend'] != 'mock' or item['State'] not in [state(n) for n in ('running', 'stopped', 'terminated')]

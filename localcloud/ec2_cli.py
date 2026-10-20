@@ -3,7 +3,9 @@ import argparse
 import base64
 import re
 from pathlib import Path
-from .ec2_infrastructure import PARAMETERS
+from .ec2_infrastructure import PARAMETERS as INFRA_PARAMETERS
+from .ec2_templates import PARAMETERS as TEMPLATE_PARAMETERS
+PARAMETERS = {**INFRA_PARAMETERS, **TEMPLATE_PARAMETERS}
 from .ec2_protocol import MODEL
 
 
@@ -26,7 +28,7 @@ def register(group, operation):
             if kind in ('integer', 'long'):
                 options['type'] = int
             elif kind == 'boolean':
-                options['action'] = argparse.BooleanOptionalAction
+                options['action'] = 'store_true' if flag(field).startswith('no-') else argparse.BooleanOptionalAction
             elif kind == 'list' and MODEL['shapes'][field_shape['member']['shape']]['type'] == 'string':
                 options['nargs'] = '+'
             elif kind in ('structure', 'list', 'map'):

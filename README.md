@@ -181,4 +181,11 @@ For a reachable Docker-backed EC2 web app, see [the complete walkthrough](docs/E
 The [REA MCP service audit](docs/REA_SERVICES.md) records the latest reference image, original Evidence IDs, 11 live checks (including Docker), a source-backed SQS correction and unresolved compatibility work.
 
 See [EC2 networks, volumes, IMDS and SSH](docs/EC2_INFRASTRUCTURE.md) for the current
-70-operation subset, complete local setup and captured verification results.
+74-operation subset, complete local setup and captured verification results.
+
+The [EC2 networking REA report](docs/EC2_NETWORKING.md) covers private IPs, network
+interfaces, elastic-IP associations, CLI/dashboard usage and actual traffic limits.
+
+The latest [EC2 release checkpoint](docs/EC2_RELEASE.md) covers 97 selected AWS
+operations, launch templates, image lifecycle and snapshot-copy workflows, with
+usage, verification and explicit remaining limits.

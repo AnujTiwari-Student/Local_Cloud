@@ -1,6 +1,6 @@
 # EC2 lifecycle implementation and reference coverage
 
-**Historical lifecycle milestone.** The current provider has 70 selected AWS
+**Historical lifecycle milestone.** The current provider has 74 selected AWS
 operations plus NameInstance. Networking, storage, IMDS and SSH were added after
 this report; see [the current EC2 guide](EC2_INFRASTRUCTURE.md) for setup, evidence
 and remaining limits. The 12-operation counts and missing-feature lists below
