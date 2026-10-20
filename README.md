@@ -1,5 +1,9 @@
 # LocalCloud
 
+**Start here: [Complete handbook](docs/HANDBOOK.md)** — setup, real application
+integration, local CI, EC2, Kubernetes, core-engine internals and troubleshooting.
+The [documentation index](docs/README.md) links the specialist guides.
+
 An independent, dependency-free Python development emulator. This implementation provides EC2, SQS and S3 subsets, durable state, named snapshots, state portability, IAM policy proposals, request inspection, fault injection and a resource dashboard. It is a starting project for adding the specific services you need, not full AWS or LocalStack Pro parity.
 
 Use the [AWS-style CLI guide](docs/CLI.md) for every supported service and tool. Also see [getting started](docs/USAGE.md), [Kubernetes setup](docs/KUBERNETES.md), and [CI/CD usage](docs/CI_CD.md).
@@ -84,7 +88,11 @@ Use `localcloud <service> <operation> --help` for flags, such as `localcloud sqs
 python3 -m unittest discover -s tests -v
 ```
 
-141 passing Python tests cover persistence, snapshots, policy enforcement/generation, portable state validation, fault rules, trace retention, CLI seeding/export and HTTP request/response handling. HTTP tests use an in-memory connection to exercise the real standard-library handler. Browser smoke tests passed resource/tool controls and protected Kubernetes job controls using fixture API responses, with no page errors. Kubernetes and CI unit tests cover reconciliation, ownership, credentials and cleanup. Live browser-to-server integration remains unverified because the authoring sandbox disallows listening sockets.
+The latest saved EC2 release audit records **181 passing tests and 11 live
+regression checks**, plus separate live networking/browser and Docker AMI clone
+checks. These verify their recorded scopes, not full AWS/LocalStack compatibility.
+See [the current release guide](docs/EC2_RELEASE.md) and its linked evidence for
+capture details. Run the suite above to check your current checkout.
 
 ## Compatibility limits
 
@@ -93,7 +101,7 @@ python3 -m unittest discover -s tests -v
 - S3 path-style only; no signing verification, presigned URL validation, multipart upload, versioning, encryption, object metadata, pagination or bucket policies. Object data lives as base64 inside JSON state; requests are limited to 8 MiB. SDK compatibility has not been verified; the bundled CLI is tested against our handler.
 - IAM supports only identity policies containing Sid, Effect, Action and Resource. No Condition, Principal, resource policies, roles, STS, SCPs, permissions boundaries or signature validation.
 - Named snapshots are local database records. No Cloud Pods integration, remote sharing, merge or cross-version migration. Portable resource-state export/import is available separately.
-- Dashboard lists queue/bucket counts; individual object/message editors and the other service screens are not implemented.
+- Dashboard supports S3 object editors, SQS message/settings controls and selected EC2/infrastructure forms. It does not provide every service or every operation shown in the reference screenshot.
 - SQLite state is serialized as one JSON document. This favors small deterministic development workloads over throughput. Queue timing uses the host wall clock.
 - No RDS, Cognito, Lambda, DynamoDB, API Gateway, CloudFormation or extensions yet.
 
@@ -140,7 +148,7 @@ localcloud faults list
 localcloud faults remove s3-outage
 ```
 
-Services: `s3`, `sqs`, or `*`; operations accept `*`/`?` patterns. Probability is 0–1. Latency is 0–5,000 ms. Omit `error` for latency only. Rules are evaluated in name order; the first rule whose service/operation match and probability triggers wins. Latency occurs outside the state lock. Errors happen before authorization and mutation, so injected failures have no IAM evaluation. Management endpoints bypass faults so rules can always be removed. Rules persist across restart, but are deliberately not transferred or reverted with resource state.
+Services: `s3`, `sqs`, `ec2`, or `*`; operations accept `*`/`?` patterns. Probability is 0–1. Latency is 0–5,000 ms. Omit `error` for latency only. Rules are evaluated in name order; the first rule whose service/operation match and probability triggers wins. Latency occurs outside the state lock. Errors happen before authorization and mutation, so injected failures have no IAM evaluation. Management endpoints bypass faults so rules can always be removed. Rules persist across restart, but are deliberately not transferred or reverted with resource state.
 
 For the full guide-to-code mapping, see [feature coverage](docs/FEATURES.md). Public cloud sandbox hosting, expanded AWS providers and enterprise controls remain open work. Private Kubernetes previews and Job execution are available; see the guides above.
 
@@ -161,7 +169,7 @@ docker build -t localcloud:dev .
 localcloud kube --namespace localcloud manifests --image localcloud:dev > /tmp/localcloud-install.json
 ```
 
-Follow [Kubernetes usage](docs/KUBERNETES.md) to load the image into your cluster, install the operator, create its token Secret, launch instances and execute Jobs. Follow [CI/CD usage](docs/CI_CD.md) for project configuration, application tests, fixtures, tokens and artifacts. Neither guide requires a LocalStack subscription. Live Docker/cluster validation could not run in the authoring sandbox; standalone live smoke scripts are provided for a capable environment.
+Follow [Kubernetes usage](docs/KUBERNETES.md) to load the image into your cluster, install the operator, create its token Secret, launch instances and execute Jobs. Follow [CI/CD usage](docs/CI_CD.md) for project configuration, application tests, fixtures, tokens and artifacts. Neither guide requires a LocalStack subscription. Saved evidence includes isolated Docker and kind runtime checks. Standalone smoke scripts let you verify the relevant workflow in your own environment.
 
 ## Add local CI to your own application
 
@@ -180,8 +188,8 @@ For a reachable Docker-backed EC2 web app, see [the complete walkthrough](docs/E
 
 The [REA MCP service audit](docs/REA_SERVICES.md) records the latest reference image, original Evidence IDs, 11 live checks (including Docker), a source-backed SQS correction and unresolved compatibility work.
 
-See [EC2 networks, volumes, IMDS and SSH](docs/EC2_INFRASTRUCTURE.md) for the current
-74-operation subset, complete local setup and captured verification results.
+See [EC2 networks, volumes, IMDS and SSH](docs/EC2_INFRASTRUCTURE.md) for the networking/storage milestone, local setup and captured verification results.
+The later release checkpoint below expands the EC2 subset to 97 AWS operations.
 
 The [EC2 networking REA report](docs/EC2_NETWORKING.md) covers private IPs, network
 interfaces, elastic-IP associations, CLI/dashboard usage and actual traffic limits.
