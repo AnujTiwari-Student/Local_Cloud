@@ -1,0 +1,26 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "evidence": {
+    "initial": "ev_203284396103228d39eda62119a3eea7d1bb705c98a07c7e0bc422e52f39c3d2",
+    "kms_followup_final": "ev_7d1ac237d54c3ee34ee2771780a60cd3f9efcd469eb9d088836887d1886a660b"
+  },
+  "bundle_sha256_uncompressed": "cd5c451c232c33c8f72032b1035b78819902b1a36bad5269f35c5a2ddfa97d18",
+  "files": {
+    "scripts/ec2-storage-encryption-reference.py": "66a239e29c153788695d3580a6bbfa0dfcd9e41ae821f5c2ec29f3d5c08a39a8",
+    "docs/research/rea/ec2-storage-encryption-reference.json": "035f7670dc08fa54ee814150c52827d48ca2f770b4f0a1bcee9385926b0c1363"
+  },
+  "observations": [
+    "Get/Enable/DisableEbsEncryptionByDefault work as a mutable flag; enabling flag did not encrypt implicit CreateVolume metadata.",
+    "Get/ResetEbsDefaultKmsKeyId501. ModifyEbsDefaultKmsKeyId500 with invalid key AND a newly created actual local KMS key ARN.",
+    "CreateVolume explicit KmsKeyId requires Encryptedtrue; otherwise400InvalidParameterDependency.",
+    "Encrypted snapshot restore with Encryptedfalse still returns Encryptedtrue instead of decrypting.",
+    "ModifyVolume permits shrinking, Iops1,Throughput1,invalidVolumeType in this mock reference; Size0 rejects400.",
+    "DescribeVolumesModifications returns history of all successful modifications, not just latest."
+  ],
+  "limitations": [
+    "Mock executor API metadata and validation only.",
+    "No raw block resize, quota or data-encryption inference.",
+    "First record predates valid-local-KMS-key followup; final script and report are from final capture.",
+    "LocalCloud may retain stricter input validation; no need mirror permissive invalid types."
+  ]
+}

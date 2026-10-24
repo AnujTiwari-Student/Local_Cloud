@@ -1,0 +1,21 @@
+{
+  "evidence_id": "ev_2856a7c775f6a558f94b1986da70a163f2ee6ec2d96a9cdef493b848cb23336f",
+  "passed": true,
+  "checks": [
+    "live-guest-snapshot-resumes-instance",
+    "binary-snapshot-copy-restore-and-relative-symlink",
+    "snapshot-independent-of-later-source-writes",
+    "killed-mid-copy-backend-recovers-helper-paused-guest-and-uncommitted-copy",
+    "acknowledged-storage-write-survives-backend-sigkill",
+    "server-restart-retains-owner-records-running-guest-and-bytes",
+    "metadata-growth-preserves-files-without-claiming-disk-resize",
+    "delete-on-termination-and-retained-volume-detachment",
+    "restored-volume-independent-of-deleted-snapshots"
+  ],
+  "cleanup_completed": true,
+  "remaining_volumes": 0,
+  "remaining_snapshots": 0,
+  "pending_storage_operations": 0,
+  "owned_docker_volumes_remaining": [],
+  "owned_storage_helpers_remaining": []
+}

@@ -1,0 +1,835 @@
+{
+  "namespace": "ec2-executor-rea-f20dfe4c",
+  "context": "kind-localcloud",
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "image_already_loaded": true,
+  "reference_host_image_id": "sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "registered_image": "ami-1b987d6fbad859638",
+  "probe": [
+    {
+      "operation": "run_instances",
+      "result": {
+        "ReservationId": "r-26a7591aa46954779",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:42:23+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-d5fd78afcd41473a9"
+                }
+              }
+            ],
+            "ClientToken": "01c03e76-189a-4c28-918a-14f429c8d621",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-81-79.ec2.internal",
+                  "PublicIp": "54.214.81.79"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-23 15:42:23+00:00",
+                  "AttachmentId": "eni-attach-779b3c88e78ba90f6",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-27ca8e366a1c43bdf",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:13002x:17002x:9802x",
+                "NetworkInterfaceId": "eni-29d80fa899bb6a21c",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-172-210-172.ec2.internal",
+                "PrivateIpAddress": "10.172.210.172",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-81-79.ec2.internal",
+                      "PublicIp": "54.214.81.79"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.172.210.172"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-0aa4215c3f9bc2793",
+                "VpcId": "vpc-502e466afd53ae3f0",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-27ca8e366a1c43bdf",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-68b59f432bbce3419",
+            "ImageId": "ami-1b987d6fbad859638",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-172-210-172.ec2.internal",
+            "PublicDnsName": "54-214-81-79.ec2-executor-rea-f20dfe4c.pod",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-23 15:42:23+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-0aa4215c3f9bc2793",
+            "VpcId": "vpc-502e466afd53ae3f0",
+            "PrivateIpAddress": "10.172.210.172",
+            "PublicIpAddress": "54.214.81.79"
+          }
+        ]
+      }
+    }
+  ],
+  "controlled_intervention": {
+    "reason": "Reference generates an AMI-name image with imagePullPolicy Always; loaded node cache cannot satisfy registry lookup",
+    "patch": "guest imagePullPolicy=Never on owned Deployment only"
+  },
+  "guest_before_stop": "executor-user-data-ok\noverlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /dev/termination-log btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\nshm /dev/shm tmpfs rw,seclabel,relatime,size=65536k,inode64 0 0\ntmpfs /run/secrets/kubernetes.io/serviceaccount tmpfs ro,seclabel,relatime,size=15957960k,inode64,noswap 0 0\noverlay /sys/devices/virtual/dmi/id/product_name overlay ro,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\noverlay /sys/devices/virtual/dmi/id/product_uuid overlay ro,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\noverlay /sys/devices/virtual/dmi/id/product_uuid overlay ro,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\n",
+  "described_running": {
+    "Reservations": [
+      {
+        "ReservationId": "r-26a7591aa46954779",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:42:23+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-d5fd78afcd41473a9"
+                }
+              }
+            ],
+            "ClientToken": "01c03e76-189a-4c28-918a-14f429c8d621",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-81-79.ec2.internal",
+                  "PublicIp": "54.214.81.79"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-23 15:42:23+00:00",
+                  "AttachmentId": "eni-attach-779b3c88e78ba90f6",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-27ca8e366a1c43bdf",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:13002x:17002x:9802x",
+                "NetworkInterfaceId": "eni-29d80fa899bb6a21c",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-172-210-172.ec2.internal",
+                "PrivateIpAddress": "10.172.210.172",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-81-79.ec2.internal",
+                      "PublicIp": "54.214.81.79"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.172.210.172"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-0aa4215c3f9bc2793",
+                "VpcId": "vpc-502e466afd53ae3f0",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-27ca8e366a1c43bdf",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-68b59f432bbce3419",
+            "ImageId": "ami-1b987d6fbad859638",
+            "State": {
+              "Code": 16,
+              "Name": "running"
+            },
+            "PrivateDnsName": "ip-10-172-210-172.ec2.internal",
+            "PublicDnsName": "54-214-81-79.ec2-executor-rea-f20dfe4c.pod",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-23 15:42:23+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-0aa4215c3f9bc2793",
+            "VpcId": "vpc-502e466afd53ae3f0",
+            "PrivateIpAddress": "10.172.210.172",
+            "PublicIpAddress": "54.214.81.79"
+          }
+        ]
+      }
+    ]
+  },
+  "create_volume": {
+    "VolumeType": "gp2",
+    "VolumeId": "vol-1fa148feeb95b47cd",
+    "Size": 1,
+    "SnapshotId": "",
+    "AvailabilityZone": "us-east-1a",
+    "State": "creating",
+    "CreateTime": "2026-10-23 15:43:09+00:00",
+    "Encrypted": false
+  },
+  "attach_volume": {
+    "VolumeId": "vol-1fa148feeb95b47cd",
+    "InstanceId": "i-68b59f432bbce3419",
+    "Device": "/dev/sdf",
+    "State": "attaching",
+    "AttachTime": "2026-10-23 15:43:10+00:00"
+  },
+  "guest_after_attach": "overlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /dev/termination-log btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\nshm /dev/shm tmpfs rw,seclabel,relatime,size=65536k,inode64 0 0\ntmpfs /run/secrets/kubernetes.io/serviceaccount tmpfs ro,seclabel,relatime,size=15957960k,inode64,noswap 0 0\noverlay /sys/devices/virtual/dmi/id/product_name overlay ro,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\noverlay /sys/devices/virtual/dmi/id/product_uuid overlay ro,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\noverlay /sys/devices/virtual/dmi/id/product_uuid overlay ro,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/328/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/327/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/326/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/344/work,uuid=on 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\nls: cannot access '/dev/sdf': No such file or directory\n/mnt:\ntotal 0\n",
+  "describe_volume": {
+    "Volumes": [
+      {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-1fa148feeb95b47cd",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "in-use",
+        "CreateTime": "2026-10-23 15:43:09+00:00",
+        "Attachments": [
+          {
+            "DeleteOnTermination": false,
+            "VolumeId": "vol-1fa148feeb95b47cd",
+            "InstanceId": "i-68b59f432bbce3419",
+            "Device": "/dev/sdf",
+            "State": "attached",
+            "AttachTime": "2026-10-23 15:43:10+00:00"
+          }
+        ],
+        "Encrypted": false
+      }
+    ]
+  },
+  "create_snapshot": {
+    "Tags": [],
+    "SnapshotId": "snap-b9daf2f64c2f90b4d",
+    "VolumeId": "vol-1fa148feeb95b47cd",
+    "State": "pending",
+    "StartTime": "2026-10-23 15:43:11+00:00",
+    "Progress": "60%",
+    "OwnerId": "000000000000",
+    "Description": "",
+    "VolumeSize": 1,
+    "Encrypted": false
+  },
+  "detach_volume": {
+    "VolumeId": "vol-1fa148feeb95b47cd",
+    "InstanceId": "i-68b59f432bbce3419",
+    "Device": "/dev/sdf",
+    "State": "detaching",
+    "AttachTime": "2013-10-04 17:38:53+00:00"
+  },
+  "delete_snapshot": {},
+  "delete_volume": {},
+  "stop_instances": {
+    "StoppingInstances": [
+      {
+        "InstanceId": "i-68b59f432bbce3419",
+        "CurrentState": {
+          "Code": 16,
+          "Name": "running"
+        },
+        "PreviousState": {
+          "Code": 16,
+          "Name": "running"
+        }
+      }
+    ]
+  },
+  "deployment_after_stop": 1,
+  "start_instances": {
+    "StartingInstances": [
+      {
+        "InstanceId": "i-68b59f432bbce3419",
+        "CurrentState": {
+          "Code": 16,
+          "Name": "running"
+        },
+        "PreviousState": {
+          "Code": 16,
+          "Name": "running"
+        }
+      }
+    ]
+  },
+  "guest_after_start": "executor-user-data-ok\nroot-persist-ok",
+  "terminate_instances": {
+    "TerminatingInstances": [
+      {
+        "InstanceId": "i-68b59f432bbce3419",
+        "CurrentState": {
+          "Code": 48,
+          "Name": "terminated"
+        },
+        "PreviousState": {
+          "Code": 16,
+          "Name": "running"
+        }
+      }
+    ]
+  },
+  "remaining_deployments": [
+    "reference"
+  ],
+  "pods": [
+    {
+      "name": "localstack-ec2-i-68b59f432bbce3419-67f9c448fc-fqcbw",
+      "labels": {
+        "app": "localstack-ec2-i-68b59f432bbce3419",
+        "app.kubernetes.io/managed-by": "localstack",
+        "localstack.cloud/service": "ec2",
+        "pod-template-hash": "67f9c448fc"
+      },
+      "phase": "Running",
+      "spec": {
+        "containers": [
+          {
+            "name": "localstack-ec2-i-68b59f432bbce3419",
+            "image": "ami-1b987d6fbad859638",
+            "imagePullPolicy": "Never",
+            "command": [
+              "/bin/sh"
+            ],
+            "args": [
+              "-c",
+              "mkdir -p /var/log && printf \"%s\" \"$LOCALSTACK_EC2_USER_DATA\" > /tmp/user_data.sh && chmod +x /tmp/user_data.sh && /tmp/user_data.sh > /var/log/cloud-init-output.log 2>&1; echo 'User data script completed'; sleep infinity"
+            ],
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hcw55",
+                "readOnly": true
+              }
+            ],
+            "securityContext": {}
+          },
+          {
+            "name": "imds-proxy-sidecar",
+            "image": "alpine/socat:latest",
+            "imagePullPolicy": "Always",
+            "command": [
+              "sh",
+              "-c",
+              "socat TCP-LISTEN:9001,fork TCP:localstack.ec2-executor-rea-f20dfe4c.svc.cluster.local:4510"
+            ],
+            "args": null,
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hcw55",
+                "readOnly": true
+              }
+            ],
+            "securityContext": {}
+          }
+        ],
+        "volumes": [
+          {
+            "name": "kube-api-access-hcw55",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "securityContext": {}
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:54Z",
+            "observedGeneration": 2,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:43:06Z",
+            "observedGeneration": 2,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:43:09Z",
+            "observedGeneration": 2,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:43:09Z",
+            "observedGeneration": 2,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:54Z",
+            "observedGeneration": 2,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "containerID": "containerd://481daf04543ab6d3eb7ff97d2703927797e439170ec6f93c642c3fcea634344a",
+            "image": "docker.io/alpine/socat:latest",
+            "imageID": "docker.io/alpine/socat@sha256:22d77becaeeea8ef56b8c4bb2312323acafe85354be6a85714ff5050e3537842",
+            "lastState": {},
+            "name": "imds-proxy-sidecar",
+            "ready": true,
+            "resources": {},
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-23T15:43:09Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  6,
+                  10,
+                  11,
+                  20,
+                  26,
+                  27
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hcw55",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          },
+          {
+            "containerID": "containerd://8276698cfddecc45eab80edf099ff9f170f19a9aa76585171698aac30ec15d86",
+            "image": "docker.io/library/ami-1b987d6fbad859638:latest",
+            "imageID": "sha256:2d0babb283cd1ed08bdff9525777487d2bc65cd55d3df285f29c4b166f4e4d7e",
+            "lastState": {},
+            "name": "localstack-ec2-i-68b59f432bbce3419",
+            "ready": true,
+            "resources": {},
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-23T15:43:06Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hcw55",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "172.19.0.2",
+        "hostIPs": [
+          {
+            "ip": "172.19.0.2"
+          }
+        ],
+        "initContainerStatuses": [
+          {
+            "containerID": "containerd://26cb67bed9976786dfce79bf84f67748043d7c0b687afdc8a1f8025a032695e7",
+            "image": "docker.io/alpine/socat:latest",
+            "imageID": "docker.io/alpine/socat@sha256:22d77becaeeea8ef56b8c4bb2312323acafe85354be6a85714ff5050e3537842",
+            "lastState": {},
+            "name": "init-iptables",
+            "ready": true,
+            "resources": {},
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://26cb67bed9976786dfce79bf84f67748043d7c0b687afdc8a1f8025a032695e7",
+                "exitCode": 0,
+                "finishedAt": "2026-10-23T15:43:05Z",
+                "reason": "Completed",
+                "startedAt": "2026-10-23T15:42:57Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  6,
+                  10,
+                  11,
+                  20,
+                  26,
+                  27
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hcw55",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "observedGeneration": 2,
+        "phase": "Running",
+        "podIP": "10.244.0.13",
+        "podIPs": [
+          {
+            "ip": "10.244.0.13"
+          }
+        ],
+        "qosClass": "BestEffort",
+        "resources": {},
+        "startTime": "2026-10-23T15:42:54Z"
+      }
+    },
+    {
+      "name": "reference-8c4fbf85f-7zvhx",
+      "labels": {
+        "app": "reference",
+        "pod-template-hash": "8c4fbf85f"
+      },
+      "phase": "Running",
+      "spec": {
+        "containers": [
+          {
+            "name": "reference",
+            "image": "localstack/localstack:latest",
+            "imagePullPolicy": "Never",
+            "command": null,
+            "args": null,
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-gm58w",
+                "readOnly": true
+              }
+            ],
+            "securityContext": null
+          }
+        ],
+        "volumes": [
+          {
+            "name": "kube-api-access-gm58w",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "securityContext": {}
+      },
+      "status": {
+        "allocatedResources": {
+          "cpu": "100m",
+          "memory": "256Mi"
+        },
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:09Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:08Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:21Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:21Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-23T15:42:08Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "100m",
+              "memory": "256Mi"
+            },
+            "containerID": "containerd://30aa1c4b8a9815164a8abbd5f4b334c3e89abdd1d70d570db454ed81a1d42655",
+            "image": "docker.io/localstack/localstack:latest",
+            "imageID": "docker.io/library/import-2026-10-20@sha256:1e0da331934569a86390059ffca6fd41762e48caa0e6189cd1558eee0383b535",
+            "lastState": {},
+            "name": "reference",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "2",
+                "memory": "1Gi"
+              },
+              "requests": {
+                "cpu": "100m",
+                "memory": "256Mi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-23T15:42:09Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-gm58w",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "172.19.0.2",
+        "hostIPs": [
+          {
+            "ip": "172.19.0.2"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.0.11",
+        "podIPs": [
+          {
+            "ip": "10.244.0.11"
+          }
+        ],
+        "qosClass": "Burstable",
+        "resources": {
+          "limits": {
+            "cpu": "2",
+            "memory": "1Gi"
+          },
+          "requests": {
+            "cpu": "79m",
+            "memory": "256Mi"
+          }
+        },
+        "startTime": "2026-10-23T15:42:08Z"
+      }
+    }
+  ],
+  "logs": "2026-10-23T15:43:11.114  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.CreateSnapshot => 200\n2026-10-23T15:43:11.488  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DetachVolume => 200\n2026-10-23T15:43:11.846  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DeleteSnapshot => 200\n2026-10-23T15:43:12.215  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:43:12.583 ERROR --- [et.reactor-1] l.p.c.s.e.v.kubernetes     : Exception when pausing deployment: (403)\nReason: Forbidden\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '06793d5a-762f-4e9f-9ddd-5d20f194e591', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Content-Type-Options': 'nosniff', 'X-Kubernetes-Pf-Flowschema-Uid': '05585cba-a8de-4ff3-a0a4-44e7bdc96a0f', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'cbd2a4be-bcf5-465d-9ec2-7b4b866ff0e4', 'Date': 'Fri, 23 Oct 2026 15:43:12 GMT', 'Content-Length': '453'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"localstack-ec2-i-68b59f432bbce3419\\\" is forbidden: User \\\"system:serviceaccount:ec2-executor-rea-f20dfe4c:reference\\\" cannot get resource \\\"deployments/scale\\\" in API group \\\"apps\\\" in the namespace \\\"ec2-executor-rea-f20dfe4c\\\"\",\"reason\":\"Forbidden\",\"details\":{\"name\":\"localstack-ec2-i-68b59f432bbce3419\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":403}\n\n\n2026-10-23T15:43:12.589  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.StopInstances => 200\n2026-10-23T15:43:12.999  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.StartInstances => 200\n2026-10-23T15:43:13.472  INFO --- [et.reactor-1] l.p.c.s.e.v.kubernetes     : Stopped deployment localstack-ec2-i-68b59f432bbce3419: {'api_version': 'v1',\n 'code': None,\n 'details': {'causes': None,\n             'group': 'apps',\n             'kind': 'deployments',\n             'name': 'localstack-ec2-i-68b59f432bbce3419',\n             'retry_after_seconds': None,\n             'uid': '628b1d63-5513-471c-8871-361e35375c14'},\n 'kind': 'Status',\n 'message': None,\n 'metadata': {'_continue': None,\n              'remaining_item_count': None,\n              'resource_version': None,\n              'self_link': None},\n 'reason': None,\n 'status': 'Success'}\n2026-10-23T15:43:13.474 ERROR --- [et.reactor-1] l.p.c.s.e.v.kubernetes     : Exception when deleting service localstack-ec2-i-68b59f432bbce3419: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '2751ca56-5d52-4e87-a64d-ebce0f77cee7', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': '05585cba-a8de-4ff3-a0a4-44e7bdc96a0f', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'cbd2a4be-bcf5-465d-9ec2-7b4b866ff0e4', 'Date': 'Fri, 23 Oct 2026 15:43:13 GMT', 'Content-Length': '244'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"services \\\"localstack-ec2-i-68b59f432bbce3419\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"localstack-ec2-i-68b59f432bbce3419\",\"kind\":\"services\"},\"code\":404}\n\n\n2026-10-23T15:43:13.474  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.TerminateInstances => 200\n",
+  "namespace_cleanup_requested": true
+}

@@ -1,0 +1,1381 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "executor": "mock",
+  "limits": [
+    "API metadata observations only; no atomic byte-level snapshot conclusion."
+  ],
+  "exit": 0,
+  "records": [
+    {
+      "case": "public-sdk-input-shapes",
+      "CreateSnapshots": [
+        "Description",
+        "InstanceSpecification",
+        "OutpostArn",
+        "TagSpecifications",
+        "DryRun",
+        "CopyTagsFromSource",
+        "Location"
+      ],
+      "InstanceSpecification": [
+        "InstanceId",
+        "ExcludeBootVolume",
+        "ExcludeDataVolumeIds"
+      ],
+      "CopyTagsFromSource": {
+        "type": "string",
+        "enum": [
+          "volume"
+        ]
+      }
+    },
+    {
+      "case": "launch-three-mappings",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-03cf127a",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeSize": 3,
+              "DeleteOnTermination": true
+            }
+          },
+          {
+            "DeviceName": "/dev/sdf",
+            "Ebs": {
+              "VolumeSize": 1,
+              "DeleteOnTermination": false
+            }
+          },
+          {
+            "DeviceName": "/dev/sdg",
+            "Ebs": {
+              "VolumeSize": 2,
+              "DeleteOnTermination": true
+            }
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-e1cb968cd9bf62a6d",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "x86_64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-24 14:43:44+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-534ecebb6354d6d8c"
+                }
+              },
+              {
+                "DeviceName": "/dev/sdf",
+                "Ebs": {
+                  "AttachTime": "2026-10-24 14:43:44+00:00",
+                  "DeleteOnTermination": false,
+                  "Status": "attached",
+                  "VolumeId": "vol-eb00f7f0b8e2e20bc"
+                }
+              },
+              {
+                "DeviceName": "/dev/sdg",
+                "Ebs": {
+                  "AttachTime": "2026-10-24 14:43:44+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-b0cae0ff6bfaabb42"
+                }
+              }
+            ],
+            "ClientToken": "44eb67e4-fe1e-49ca-a472-0c4623a83d61",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-89-216.ec2.internal",
+                  "PublicIp": "54.214.89.216"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-24 14:43:44+00:00",
+                  "AttachmentId": "eni-attach-af41659697518553d",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-ab12639531543dfa2",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:2902x:18202x:18702x",
+                "NetworkInterfaceId": "eni-0e89a8188801fe612",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-155-17-96.ec2.internal",
+                "PrivateIpAddress": "10.155.17.96",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-89-216.ec2.internal",
+                      "PublicIp": "54.214.89.216"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.155.17.96"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-c63b321ebcc335bcd",
+                "VpcId": "vpc-8a28b0704b44b02ec",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-ab12639531543dfa2",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-e4043504f7008fd57",
+            "ImageId": "ami-03cf127a",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-155-17-96.ec2.internal",
+            "PublicDnsName": "ec2-54-214-89-216.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "m1.small",
+            "LaunchTime": "2026-10-24 14:43:44+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Platform": "windows",
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-c63b321ebcc335bcd",
+            "VpcId": "vpc-8a28b0704b44b02ec",
+            "PrivateIpAddress": "10.155.17.96",
+            "PublicIpAddress": "54.214.89.216"
+          }
+        ]
+      }
+    },
+    {
+      "case": "describe-instance",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-e4043504f7008fd57"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-e1cb968cd9bf62a6d",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "x86_64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-24 14:43:44+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-534ecebb6354d6d8c"
+                    }
+                  },
+                  {
+                    "DeviceName": "/dev/sdf",
+                    "Ebs": {
+                      "AttachTime": "2026-10-24 14:43:44+00:00",
+                      "DeleteOnTermination": false,
+                      "Status": "attached",
+                      "VolumeId": "vol-eb00f7f0b8e2e20bc"
+                    }
+                  },
+                  {
+                    "DeviceName": "/dev/sdg",
+                    "Ebs": {
+                      "AttachTime": "2026-10-24 14:43:44+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-b0cae0ff6bfaabb42"
+                    }
+                  }
+                ],
+                "ClientToken": "44eb67e4-fe1e-49ca-a472-0c4623a83d61",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-89-216.ec2.internal",
+                      "PublicIp": "54.214.89.216"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-24 14:43:44+00:00",
+                      "AttachmentId": "eni-attach-af41659697518553d",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-ab12639531543dfa2",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:2902x:18202x:18702x",
+                    "NetworkInterfaceId": "eni-0e89a8188801fe612",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-155-17-96.ec2.internal",
+                    "PrivateIpAddress": "10.155.17.96",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-54-214-89-216.ec2.internal",
+                          "PublicIp": "54.214.89.216"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.155.17.96"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-c63b321ebcc335bcd",
+                    "VpcId": "vpc-8a28b0704b44b02ec",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-ab12639531543dfa2",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-e4043504f7008fd57",
+                "ImageId": "ami-03cf127a",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-155-17-96.ec2.internal",
+                "PublicDnsName": "ec2-54-214-89-216.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "m1.small",
+                "LaunchTime": "2026-10-24 14:43:44+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Platform": "windows",
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-c63b321ebcc335bcd",
+                "VpcId": "vpc-8a28b0704b44b02ec",
+                "PrivateIpAddress": "10.155.17.96",
+                "PublicIpAddress": "54.214.89.216"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "tag-volume-/dev/sda1",
+      "operation": "create_tags",
+      "parameters": {
+        "Resources": [
+          "vol-534ecebb6354d6d8c"
+        ],
+        "Tags": [
+          {
+            "Key": "Origin",
+            "Value": "/dev/sda1"
+          },
+          {
+            "Key": "Shared",
+            "Value": "volume"
+          }
+        ]
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tag-volume-/dev/sdf",
+      "operation": "create_tags",
+      "parameters": {
+        "Resources": [
+          "vol-eb00f7f0b8e2e20bc"
+        ],
+        "Tags": [
+          {
+            "Key": "Origin",
+            "Value": "/dev/sdf"
+          },
+          {
+            "Key": "Shared",
+            "Value": "volume"
+          }
+        ]
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "tag-volume-/dev/sdg",
+      "operation": "create_tags",
+      "parameters": {
+        "Resources": [
+          "vol-b0cae0ff6bfaabb42"
+        ],
+        "Tags": [
+          {
+            "Key": "Origin",
+            "Value": "/dev/sdg"
+          },
+          {
+            "Key": "Shared",
+            "Value": "volume"
+          }
+        ]
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "all-volumes",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57"
+        },
+        "Description": "All mappings"
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "All mappings",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-15968a291a271aa5c"
+          },
+          {
+            "Description": "All mappings",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-e6561747b69798631"
+          },
+          {
+            "Description": "All mappings",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-7a3cb8be0abe2e10e"
+          }
+        ]
+      }
+    },
+    {
+      "case": "exclude-boot",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57",
+          "ExcludeBootVolume": true
+        },
+        "Description": "Data mappings"
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "Data mappings",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-fe1505cce66d16223"
+          },
+          {
+            "Description": "Data mappings",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-8e2ca5fe32d605793"
+          }
+        ]
+      }
+    },
+    {
+      "case": "explicit-include-boot",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57",
+          "ExcludeBootVolume": false
+        }
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-9744edb82d0b990f9"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-494fe1efd043989cc"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-9a8eed19ab22049dc"
+          }
+        ]
+      }
+    },
+    {
+      "case": "copy-volume-tags",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57"
+        },
+        "CopyTagsFromSource": "volume"
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-4ed1ebdf57050bd7a"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-fb7b40c390b116b35"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-b818fa6975fec2cff"
+          }
+        ]
+      }
+    },
+    {
+      "case": "snapshot-tag-overrides",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57"
+        },
+        "CopyTagsFromSource": "volume",
+        "TagSpecifications": [
+          {
+            "ResourceType": "snapshot",
+            "Tags": [
+              {
+                "Key": "Shared",
+                "Value": "snapshot"
+              },
+              {
+                "Key": "Batch",
+                "Value": "yes"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [
+              {
+                "Key": "Shared",
+                "Value": "snapshot"
+              },
+              {
+                "Key": "Batch",
+                "Value": "yes"
+              }
+            ],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-432633052cfad6eec"
+          },
+          {
+            "Description": "",
+            "Tags": [
+              {
+                "Key": "Shared",
+                "Value": "snapshot"
+              },
+              {
+                "Key": "Batch",
+                "Value": "yes"
+              }
+            ],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-ce4150edbc620c2f1"
+          },
+          {
+            "Description": "",
+            "Tags": [
+              {
+                "Key": "Shared",
+                "Value": "snapshot"
+              },
+              {
+                "Key": "Batch",
+                "Value": "yes"
+              }
+            ],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-4d56daf0322d2392b"
+          }
+        ]
+      }
+    },
+    {
+      "case": "no-volume-tags",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57"
+        },
+        "TagSpecifications": [
+          {
+            "ResourceType": "snapshot",
+            "Tags": [
+              {
+                "Key": "Batch",
+                "Value": "only"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [
+              {
+                "Key": "Batch",
+                "Value": "only"
+              }
+            ],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-60be152f3dca38ef4"
+          },
+          {
+            "Description": "",
+            "Tags": [
+              {
+                "Key": "Batch",
+                "Value": "only"
+              }
+            ],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-3a69b133c9db5207f"
+          },
+          {
+            "Description": "",
+            "Tags": [
+              {
+                "Key": "Batch",
+                "Value": "only"
+              }
+            ],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-c62601c0ffb3ac21e"
+          }
+        ]
+      }
+    },
+    {
+      "case": "exclude-one-data",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57",
+          "ExcludeDataVolumeIds": [
+            "vol-eb00f7f0b8e2e20bc"
+          ]
+        }
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-ce1a8330089c5e726"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-3b281a00b5efd2c65"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-c3b5308e19ea15a88"
+          }
+        ]
+      }
+    },
+    {
+      "case": "exclude-boot-and-data",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57",
+          "ExcludeBootVolume": true,
+          "ExcludeDataVolumeIds": [
+            "vol-eb00f7f0b8e2e20bc",
+            "vol-b0cae0ff6bfaabb42"
+          ]
+        }
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-a11eb2ef569809278"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-714d07958f3f72002"
+          }
+        ]
+      }
+    },
+    {
+      "case": "exclude-unknown-data",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57",
+          "ExcludeDataVolumeIds": [
+            "vol-00000000000000000"
+          ]
+        }
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-fb95205daece988a7"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-4f1f43d4c6f0bfd7d"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-188911acf35520a11"
+          }
+        ]
+      }
+    },
+    {
+      "case": "invalid-copy-tag-value",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-e4043504f7008fd57"
+        },
+        "CopyTagsFromSource": "invalid"
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "VolumeSize": 3,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-0521064bca294bd37"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "VolumeSize": 1,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-3d4b3b8f182103cef"
+          },
+          {
+            "Description": "",
+            "Tags": [],
+            "Encrypted": true,
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "VolumeSize": 2,
+            "StartTime": "2026-10-24 14:43:44+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "SnapshotId": "snap-3bc1fb590daa58e14"
+          }
+        ]
+      }
+    },
+    {
+      "case": "unknown-instance",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {
+          "InstanceId": "i-00000000000000000"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidInstanceID.NotFound",
+        "Message": "The instance ID 'i-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "missing-instance",
+      "operation": "create_snapshots",
+      "parameters": {
+        "InstanceSpecification": {}
+      },
+      "status": null,
+      "error": {
+        "type": "ParamValidationError",
+        "message": "Parameter validation failed:\nMissing required parameter in InstanceSpecification: \"InstanceId\""
+      }
+    },
+    {
+      "case": "invalid-request-snapshot-count-comparison",
+      "before": 1205,
+      "after": 1205
+    },
+    {
+      "case": "all-volume-records",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-534ecebb6354d6d8c",
+          "vol-eb00f7f0b8e2e20bc",
+          "vol-b0cae0ff6bfaabb42"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Volumes": [
+          {
+            "Tags": [
+              {
+                "Key": "Origin",
+                "Value": "/dev/sda1"
+              },
+              {
+                "Key": "Shared",
+                "Value": "volume"
+              }
+            ],
+            "VolumeType": "gp2",
+            "VolumeId": "vol-534ecebb6354d6d8c",
+            "Size": 3,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "in-use",
+            "CreateTime": "2026-10-24 14:43:44+00:00",
+            "Attachments": [
+              {
+                "DeleteOnTermination": false,
+                "VolumeId": "vol-534ecebb6354d6d8c",
+                "InstanceId": "i-e4043504f7008fd57",
+                "Device": "/dev/sda1",
+                "State": "attached",
+                "AttachTime": "2026-10-24 14:43:44+00:00"
+              }
+            ],
+            "Encrypted": true,
+            "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/0303df1d-4efd-4513-829c-14aaad3e5aa1"
+          },
+          {
+            "Tags": [
+              {
+                "Key": "Origin",
+                "Value": "/dev/sdf"
+              },
+              {
+                "Key": "Shared",
+                "Value": "volume"
+              }
+            ],
+            "VolumeType": "gp2",
+            "VolumeId": "vol-eb00f7f0b8e2e20bc",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "in-use",
+            "CreateTime": "2026-10-24 14:43:44+00:00",
+            "Attachments": [
+              {
+                "DeleteOnTermination": false,
+                "VolumeId": "vol-eb00f7f0b8e2e20bc",
+                "InstanceId": "i-e4043504f7008fd57",
+                "Device": "/dev/sdf",
+                "State": "attached",
+                "AttachTime": "2026-10-24 14:43:44+00:00"
+              }
+            ],
+            "Encrypted": true,
+            "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/0303df1d-4efd-4513-829c-14aaad3e5aa1"
+          },
+          {
+            "Tags": [
+              {
+                "Key": "Origin",
+                "Value": "/dev/sdg"
+              },
+              {
+                "Key": "Shared",
+                "Value": "volume"
+              }
+            ],
+            "VolumeType": "gp2",
+            "VolumeId": "vol-b0cae0ff6bfaabb42",
+            "Size": 2,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "in-use",
+            "CreateTime": "2026-10-24 14:43:44+00:00",
+            "Attachments": [
+              {
+                "DeleteOnTermination": false,
+                "VolumeId": "vol-b0cae0ff6bfaabb42",
+                "InstanceId": "i-e4043504f7008fd57",
+                "Device": "/dev/sdg",
+                "State": "attached",
+                "AttachTime": "2026-10-24 14:43:44+00:00"
+              }
+            ],
+            "Encrypted": true,
+            "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/0303df1d-4efd-4513-829c-14aaad3e5aa1"
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-15968a291a271aa5c"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-e6561747b69798631"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-7a3cb8be0abe2e10e"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-fe1505cce66d16223"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-8e2ca5fe32d605793"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-9744edb82d0b990f9"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-494fe1efd043989cc"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-9a8eed19ab22049dc"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-4ed1ebdf57050bd7a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-fb7b40c390b116b35"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-b818fa6975fec2cff"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-432633052cfad6eec"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-ce4150edbc620c2f1"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-4d56daf0322d2392b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-60be152f3dca38ef4"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-3a69b133c9db5207f"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-c62601c0ffb3ac21e"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-ce1a8330089c5e726"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-3b281a00b5efd2c65"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-c3b5308e19ea15a88"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-a11eb2ef569809278"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-714d07958f3f72002"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-fb95205daece988a7"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-4f1f43d4c6f0bfd7d"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-188911acf35520a11"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-0521064bca294bd37"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-3d4b3b8f182103cef"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-3bc1fb590daa58e14"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-terminate",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-e4043504f7008fd57"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-e4043504f7008fd57",
+            "CurrentState": {
+              "Code": 32,
+              "Name": "shutting-down"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-eb00f7f0b8e2e20bc"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": "",
+  "controller_cleanup_completed": true
+}

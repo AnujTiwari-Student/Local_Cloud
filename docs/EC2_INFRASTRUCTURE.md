@@ -148,8 +148,13 @@ localcloud ec2 start-instances --name web --timeout 60
 docker exec localcloud-i-REPLACE python3 -c "print(open('/data/marker').read())"
 ```
 
-Stop the application before snapshotting for a consistent file copy. A snapshot
-of actively changing files is not a transactional filesystem snapshot. Docker
+Docker snapshots now pause attached running guests while copying files and resume
+only guests paused by that operation. Flush or stop application writers first for
+application consistency: pausing does not flush application buffers, include
+external writers, or make a multi-volume batch one atomic transaction. See the
+[storage comparison and recovery tests](REA_EC2_STORAGE.md). Storage operations also
+use a durable journal for helper/copy/pause recovery after a backend crash. Restart
+with the same state database to recover; Docker must be reachable. Docker
 attachment changes require a stopped instance and recreate its container; its
 container ID changes, while its EC2 ID/name stays stable. Volumes survive that
 recreation. Guest mode also commits/preserves its writable root. Normal app mode
@@ -275,3 +280,5 @@ The public Botocore 1.43.112 EC2 schema supplies wire-shape metadata only;
 [attribution](../localcloud/BOTOCORE-NOTICE.txt) and
 [Apache license](../localcloud/BOTOCORE-LICENSE.txt) are included. The engine,
 protocol encoder/decoder and runtime are independent code informed by captures.
+
+For current EBS default-flag commands, modification history and batch-copy pause/recovery behavior, see the [24 October storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md).

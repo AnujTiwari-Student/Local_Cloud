@@ -44,6 +44,23 @@ def desired_resources(resource):
     images = spec.get('workloadImages', [])
     if not isinstance(images, list) or len(images) > 20 or any(not isinstance(i, str) or not i or len(i) > 256 for i in images):
         raise Error('InvalidInstance', 'Invalid workload image allowlist')
+    ec2 = spec.get('ec2', {})
+    if not isinstance(ec2, dict) or set(ec2) - {'enabled', 'images', 'pullPolicy', 'helperImage'} or type(ec2.get('enabled', False)) is not bool:
+        raise Error('InvalidInstance', 'Invalid EC2 executor configuration')
+    ec2_enabled = ec2.get('enabled', False)
+    ec2_images = ec2.get('images', {})
+    if not isinstance(ec2_images, dict) or len(ec2_images) > 20 or any(
+            not isinstance(ami, str) or not re.fullmatch(r'ami-[a-zA-Z0-9-]{1,80}', ami)
+            or not isinstance(image, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/@:-]{0,255}', image)
+            for ami, image in ec2_images.items()):
+        raise Error('InvalidInstance', 'EC2 images must map AMI names to container images')
+    if ec2_enabled and not ec2_images:
+        raise Error('InvalidInstance', 'Enabled EC2 requires at least one image mapping')
+    if ec2.get('pullPolicy', 'IfNotPresent') not in ('Always', 'IfNotPresent', 'Never'):
+        raise Error('InvalidInstance', 'Invalid EC2 image pull policy')
+    helper = ec2.get('helperImage')
+    if helper is not None and (not isinstance(helper, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/@:-]{0,255}', helper)):
+        raise Error('InvalidInstance', 'Invalid EC2 helper image')
     ttl = spec.get('ttlSeconds')
     if ttl is not None and (type(ttl) is not int or not 60 <= ttl <= 604800):
         raise Error('InvalidInstance', 'Instance TTL must be 60 seconds through 7 days')
@@ -62,10 +79,17 @@ def desired_resources(resource):
         args += ['--executor', 'kubernetes', '--kube-namespace', namespace, '--instance-name', name, '--instance-uid', metadata['uid']]
         for image in images:
             args += ['--workload-image', image]
+    if ec2_enabled:
+        args += ['--ec2-executor', 'kubernetes', '--kube-namespace', namespace,
+                 '--ec2-kube-image-pull-policy', ec2.get('pullPolicy', 'IfNotPresent')]
+        for ami, image in sorted(ec2_images.items()):
+            args += ['--ec2-image', ami + '=' + image]
+        if helper:
+            args += ['--ec2-helper-image', helper]
     deployment = {'apiVersion': 'apps/v1', 'kind': 'Deployment', 'metadata': meta(name), 'spec': {
         'replicas': 1, 'strategy': {'type': 'Recreate'}, 'selector': {'matchLabels': selector},
         'template': {'metadata': {'labels': {**labels, **selector}}, 'spec': {
-            'serviceAccountName': 'localcloud-executor' if images else 'default', 'automountServiceAccountToken': bool(images),
+            'serviceAccountName': 'localcloud-executor' if images or ec2_enabled else 'default', 'automountServiceAccountToken': bool(images or ec2_enabled),
             'securityContext': {'runAsUser': 10001, 'runAsGroup': 10001, 'runAsNonRoot': True, 'fsGroup': 10001, 'seccompProfile': {'type': 'RuntimeDefault'}},
             'containers': [{'name': 'localcloud', 'image': spec['image'], 'imagePullPolicy': 'IfNotPresent', 'args': args,
                 'env': [{'name': 'PYTHONDONTWRITEBYTECODE', 'value': '1'}, {'name': 'LOCALCLOUD_MANAGEMENT_TOKEN', 'valueFrom': {'secretKeyRef': {'name': secret, 'key': 'token'}}}],

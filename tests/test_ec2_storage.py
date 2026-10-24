@@ -45,3 +45,24 @@ class StorageTests(unittest.TestCase):
   self.engine.tools.import_state(self.engine.tools.export_state())
   self.assertEqual(self.call('DescribeRegions',RegionNames=['us-east-1'])['Regions'][0]['RegionName'],'us-east-1')
   with self.assertRaises(Error):self.call('DescribeRegions',RegionNames=['us-west-2'])
+ def test_encrypted_snapshot_cannot_be_silently_restored_unencrypted(self):
+  source=self.call('CreateVolume',AvailabilityZone='us-east-1a',Size=1,Encrypted=True)['VolumeId']
+  snap=self.call('CreateSnapshot',VolumeId=source)['SnapshotId']
+  before=len(self.call('DescribeVolumes')['Volumes'])
+  with self.assertRaises(Error):self.call('CreateVolume',AvailabilityZone='us-east-1a',SnapshotId=snap,Encrypted=False)
+  self.assertEqual(len(self.call('DescribeVolumes')['Volumes']),before)
+ def test_invalid_launch_mapping_preserves_validation_error_when_cleanup_fails(self):
+  mappings=[{'DeviceName':'/data','Ebs':{'VolumeSize':1}},{'DeviceName':'/mnt/second','Ebs':{'VolumeSize':1}},{'DeviceName':'invalid','Ebs':{'VolumeSize':1}}]
+  with patch.object(self.engine.ec2.runtime,'delete_volume',side_effect=Error('RuntimeUnavailable','daemon gone',503)) as deleted:
+   with self.assertRaises(Error) as caught:self.call('RunInstances',ImageId='ami-local',BlockDeviceMappings=mappings)
+   self.assertEqual(caught.exception.code,'InvalidParameterValue')
+   self.assertEqual(deleted.call_count,2)
+  self.assertEqual(self.call('DescribeVolumes')['Volumes'],[])
+ def test_failed_batch_snapshot_attempts_all_compensation_without_masking_failure(self):
+  instance=self.call('RunInstances',ImageId='ami-local',BlockDeviceMappings=[{'DeviceName':p,'Ebs':{'VolumeSize':1}} for p in ('/data','/mnt/second','/mnt/third')])['Instances'][0]
+  failure=Error('RuntimeFailure','third copy failed',503)
+  with patch.object(self.engine.ec2.runtime,'create_volume',side_effect=[None,None,failure]),patch.object(self.engine.ec2.runtime,'delete_volume',side_effect=Error('RuntimeUnavailable','daemon gone',503)) as deleted:
+   with self.assertRaises(Error) as caught:self.call('CreateSnapshots',InstanceSpecification={'InstanceId':instance['InstanceId']})
+   self.assertIs(caught.exception,failure)
+   self.assertEqual(deleted.call_count,2)
+  self.assertEqual(self.call('DescribeSnapshots')['Snapshots'],[])

@@ -1,0 +1,44 @@
+{
+  "unit_tests_passed": 247,
+  "live_checks_passed": 12,
+  "evidence": {
+    "final_tests": "ev_e2f1d445289d4f24730f5fa68f9404256b8495bf6b8a1fcc0fde12d4c1a2a59a",
+    "final_live": "ev_e791cc0b04cd526489a336d3ac3f29571c6ffc9c6330b36a9396fe2aa58b0aaa",
+    "cleanup": "ev_e8688549b2644a8c353fad7fef7cbc66cd8062c20a78bb105d4089f17b75b9fe",
+    "reference_stock": "ev_9543e68111e03a6f77064fedc66645941ab2c4efa1824972c0984d9cc463630b",
+    "reference_controlled": "ev_2f1b5da3a604aaaf2730811bfdbb88e920f234a0548afea27a052547eede70e0"
+  },
+  "bundle": {
+    "path": "docs/research/rea/ec2-kubernetes-final-evidence.json.gz",
+    "bytes": 175602,
+    "records": 15,
+    "unknowns": 4
+  },
+  "canonical_sha256": "a33e13cbf2e996096a6f9a124c181ecb8250a46eae971ff5e296124f3b88375f",
+  "source_sha256": {
+    "localcloud/ec2_kubernetes.py": "205b29255d665bf8251ce61b7219243284e326d8f6e0de7abf80f524eda2f2ae",
+    "localcloud/ec2.py": "eec12b24f0b4933b6ae0f980b09395749bf1c25dce1fca123d502b72a0af8285",
+    "localcloud/ec2_runtime.py": "bc439c7afebfb94c2d6e451fc2e8adb659375751945c38e9154a70657ddfd997",
+    "localcloud/ec2_infrastructure.py": "a77dc3df1182e46795a89620e1181529bbb34c04f753282d590845927e5cb9cb",
+    "localcloud/ec2_images.py": "0d180d99d5f70c353877b621cfd640ba35733d822b17429976c59d7e2dbe7c78",
+    "localcloud/engine.py": "ec2f58b90664f93b0c6b3451ae4fd4cef54aa27eeb8dcd2991750ac4e6e78351",
+    "localcloud/tooling.py": "4c9dcb9dfb4665005edeaf3f8020d42d482157814b64c62b21da0856204355ef",
+    "localcloud/__main__.py": "fce672ca502d380bce83f29cba5bf0e0fff7c5dbd7d1a9cf5b4f6e43b2c3e47d",
+    "localcloud/cli.py": "5672eba3a9d27fd2532892f20e839c841194e6a638e25c7658f43ed41dec5242",
+    "localcloud/operator.py": "17136a73ddbcde61e0ae24b4d519a02c948d58abbee06da3dd8f7e637f58cbc0",
+    "localcloud/kube_manifests.py": "24fa75b34b4c18404b10bff025e7f41a545a4036d77571eb2e69ebe296f3f619",
+    "tests/test_ec2_kubernetes.py": "e5060b819d7a386799965c829a9f0f1b7289c4ce530aeeeb4367960d15e164ce",
+    "tests/test_ec2_kube_integration.py": "29f1eb7e899330c664a0162b419f5d5ec69533c6409168ae724c60555f57e97d",
+    "tests/test_ec2_kube_configuration.py": "c9e5db53b7f30306d399db1c9f2c1c9a6ba91d265b3b35a1a7caa2028e4b946b",
+    "scripts/ec2-kubernetes-live.py": "b411c6709351dd032b8547d3cc8fa392f11d91e7e7efcd3270dc8f86d205323b",
+    "docs/EC2_KUBERNETES.md": "a74dcde40e67fb2c91e467e00122c6ae73de942555d90a5b59c5919b4fb94005",
+    "docs/research/rea/ec2-kubernetes-final-report.json": "916365d1ed7b24f40d94f6d50348c5f24616b72ae631f8d433c93cb83722ad8e"
+  },
+  "limits": [
+    "Observed normal-license LocalStack reference is the pinned 2026.10.0 image in the earlier executor bundle; current code is an independent implementation with documented improvements/differences.",
+    "Final live checks exercise real Pods/PVCs/Services and IMDS using a caller-authorized loopback proxy; minimal generated RBAC was manifest/unit tested rather than used as the live identity.",
+    "Helper used cached dependencies plus current source; offline APT production-image build was blocked in an earlier captured attempt.",
+    "Final generic error wording was clarified after the final live run; the full suite was rerun afterward.",
+    "No EKS, raw disks, IAM/STS credentials, CSI snapshots, or Kubernetes/SQLite provisioning-crash atomicity claim."
+  ]
+}

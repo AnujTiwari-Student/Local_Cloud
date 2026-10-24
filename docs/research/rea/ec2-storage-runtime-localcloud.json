@@ -1,0 +1,11 @@
+{
+  "evidence_id": "ev_b5a976c166053c064137bd3fb1843257837e8ab8aff5a408a0713b4010428eb8",
+  "passed": true,
+  "checks": [
+    "standard-link-local-imdsv1-from-guest",
+    "vpc-bridge-sg-ingress-loopback-web-endpoint",
+    "real-volume-snapshot-copy-stopped-detach-attach-recreate",
+    "imdsv2-token-after-metadata-options-update"
+  ],
+  "cleanup_completed": true
+}

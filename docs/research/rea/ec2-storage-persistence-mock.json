@@ -1,0 +1,252 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "backend": "mock",
+  "reference_name": "localcloud-rea-storage-persist-8c8ee5af1e",
+  "state_volume": "localcloud-rea-storage-persist-8c8ee5af1e-data",
+  "steps": [
+    {
+      "phase": "initial",
+      "rows": [
+        {
+          "case": "create-volume",
+          "operation": "create_volume",
+          "parameters": {
+            "AvailabilityZone": "us-east-1a",
+            "Size": 1
+          },
+          "status": 200,
+          "result": {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-215245a8709a79d09",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "creating",
+            "CreateTime": "2026-10-23 15:50:19+00:00",
+            "Encrypted": false
+          }
+        },
+        {
+          "case": "create-encrypted",
+          "operation": "create_volume",
+          "parameters": {
+            "AvailabilityZone": "us-east-1a",
+            "Size": 1,
+            "Encrypted": true
+          },
+          "status": 200,
+          "result": {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-5056caf97e45a6fa2",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "creating",
+            "CreateTime": "2026-10-23 15:50:19+00:00",
+            "Encrypted": true,
+            "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/6d9e02c1-1ca9-4ca6-ad28-7a7cd8d7079e"
+          }
+        },
+        {
+          "case": "create-snapshot",
+          "operation": "create_snapshot",
+          "parameters": {
+            "VolumeId": "vol-215245a8709a79d09"
+          },
+          "status": 200,
+          "result": {
+            "Tags": [],
+            "SnapshotId": "snap-83ded17666a97a537",
+            "VolumeId": "vol-215245a8709a79d09",
+            "State": "pending",
+            "StartTime": "2026-10-23 15:50:19+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "Description": "",
+            "VolumeSize": 1,
+            "Encrypted": false
+          }
+        }
+      ]
+    },
+    {
+      "phase": "after-controller-restart",
+      "rows": [
+        {
+          "case": "describe-volume-after-restart",
+          "operation": "describe_volumes",
+          "parameters": {
+            "VolumeIds": [
+              "vol-215245a8709a79d09",
+              "vol-5056caf97e45a6fa2"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Volumes": [
+              {
+                "VolumeType": "gp2",
+                "VolumeId": "vol-215245a8709a79d09",
+                "Size": 1,
+                "SnapshotId": "",
+                "AvailabilityZone": "us-east-1a",
+                "State": "available",
+                "CreateTime": "2026-10-23 15:50:19+00:00",
+                "Attachments": [],
+                "Encrypted": false
+              },
+              {
+                "VolumeType": "gp2",
+                "VolumeId": "vol-5056caf97e45a6fa2",
+                "Size": 1,
+                "SnapshotId": "",
+                "AvailabilityZone": "us-east-1a",
+                "State": "available",
+                "CreateTime": "2026-10-23 15:50:19+00:00",
+                "Attachments": [],
+                "Encrypted": true,
+                "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/6d9e02c1-1ca9-4ca6-ad28-7a7cd8d7079e"
+              }
+            ]
+          }
+        },
+        {
+          "case": "describe-snapshot-after-restart",
+          "operation": "describe_snapshots",
+          "parameters": {
+            "SnapshotIds": [
+              "snap-83ded17666a97a537"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Snapshots": [
+              {
+                "Tags": [],
+                "SnapshotId": "snap-83ded17666a97a537",
+                "VolumeId": "vol-215245a8709a79d09",
+                "State": "completed",
+                "StartTime": "2026-10-23 15:50:19+00:00",
+                "Progress": "100%",
+                "OwnerId": "000000000000",
+                "Description": "",
+                "VolumeSize": 1,
+                "Encrypted": false
+              }
+            ]
+          }
+        },
+        {
+          "case": "restore-volume-after-restart",
+          "operation": "create_volume",
+          "parameters": {
+            "AvailabilityZone": "us-east-1a",
+            "SnapshotId": "snap-83ded17666a97a537"
+          },
+          "status": 200,
+          "result": {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-fc546dd4e07951b6e",
+            "Size": 1,
+            "SnapshotId": "snap-83ded17666a97a537",
+            "AvailabilityZone": "us-east-1a",
+            "State": "creating",
+            "CreateTime": "2026-10-23 15:50:28+00:00",
+            "Encrypted": false
+          }
+        },
+        {
+          "case": "grow-restored-volume",
+          "operation": "modify_volume",
+          "parameters": {
+            "VolumeId": "vol-fc546dd4e07951b6e",
+            "Size": 2
+          },
+          "status": 200,
+          "result": {
+            "VolumeModification": {
+              "VolumeId": "vol-fc546dd4e07951b6e",
+              "ModificationState": "modifying",
+              "TargetSize": 2,
+              "OriginalSize": 1,
+              "Progress": 0,
+              "StartTime": "2026-10-23 15:50:28+00:00"
+            }
+          }
+        },
+        {
+          "case": "describe-grown-volume",
+          "operation": "describe_volumes",
+          "parameters": {
+            "VolumeIds": [
+              "vol-fc546dd4e07951b6e"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Volumes": [
+              {
+                "VolumeType": "gp2",
+                "VolumeId": "vol-fc546dd4e07951b6e",
+                "Size": 2,
+                "SnapshotId": "snap-83ded17666a97a537",
+                "AvailabilityZone": "us-east-1a",
+                "State": "available",
+                "CreateTime": "2026-10-23 15:50:28+00:00",
+                "Attachments": [],
+                "Encrypted": false
+              }
+            ]
+          }
+        }
+      ],
+      "restored_volume": "vol-fc546dd4e07951b6e"
+    }
+  ],
+  "limits": [
+    "A volume encryption flag is not evidence of at-rest encryption.",
+    "No host block writes, actual size quota test, or performance benchmark.",
+    "One normal graceful controller restart, not crash/power-loss recovery."
+  ],
+  "cleanup_api": [
+    {
+      "case": "cleanup-restored_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-fc546dd4e07951b6e"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-215245a8709a79d09"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-encrypted_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-5056caf97e45a6fa2"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-83ded17666a97a537"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "logs": "2026-10-23T15:50:14.761  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-23T15:50:14.762  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-23T15:50:14.762  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-23T15:50:14.762  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-23T15:50:14.762  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\nReady.\n2026-10-23T15:50:19.087  INFO --- [et.reactor-0] l.persistence.manager      : Loading state for ec2 took 0 ms\n2026-10-23T15:50:19.409  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.CreateVolume => 200\n2026-10-23T15:50:19.450  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.CreateVolume => 200\n2026-10-23T15:50:19.587  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.CreateSnapshot => 200\nLocalstack runtime received signal 15\n2026-10-23T15:50:19.966  INFO --- [ime-Shutdown] l.persistence.manager      : Saving state for ec2 took 245 ms\n2026-10-23T15:50:19.976  INFO --- [ime-Shutdown] l.runtime.shutdown         : [shutdown] Stopping all services\n\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\n2026-10-23T15:50:23.572  INFO --- [  MainThread] l.licensing.licensingv2    : Successfully activated cached license 3f469994-0b52-46d6-8e85-64da8dac5852:student from /var/lib/localstack/cache/license.json \ud83d\udd11\u2705\n2026-10-23T15:50:25.836  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: logodev ready at http://logodev.localhost.localstack.cloud:4566 -> 127.0.0.1:4115\n2026-10-23T15:50:25.838  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: posthog ready at http://posthog.localhost.localstack.cloud:4566 -> 127.0.0.1:4113\n2026-10-23T15:50:25.841  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: resend ready at http://resend.localhost.localstack.cloud:4566 -> 127.0.0.1:4114\n2026-10-23T15:50:25.845  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: stripe ready at http://stripe.localhost.localstack.cloud:4566 -> 127.0.0.1:4111\n2026-10-23T15:50:25.849  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: twilio ready at http://twilio.localhost.localstack.cloud:4566 -> 127.0.0.1:4112\n2026-10-23T15:50:26.088  WARN --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST load strategy: this strategy has known limitations to not restore state correctly for certain services\n2026-10-23T15:50:26.088  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering SCHEDULED save strategy\n2026-10-23T15:50:26.093  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-23T15:50:26.429  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\nReady.\n2026-10-23T15:50:28.285  INFO --- [et.reactor-0] l.persistence.manager      : Loading state for ec2 took 74 ms\n2026-10-23T15:50:28.447  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeVolumes => 200\n2026-10-23T15:50:28.453  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeSnapshots => 200\n2026-10-23T15:50:28.460  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.CreateVolume => 200\n2026-10-23T15:50:28.466  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.ModifyVolume => 200\n2026-10-23T15:50:28.470  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DescribeVolumes => 200\n2026-10-23T15:50:28.845  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:50:28.848  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:50:28.850  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:50:28.853  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DeleteSnapshot => 200\n",
+  "reference_removed": true,
+  "state_volume_removed": true
+}

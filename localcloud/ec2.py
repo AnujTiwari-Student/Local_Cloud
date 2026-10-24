@@ -88,15 +88,30 @@ def filtered(items, filters, kind):
 
 
 class EC2:
-    def __init__(self, engine, images=None):
+    def __init__(self, engine, images=None, kubernetes=None):
         self.engine = engine
         self.images = images or {}
+        self.kubernetes = None
         from .ec2_runtime import Runtime
         from .ec2_infrastructure import Infrastructure
         self.runtime = Runtime(self)
         self.infrastructure = Infrastructure(self)
         self.templates = TemplateManager(self)
         self.image_lifecycle = ImageLifecycle(self.infrastructure)
+        if kubernetes is not None:
+            if not self.images:
+                raise ValueError('Kubernetes EC2 requires configured AMI image mappings')
+            from .ec2_kubernetes import EC2Kubernetes
+            self.kubernetes = EC2Kubernetes(self, **kubernetes)
+
+    @property
+    def backend(self):
+        return 'kubernetes' if self.kubernetes is not None else ('docker' if self.images else 'mock')
+
+    def kube_runtime(self, item):
+        if self.kubernetes is None:
+            raise Error('RuntimeUnavailable', 'Restart with Kubernetes EC2 configuration for this instance', 503)
+        return self.kubernetes
 
     def container_args(self, item, mappings=None):
         ports = item.get('PortMappings', [])
@@ -231,6 +246,12 @@ class EC2:
             for identifier in ids:
                 if identifier not in instances:
                     raise Error('InvalidInstanceID.NotFound', "The instance ID '" + identifier + "' does not exist", 400)
+            if operation in ('DescribeInstances', 'DescribeInstanceStatus', 'GetConsoleOutput', 'RebootInstances',
+                             'ModifyInstanceMetadataOptions', 'ModifyInstanceAttribute',
+                             'StartInstances', 'StopInstances', 'TerminateInstances'):
+                for item in ([instances[key] for key in ids] if ids else instances.values()):
+                    if item['Backend'] in ('docker', 'kubernetes') and item['Backend'] != self.backend:
+                        raise Error('RuntimeUnavailable', 'Restart with the matching EC2 executor for this state database', 503)
             if operation in ('CreateTags', 'DeleteTags'):
                 tags = validated_tags(args.get('Tags'), delete=operation == 'DeleteTags')
                 for identifier in ids:
@@ -260,6 +281,8 @@ class EC2:
                 chosen = filtered(chosen, args.get('Filters', []), 'instance')
                 values = []
                 for item in chosen:
+                    if item['Backend'] == 'kubernetes' and item['State']['Name'] != 'terminated':
+                        self.kube_runtime(item).refresh(item)
                     if item['Backend'] == 'docker' and item['State']['Name'] != 'terminated':
                         item['State'] = state('running' if self.docker('inspect', '--format', '{{.State.Running}}', self.container(item)) == 'true' else 'stopped')
                     running = item['State']['Name'] == 'running'
@@ -272,6 +295,8 @@ class EC2:
                     raise Error('InvalidParameterValue', 'Select one instance')
                 item = instances[ids[0]]
                 output = base64.b64decode(item.get('ConsoleOutput', '')).decode('utf-8', errors='replace')
+                if item['Backend'] == 'kubernetes' and item['State']['Name'] != 'terminated':
+                    output += '\n' + self.kube_runtime(item).console(item)
                 if item['Backend'] == 'docker' and item['State']['Name'] != 'terminated':
                     output += '\n' + self.docker('logs', '--tail', '200', self.container(item))
                 output = output[-65536:]
@@ -279,10 +304,14 @@ class EC2:
             if operation == 'RebootInstances':
                 for key in ids:
                     item = instances[key]
+                    if item['Backend'] == 'kubernetes':
+                        self.kube_runtime(item).refresh(item)
                     if item['State']['Name'] != 'running':
                         raise Error('IncorrectInstanceState', 'Only running instances can be rebooted')
                 for key in ids:
                     item = instances[key]
+                    if item['Backend'] == 'kubernetes':
+                        self.kube_runtime(item).lifecycle(item, 'reboot')
                     if item['Backend'] == 'docker':
                         self.runtime.imds_action(item, 'stop')
                         self.docker('restart', '-t', '5', self.container(item))
@@ -296,6 +325,10 @@ class EC2:
                 if item['State']['Name'] == 'terminated':
                     raise Error('IncorrectInstanceState', 'Instance is terminated')
                 options = metadata_options({**item.get('MetadataOptions', {}), **{k: v for k, v in args.items() if k in ('HttpTokens', 'HttpEndpoint', 'HttpPutResponseHopLimit')}})
+                if item['Backend'] == 'kubernetes':
+                    self.kube_runtime(item).update_metadata(item, options)
+                    item['MetadataOptions'] = options
+                    return {'InstanceId': item['InstanceId'], 'InstanceMetadataOptions': options}
                 old = item.get('MetadataOptions')
                 if item.get('ImdsEnabled'):
                     self.runtime.imds_action(item, 'rm')
@@ -329,6 +362,8 @@ class EC2:
                 item = instances[ids[0]]
                 if item['State']['Name'] != 'stopped':
                     raise Error('IncorrectInstanceState', 'Stop the instance before modifying its type')
+                if item['Backend'] == 'kubernetes':
+                    self.kube_runtime(item).modify_type(item, kind)
                 if item['Backend'] == 'docker':
                     if not self.images:
                         raise Error('RuntimeUnavailable', 'Docker EC2 mode is required', 503)
@@ -388,14 +423,14 @@ class EC2:
                 if self.images and image not in self.images:
                     raise Error('InvalidAMIID.NotFound', 'Image is not in the configured allowlist')
                 if self.images and count != 1:
-                    raise Error('InvalidParameterValue', 'Docker mode supports one instance per launch')
+                    raise Error('InvalidParameterValue', 'Container executors support one instance per launch')
                 if sum(i['State']['Name'] != 'terminated' for i in instances.values()) + count > 100:
                     raise Error('InstanceLimitExceeded', 'Local limit is 100 active instances')
-                ports = port_mappings(args.get('PortMappings', []))
+                ports = port_mappings(args.get('PortMappings', []), dynamic=self.kubernetes is not None)
                 if ports and not self.images:
                     raise Error('InvalidParameterValue', 'Published ports require Docker EC2 mode (--ec2-image)')
                 occupied = {p['HostPort'] for i in instances.values() if i['State']['Name'] != 'terminated' for p in i.get('PortMappings', [])}
-                if any(p['HostPort'] in occupied for p in ports):
+                if self.backend == 'docker' and any(p['HostPort'] in occupied for p in ports):
                     raise Error('InvalidParameterValue', 'A host port is already assigned to another instance; choose another port or terminate that instance')
                 created = []
                 reservation = 'r-' + uuid.uuid4().hex[:17]
@@ -403,14 +438,14 @@ class EC2:
                     identifier = 'i-' + uuid.uuid4().hex[:17]
                     item = {'InstanceId': identifier, 'ImageId': image, 'InstanceType': kind,
                             'State': state('running'), 'LaunchTime': datetime.now(timezone.utc).isoformat(),
-                            'Backend': 'docker' if self.images else 'mock', 'Owner': uuid.uuid4().hex,
+                            'Backend': self.backend, 'Owner': uuid.uuid4().hex,
                             'ReservationId': reservation, 'Tags': tags, 'ClientToken': token,
                             'LaunchFingerprint': fingerprint, 'UserData': user_data, 'AmiLaunchIndex': len(created)}
                     if 'LaunchTemplate' in args:
                         item['LaunchTemplate'] = copy.deepcopy(args['LaunchTemplate'])
                     item.update(self.infrastructure.launch_network(data, args))
                     self.infrastructure.primary_interface(data, item)
-                    if self.images and self.runtime.guest_mode:
+                    if self.backend == 'docker' and self.runtime.guest_mode:
                         item['GuestMode'] = True
                         if args.get('KeyName'):
                             item['SshPublicKey'] = next(k['PublicKey'] for k in data['ec2']['keys'].values() if k['KeyName'] == args['KeyName'])
@@ -426,13 +461,23 @@ class EC2:
                     created_volumes = []
                     if args.get('BlockDeviceMappings'):
                         item['BlockDeviceMappings'], created_volumes = self.infrastructure.block_devices(data, item, args['BlockDeviceMappings'])
-                    if self.images and args.get('SubnetId'):
+                    if self.backend == 'docker' and args.get('SubnetId'):
                         item['DockerVpcNetwork'] = True
-                    if self.images and self.runtime.imds:
+                    if self.backend == 'docker' and self.runtime.imds:
                         item['ImdsEnabled'] = True
                     if 'Name' in args:
                         item['Name'] = args['Name']
-                    if self.images:
+                    if self.kubernetes is not None:
+                        try:
+                            self.kubernetes.launch(item, decoded)
+                        except Exception as failure:
+                            for volume in created_volumes:
+                                try:
+                                    self.runtime.delete_volume(volume)
+                                except Error as cleanup_error:
+                                    failure.add_note('Kubernetes launch volume cleanup failed: ' + str(cleanup_error))
+                            raise
+                    elif self.images:
                         publish = [part for p in ports for part in ('--publish', f"127.0.0.1:{p['HostPort']}:{p['ContainerPort']}/tcp")]
                         try:
                             item['ContainerId'] = self.docker('run', '-d', *self.container_args(item))
@@ -452,17 +497,24 @@ class EC2:
                         except (Error, ValueError, TypeError, KeyError) as error:
                             # Docker can create a stopped container before a port-bind error.
                             # Remove it only after verifying our unique ownership label.
+                            failure = error if isinstance(error, Error) else Error('RuntimeFailure', 'Docker returned invalid runtime metadata', 503)
                             try:
                                 self.runtime.imds_action(item, 'rm')
+                            except (Error, ValueError, TypeError) as cleanup_error:
+                                failure.add_note('Launch metadata-helper cleanup failed: ' + str(cleanup_error))
+                            try:
                                 name = self.container(item)
                                 self.docker('rm', '-f', name)
-                            except (Error, ValueError, TypeError):
-                                pass
+                            except (Error, ValueError, TypeError) as cleanup_error:
+                                failure.add_note('Launch container cleanup failed: ' + str(cleanup_error))
                             for key in created_volumes:
-                                self.runtime.delete_volume(key)
+                                try:
+                                    self.runtime.delete_volume(key)
+                                except (Error, ValueError, TypeError) as cleanup_error:
+                                    failure.add_note('Launch volume cleanup failed for ' + key + ': ' + str(cleanup_error))
                             if isinstance(error, Error):
                                 raise
-                            raise Error('RuntimeFailure', 'Docker returned invalid runtime metadata', 503) from error
+                            raise failure from error
                     instances[identifier] = item
                     response = self.public(item)
                     response['State'] = state('pending')
@@ -471,6 +523,8 @@ class EC2:
             chosen = [instances[i] for i in ids] if ids else list(instances.values())
             if operation == 'DescribeInstances':
                 for item in chosen:
+                    if item['Backend'] == 'kubernetes' and item['State']['Name'] != 'terminated':
+                        self.kube_runtime(item).refresh(item)
                     if 'ec2' in data and 'NetworkInterfaces' in item:
                         item['NetworkInterfaces'] = [self.infrastructure.interface_view(n) for n in data['ec2']['interfaces'].values() if n.get('Attachment', {}).get('InstanceId') == item['InstanceId']]
                     if item['Backend'] == 'docker' and item['State']['Name'] != 'terminated':
@@ -495,6 +549,26 @@ class EC2:
                 raise Error('IncorrectInstanceState', 'Terminated instances cannot be started or stopped')
             changes = []
             for item in chosen:
+                if item['Backend'] == 'kubernetes':
+                    runtime = self.kube_runtime(item)
+                    if item['State']['Name'] != 'terminated':
+                        runtime.refresh(item)
+                    previous = copy.deepcopy(item['State'])
+                    if target in ('stopped', 'terminated') and previous['Name'] not in ('stopped', 'terminated'):
+                        try:
+                            console = runtime.console(item)
+                            if isinstance(console, str) and console:
+                                item['ConsoleOutput'] = base64.b64encode(console.encode()[-65536:]).decode()
+                        except Error:
+                            pass
+                    if target == 'terminated':
+                        runtime.lifecycle(item, 'terminate')
+                        self.infrastructure.terminate(data, item)
+                        item['State'] = state('terminated')
+                    elif previous['Name'] != target:
+                        runtime.lifecycle(item, 'start' if target == 'running' else 'stop')
+                    changes.append({'InstanceId': item['InstanceId'], 'PreviousState': previous, 'CurrentState': copy.deepcopy(item['State'])})
+                    continue
                 # Refresh external Docker exits before deciding whether start/stop is needed.
                 if item['Backend'] == 'docker' and item['State']['Name'] != 'terminated':
                     name = self.container(item)
@@ -529,7 +603,8 @@ class EC2:
         result = {k: copy.deepcopy(v) for k, v in item.items() if k not in ('Owner', 'LaunchFingerprint', 'UserData', 'ReservationId', 'SshPublicKey', 'ConsoleOutput')}
         if item['Backend'] == 'docker':
             result['ContainerName'] = 'localcloud-' + item['InstanceId']
-        result['Endpoints'] = [f"http://127.0.0.1:{p['HostPort']}" for p in item.get('PortMappings', [])]
+        if item['Backend'] != 'kubernetes':
+            result['Endpoints'] = [f"http://127.0.0.1:{p['HostPort']}" for p in item.get('PortMappings', [])]
         return result
 
 
@@ -658,17 +733,19 @@ def query_response(operation, result, request_id=None):
     return tostring(root, encoding='unicode')
 
 
-def port_mappings(value):
+def port_mappings(value, dynamic=False):
     if not isinstance(value, list) or len(value) > 32:
         raise Error('InvalidParameterValue', 'PortMappings must be a list of at most 32 TCP mappings')
     result = []
     for item in value:
         if not isinstance(item, dict) or set(item) != {'HostPort', 'ContainerPort'}:
             raise Error('InvalidParameterValue', 'Each port mapping requires HostPort and ContainerPort')
-        if any(type(item[k]) is not int or not (1024 if k == 'HostPort' else 1) <= item[k] <= 65535 for k in item):
+        if any(type(item[k]) is not int or not ((dynamic and k == 'HostPort' and item[k] == 0) or
+                  (1024 if k == 'HostPort' else 1) <= item[k] <= 65535) for k in item):
             raise Error('InvalidParameterValue', 'Host ports must be 1024–65535 and container ports 1–65535')
         result.append(dict(item))
-    if len({p['HostPort'] for p in result}) != len(result):
+    fixed = [p['HostPort'] for p in result if p['HostPort'] != 0]
+    if len(set(fixed)) != len(fixed) or (dynamic and len({p['ContainerPort'] for p in result}) != len(result)):
         raise Error('InvalidParameterValue', 'Duplicate host port')
     return result
 
@@ -677,4 +754,4 @@ def parse_publish(value):
     if not re.fullmatch(r'[0-9]+:[0-9]+', value):
         raise ValueError('--publish must be HOST_PORT:CONTAINER_PORT (localhost TCP only)')
     host, container = map(int, value.split(':'))
-    return port_mappings([{'HostPort': host, 'ContainerPort': container}])[0]
+    return port_mappings([{'HostPort': host, 'ContainerPort': container}], dynamic=True)[0]

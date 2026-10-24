@@ -18,6 +18,11 @@ def installation(namespace, image):
                     'iamMode': {'type': 'string', 'enum': ['off', 'soft', 'enforce'], 'default': 'soft'},
                     'ttlSeconds': {'type': 'integer', 'minimum': 60, 'maximum': 604800},
                     'workloadImages': {'type': 'array', 'maxItems': 20, 'items': string},
+                    'ec2': {'type': 'object', 'properties': {
+                        'enabled': {'type': 'boolean', 'default': False},
+                        'images': {'type': 'object', 'maxProperties': 20, 'additionalProperties': string},
+                        'pullPolicy': {'type': 'string', 'enum': ['Always', 'IfNotPresent', 'Never'], 'default': 'IfNotPresent'},
+                        'helperImage': string}},
                     'persistence': {'type': 'object', 'properties': {'enabled': {'type': 'boolean', 'default': True}, 'retain': {'type': 'boolean', 'default': True}, 'size': {'type': 'string', 'pattern': '^[1-9][0-9]*(Mi|Gi)$', 'default': '1Gi'}, 'storageClassName': {'type': 'string'}}}}},
                 'status': {'type': 'object', 'properties': {'phase': {'type': 'string'}, 'endpoint': {'type': 'string'}, 'message': {'type': 'string'}, 'observedGeneration': {'type': 'integer'}}}}, 'required': ['spec']}}}]}}
     accounts = [{'apiVersion': 'v1', 'kind': 'ServiceAccount', 'metadata': meta(name)} for name in ('localcloud-operator', 'localcloud-executor')]
@@ -29,6 +34,9 @@ def installation(namespace, image):
             {'apiGroups': [''], 'resources': ['services', 'persistentvolumeclaims'], 'verbs': ['get', 'create', 'update']} ]},
         {'apiVersion': 'rbac.authorization.k8s.io/v1', 'kind': 'Role', 'metadata': meta('localcloud-executor'), 'rules': [
             {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['get', 'list', 'create', 'delete']},
+            {'apiGroups': ['apps'], 'resources': ['deployments'], 'verbs': ['get', 'list', 'create', 'update', 'delete']},
+            {'apiGroups': ['apps'], 'resources': ['replicasets'], 'verbs': ['get', 'list']},
+            {'apiGroups': [''], 'resources': ['services', 'configmaps', 'persistentvolumeclaims'], 'verbs': ['get', 'list', 'create', 'update', 'delete']},
             {'apiGroups': [''], 'resources': ['pods', 'pods/log'], 'verbs': ['get', 'list']} ]}]
     bindings = [{'apiVersion': 'rbac.authorization.k8s.io/v1', 'kind': 'RoleBinding', 'metadata': meta(name),
                  'subjects': [{'kind': 'ServiceAccount', 'name': name, 'namespace': namespace}],

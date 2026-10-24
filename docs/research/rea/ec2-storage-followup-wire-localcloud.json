@@ -1,0 +1,14 @@
+{
+  "evidence_id": "ev_c1162bdb20b2a16c0667aaa47ea951758fba9b2e915e3cd8ad1c8ca90ff1783b",
+  "passed": true,
+  "checks": [
+    "sdk-encryption-default-query-serialization",
+    "reference-compatible-default-flag-without-data-encryption-claim",
+    "sdk-query-complete-volume-modification-history",
+    "sdk-string-copy-tags-and-boot-volume-exclusion",
+    "cli-enable-get-disable-ebs-encryption-default"
+  ],
+  "cleanup_completed": true,
+  "remaining_volumes": 0,
+  "remaining_snapshots": 0
+}

@@ -1,9 +1,16 @@
 # LocalCloud handbook
 
-A practical guide for people using LocalCloud in an application and developers
-working on LocalCloud itself. This guide follows the current source code and the
-20 October 2026 EC2 release checkpoint. Examples use Linux/macOS-style shells.
+A practical guide for people using LocalCloud and contributors building its
+future services, add-ons and independent components. Chapters 1–25 describe the
+current project at the 20 October 2026 EC2 checkpoint. Chapters 26–33 define
+proposed contributor contracts and acceptance scenarios; they are not implemented
+features or runnable current configuration. Examples use Linux/macOS-style shells.
 Paths, image names and IDs marked REPLACE must be changed for your environment.
+
+**Using LocalCloud:** begin at chapter 1. **Building a future service/component:**
+read chapters 21–22 for the current engine, then chapters 26–33 for ownership,
+interfaces, all 51 service build cards, worked implementation planning and release
+criteria.
 
 ## Contents
 
@@ -32,6 +39,14 @@ Paths, image names and IDs marked REPLACE must be changed for your environment.
 23. [Troubleshoot common problems](#23-troubleshoot-common-problems)
 24. [Operating limits and cleanup](#24-operating-limits-and-cleanup)
 25. [Recipes and further reading](#25-recipes-and-further-reading)
+26. [Contributor guide to the future project](#26-contributor-guide-to-the-future-project)
+27. [The future architecture and component contracts](#27-the-future-architecture-and-component-contracts)
+28. [How a contributor defines and delivers a feature](#28-how-a-contributor-defines-and-delivers-a-feature)
+29. [Independent services and reusable backends to build](#29-independent-services-and-reusable-backends-to-build)
+30. [Build specifications for all 51 screenshot services](#30-build-specifications-for-all-51-screenshot-services)
+31. [Worked contributor example: build DynamoDB in useful slices](#31-worked-contributor-example-build-dynamodb-in-useful-slices)
+32. [Platform features contributors can build independently](#32-platform-features-contributors-can-build-independently)
+33. [Contribution sequencing, handoff and release claims](#33-contribution-sequencing-handoff-and-release-claims)
 
 ## 1. What LocalCloud does
 
@@ -51,16 +66,16 @@ a copy of every LocalStack service or establish full compatibility.
 
 ### What is available now
 
-| Area | Working scope | Important boundary |
-| --- | --- | --- |
-| S3 | Bucket/object creation, binary transfer, listing and deletion. | Small path-style subset; no multipart, versioning or full S3 policy/signing behavior. |
-| SQS | Queues, sending/receiving, acknowledgement, visibility, delay, attributes and purge. | JSON protocol subset; no FIFO, DLQs, batching or long polling. |
-| EC2 | 97 selected AWS operations plus a naming extension; mock state or allowlisted Docker execution. | A registered handler is not support for every parameter or every execution mode. |
-| Local CI | Temporary backend, application test command, S3/SQS setup, fixtures and reports. | Does not deploy your application or automatically inspect its source for correctness. |
-| Kubernetes | LocalCloud operator/CRD, Service/PVC and bounded Job execution. | This is not an EKS provider or Kubernetes-backed EC2. |
-| Developer tools | IAM subset, snapshots/import/export, traces, policy proposals and operation faults. | Local test tooling with documented limits. |
-| Dashboard | Connect to a running server and manage supported resources/tools. | A page cannot manage resources until a backend is reachable. |
-| CD and other AWS providers | Planned work described in the roadmap. | Do not add unimplemented services to config and expect them to exist. |
+| Area                       | Working scope                                                                                   | Important boundary                                                                    |
+| -------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| S3                         | Bucket/object creation, binary transfer, listing and deletion.                                  | Small path-style subset; no multipart, versioning or full S3 policy/signing behavior. |
+| SQS                        | Queues, sending/receiving, acknowledgement, visibility, delay, attributes and purge.            | JSON protocol subset; no FIFO, DLQs, batching or long polling.                        |
+| EC2                        | 97 selected AWS operations plus a naming extension; mock state or allowlisted Docker execution. | A registered handler is not support for every parameter or every execution mode.      |
+| Local CI                   | Temporary backend, application test command, S3/SQS setup, fixtures and reports.                | Does not deploy your application or automatically inspect its source for correctness. |
+| Kubernetes                 | LocalCloud operator/CRD, bounded Jobs and EC2 Deployment/Service/PVC execution.                                 | EKS and Lambda/ECS adapters remain planned; see [EC2 Kubernetes](EC2_KUBERNETES.md).                                 |
+| Developer tools            | IAM subset, snapshots/import/export, traces, policy proposals and operation faults.             | Local test tooling with documented limits.                                            |
+| Dashboard                  | Connect to a running server and manage supported resources/tools.                               | A page cannot manage resources until a backend is reachable.                          |
+| CD and other AWS providers | Planned work described in the roadmap.                                                          | Do not add unimplemented services to config and expect them to exist.                 |
 
 The [service roadmap](SERVICE_IMPLEMENTATION_ROADMAP.md) covers all 51 screenshot
 services. The [feature ledger](FEATURES.md) records implementation scope. Neither
@@ -68,31 +83,31 @@ is a promise that all listed roadmap services run today.
 
 ### Terms in plain words
 
-| Term | Meaning here |
-| --- | --- |
-| Server/backend | The running Python process that accepts requests and owns the state database. |
-| Endpoint | The server's address, such as http://127.0.0.1:4566. |
-| Instance | Depending on context: a LocalCloud server environment, an emulated EC2 resource, or a LocalCloudInstance Kubernetes object. These are different things. |
-| Provider | The code implementing one service's operations, such as SQS. |
-| State | The resources and data the server remembers. |
-| Profile | A saved CLI endpoint, principal and optional token. |
-| Principal | The local caller name used for policy testing; default test. |
-| Management token | A local password-like value protecting management operations. |
-| Mock EC2 | An instance record with lifecycle state; no application executes. |
-| Docker EC2 | An instance record backed by a real local container. |
-| Receipt handle | The acknowledgement token returned when SQS delivers a message. |
-| Fixture | A saved initial state used to make a test repeatable. |
+| Term             | Meaning here                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Server/backend   | The running Python process that accepts requests and owns the state database.                                                                           |
+| Endpoint         | The server's address, such as http://127.0.0.1:4566.                                                                                                    |
+| Instance         | Depending on context: a LocalCloud server environment, an emulated EC2 resource, or a LocalCloudInstance Kubernetes object. These are different things. |
+| Provider         | The code implementing one service's operations, such as SQS.                                                                                            |
+| State            | The resources and data the server remembers.                                                                                                            |
+| Profile          | A saved CLI endpoint, principal and optional token.                                                                                                     |
+| Principal        | The local caller name used for policy testing; default test.                                                                                            |
+| Management token | A local password-like value protecting management operations.                                                                                           |
+| Mock EC2         | An instance record with lifecycle state; no application executes.                                                                                       |
+| Docker EC2       | An instance record backed by a real local container.                                                                                                    |
+| Receipt handle   | The acknowledgement token returned when SQS delivers a message.                                                                                         |
+| Fixture          | A saved initial state used to make a test repeatable.                                                                                                   |
 
 ## 2. Choose your workflow
 
-| Your goal | Start here | Do you need an already running server? |
-| --- | --- | --- |
-| Learn S3/SQS or use the dashboard | Sections 4–8. | Yes. |
-| Add cloud-like dependencies to your app | Sections 9–11. | Yes for manual development; CI manages its own server. |
-| Run tests from your app directory | Sections 12–13. | No; local CI starts an isolated backend. |
-| Deploy a local web app into an EC2 container | Sections 14–15. | Yes, started with Docker image mappings. |
-| Run LocalCloud or a job inside Kubernetes | Section 20. | The cluster and operator/instance must exist first. |
-| Understand or change the engine | Sections 21–22. | Source inspection needs no server; runtime checks do. |
+| Your goal                                    | Start here      | Do you need an already running server?                 |
+| -------------------------------------------- | --------------- | ------------------------------------------------------ |
+| Learn S3/SQS or use the dashboard            | Sections 4–8.   | Yes.                                                   |
+| Add cloud-like dependencies to your app      | Sections 9–11.  | Yes for manual development; CI manages its own server. |
+| Run tests from your app directory            | Sections 12–13. | No; local CI starts an isolated backend.               |
+| Deploy a local web app into an EC2 container | Sections 14–15. | Yes, started with Docker image mappings.               |
+| Run LocalCloud or a job inside Kubernetes    | Section 20.     | The cluster and operator/instance must exist first.    |
+| Understand or change the engine              | Sections 21–22. | Source inspection needs no server; runtime checks do.  |
 
 For your first attempt, use a host Python server and the CLI. Docker and
 Kubernetes are optional; they are not required for S3/SQS or ordinary local CI.
@@ -107,14 +122,14 @@ Kubernetes are optional; they are not required for S3/SQS or ordinary local CI.
 
 Additional requirements depend on the workflow:
 
-| Workflow | Additional tools |
-| --- | --- |
-| Node example | Node.js 22+ and npm. The included example has no npm package dependencies. |
-| Go example | Go installed locally. |
-| Docker EC2 | Docker CLI, a running daemon and permission to use it; allowed local workload images. |
-| Generated SSH keys | ssh-keygen on the server; ssh on the client for SSH access. |
-| Kubernetes | kubectl and a working cluster; kind only if you choose to create a kind cluster. |
-| AWS client examples | AWS CLI or Boto3 installed separately; not needed for the LocalCloud CLI. |
+| Workflow            | Additional tools                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Node example        | Node.js 22+ and npm. The included example has no npm package dependencies.            |
+| Go example          | Go installed locally.                                                                 |
+| Docker EC2          | Docker CLI, a running daemon and permission to use it; allowed local workload images. |
+| Generated SSH keys  | ssh-keygen on the server; ssh on the client for SSH access.                           |
+| Kubernetes          | kubectl and a working cluster; kind only if you choose to create a kind cluster.      |
+| AWS client examples | AWS CLI or Boto3 installed separately; not needed for the LocalCloud CLI.             |
 
 Check Python and enable the CLI from the repository root:
 
@@ -279,11 +294,11 @@ create region isolation.
 
 ### Three credentials that are easy to confuse
 
-| Credential | Purpose |
-| --- | --- |
-| LocalCloud management token | Protects management APIs; required for Docker EC2 and Kubernetes execution. |
-| LocalStack auth token | Only needed when deliberately running a licensed LocalStack reference for research. Not used to run LocalCloud. |
-| Dummy AWS access/secret keys | Satisfy SDK configuration; they are not real cloud credentials or IAM sessions. |
+| Credential                   | Purpose                                                                                                         |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| LocalCloud management token  | Protects management APIs; required for Docker EC2 and Kubernetes execution.                                     |
+| LocalStack auth token        | Only needed when deliberately running a licensed LocalStack reference for research. Not used to run LocalCloud. |
+| Dummy AWS access/secret keys | Satisfy SDK configuration; they are not real cloud credentials or IAM sessions.                                 |
 
 Management authentication and workload IAM tests are separate. Raw S3/SQS routes
 are not protected merely by enabling a management token. The IAM subset uses a
@@ -292,7 +307,7 @@ caller header, not verified AWS signatures. Keep this a private development tool
 ## 6. Use the dashboard
 
 1. Start the server.
-2. Open its own /_local URL, such as http://127.0.0.1:4566/_local.
+2. Open its own /\_local URL, such as http://127.0.0.1:4566/_local.
 3. Check the endpoint and enter the management token if required.
 4. Click Connect.
 5. Choose EC2, S3, SQS or a developer-tool view.
@@ -682,7 +697,7 @@ Important current parser rules:
 - ci.services accepts only s3 and sqs. EC2 exists in the backend but is not a
   selectable CI setup service in this config format yet.
 - ci.seed supports bucket names and queue names, not arbitrary infrastructure.
-- ci.env values must be strings. It cannot override reserved LOCALCLOUD_ or AWS_
+- ci.env values must be strings. It cannot override reserved LOCALCLOUD* or AWS*
   variables; use ci.principal for the caller identity.
 - The supported top-level tables are version and ci. There is no cd or stages
   configuration parser yet. Do not copy proposed roadmap syntax into a real file.
@@ -704,15 +719,15 @@ flowchart TD
 
 The runner sets environment variables for the child test process:
 
-| Variable | Meaning |
-| --- | --- |
-| LOCALCLOUD_URL / AWS_ENDPOINT_URL | Temporary endpoint on a free port; read it instead of hardcoding 4566. |
-| LOCALCLOUD_PRINCIPAL | Caller from ci.principal, default test. |
-| LOCALCLOUD_MANAGEMENT_TOKEN | Per-run token for protected management operations. |
-| LOCALCLOUD_CI | 1 during this run. |
-| AWS_DEFAULT_REGION | us-east-1. |
-| AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY | Dummy test values. |
-| Your ci.env variables | Application resource names and other string settings. |
+| Variable                                  | Meaning                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| LOCALCLOUD_URL / AWS_ENDPOINT_URL         | Temporary endpoint on a free port; read it instead of hardcoding 4566. |
+| LOCALCLOUD_PRINCIPAL                      | Caller from ci.principal, default test.                                |
+| LOCALCLOUD_MANAGEMENT_TOKEN               | Per-run token for protected management operations.                     |
+| LOCALCLOUD_CI                             | 1 during this run.                                                     |
+| AWS_DEFAULT_REGION                        | us-east-1.                                                             |
+| AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY | Dummy test values.                                                     |
+| Your ci.env variables                     | Application resource names and other string settings.                  |
 
 The runner sets dummy access and secret keys for the child. It does not clear
 every inherited SDK setting, such as AWS_SESSION_TOKEN or AWS_PROFILE; use a
@@ -1048,10 +1063,10 @@ read-only user must not upload anything.
 
 IAM mode is selected when starting the server:
 
-| Mode | Behavior |
-| --- | --- |
-| off | Allow supported operations without policy enforcement. |
-| soft | Execute operations but record policy violations. |
+| Mode    | Behavior                                                             |
+| ------- | -------------------------------------------------------------------- |
+| off     | Allow supported operations without policy enforcement.               |
+| soft    | Execute operations but record policy violations.                     |
 | enforce | Reject operations without a matching allow or with an explicit deny. |
 
 The evaluator supports Effect, Action and Resource, optional Sid, and wildcards.
@@ -1087,11 +1102,13 @@ Save bootstrap-policy.json in your current directory:
 ```json
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Action": ["s3:*", "sqs:*", "ec2:*"],
-    "Resource": "*"
-  }]
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:*", "sqs:*", "ec2:*"],
+      "Resource": "*"
+    }
+  ]
 }
 ```
 
@@ -1114,11 +1131,13 @@ Save reader-policy.json:
 ```json
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Action": ["s3:GetObject"],
-    "Resource": "arn:aws:s3:::permission-demo/*"
-  }]
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": "arn:aws:s3:::permission-demo/*"
+    }
+  ]
 }
 ```
 
@@ -1143,13 +1162,13 @@ review observed calls, but do not prove production least privilege.
 There are several different kinds of saved data. Choose the one matching your
 need rather than assuming every command snapshots an entire running machine.
 
-| Mechanism | Saves | Use case |
-| --- | --- | --- |
-| SQLite database | Current resource/configuration state, plus separate local tool tables. | Normal server restart. |
-| Named resource snapshot | A saved copy of supported resource state in the same database. | Reset a mock environment after a test. |
-| Portable JSON export | Validated resource state with version/checksum. | Seed a separate instance or CI run. |
-| EC2 filesystem snapshot | Files in an owned Docker volume plus emulated snapshot metadata. | Restore application data in a volume. |
-| Owned Docker AMI capture | Stopped container root filesystem and image metadata. | Launch another local instance from captured root files. |
+| Mechanism                | Saves                                                                  | Use case                                                |
+| ------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------- |
+| SQLite database          | Current resource/configuration state, plus separate local tool tables. | Normal server restart.                                  |
+| Named resource snapshot  | A saved copy of supported resource state in the same database.         | Reset a mock environment after a test.                  |
+| Portable JSON export     | Validated resource state with version/checksum.                        | Seed a separate instance or CI run.                     |
+| EC2 filesystem snapshot  | Files in an owned Docker volume plus emulated snapshot metadata.       | Restore application data in a volume.                   |
+| Owned Docker AMI capture | Stopped container root filesystem and image metadata.                  | Launch another local instance from captured root files. |
 
 ### Reset a mock development environment
 
@@ -1244,7 +1263,7 @@ localcloud faults remove upload-outage
 ```
 
 For an error plus delay, add --latency-ms 200. Probability is 0–1, latency is
-0–5,000 ms, and operation patterns support * and ?. Rules run in name order;
+0–5,000 ms, and operation patterns support \* and ?. Rules run in name order;
 the first matching triggered rule wins.
 
 Faults run before service authorization and mutation. An injected failure may
@@ -1472,7 +1491,7 @@ Docker operation automatically.
 
 ### 21.1 HTTP boundary
 
-localcloud/__main__.py contains the standard-library HTTP handler and server
+localcloud/**main**.py contains the standard-library HTTP handler and server
 startup. Its responsibilities include:
 
 - Reading the body with an 8 MiB limit.
@@ -1483,12 +1502,12 @@ startup. Its responsibilities include:
 
 Protocol selection is explicit:
 
-| Request style | Recognized path/header | Result |
-| --- | --- | --- |
-| SQS JSON | POST / with X-Amz-Target: AmazonSQS.Operation | JSON operation arguments. |
-| EC2 Query | Form POST with application/x-www-form-urlencoded | Parsed indexed/nested EC2 fields and XML response. |
-| S3 path-style | Supported GET/PUT/DELETE paths | Bucket/key operations and XML or binary response. |
-| Management JSON | /_local/service and tool routes | Protected management or service action dispatch. |
+| Request style   | Recognized path/header                           | Result                                             |
+| --------------- | ------------------------------------------------ | -------------------------------------------------- |
+| SQS JSON        | POST / with X-Amz-Target: AmazonSQS.Operation    | JSON operation arguments.                          |
+| EC2 Query       | Form POST with application/x-www-form-urlencoded | Parsed indexed/nested EC2 fields and XML response. |
+| S3 path-style   | Supported GET/PUT/DELETE paths                   | Bucket/key operations and XML or binary response.  |
+| Management JSON | /\_local/service and tool routes                 | Protected management or service action dispatch.   |
 
 These branches are not a general AWS protocol autodetector. Adding a provider to
 the registry does not automatically add a correct HTTP parser/serializer for it.
@@ -1550,19 +1569,19 @@ resource fixtures.
 
 ### 21.6 EC2 modules
 
-| Module | Main responsibility |
-| --- | --- |
-| ec2.py | Instance lifecycle, selectors, launch validation, orchestration and Query entry helpers. |
-| ec2_protocol.py | EC2 Query model-based decoding and XML response encoding. |
-| ec2-model.json | Selected public Botocore shape metadata; schema data, not proprietary provider code. |
-| ec2_infrastructure.py | VPC/subnet/group/routes, keys, volumes and infrastructure dispatch/state validation. |
-| ec2_networking.py | ENI attributes, private IPs and association consistency. |
-| ec2_storage.py | Snapshot copying/batches, storage attributes and bounded discovery. |
-| ec2_images.py | Image registration/attributes and ownership-checked Docker root captures. |
-| ec2_templates.py | Template/version lifecycle and launch-default resolution. |
-| ec2_runtime.py | Owned Docker networks/volumes, helper containers, guest bootstrap and metadata lifecycle. |
-| ec2_metadata.py | Per-guest IMDS server and tokens inside the guest network namespace. |
-| ec2_cli.py | Supported infrastructure/template command arguments and JSON payload construction. |
+| Module                | Main responsibility                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| ec2.py                | Instance lifecycle, selectors, launch validation, orchestration and Query entry helpers.  |
+| ec2_protocol.py       | EC2 Query model-based decoding and XML response encoding.                                 |
+| ec2-model.json        | Selected public Botocore shape metadata; schema data, not proprietary provider code.      |
+| ec2_infrastructure.py | VPC/subnet/group/routes, keys, volumes and infrastructure dispatch/state validation.      |
+| ec2_networking.py     | ENI attributes, private IPs and association consistency.                                  |
+| ec2_storage.py        | Snapshot copying/batches, storage attributes and bounded discovery.                       |
+| ec2_images.py         | Image registration/attributes and ownership-checked Docker root captures.                 |
+| ec2_templates.py      | Template/version lifecycle and launch-default resolution.                                 |
+| ec2_runtime.py        | Owned Docker networks/volumes, helper containers, guest bootstrap and metadata lifecycle. |
+| ec2_metadata.py       | Per-guest IMDS server and tokens inside the guest network namespace.                      |
+| ec2_cli.py            | Supported infrastructure/template command arguments and JSON payload construction.        |
 
 The schema tells the codec how a field is represented. Actual behavior comes from
 the provider/runtime code and its tests. A field appearing in the schema is not
@@ -1595,24 +1614,24 @@ CD pipeline.
 
 ### Repository map
 
-| Location | What to look for |
-| --- | --- |
-| bin/localcloud | Checkout CLI entry point. |
-| pyproject.toml | Python package, entry point and bundled assets/model data. |
-| localcloud/cli.py and client.py | Commands, profiles, local HTTP transport and token selection. |
-| localcloud/__main__.py | Server flags, HTTP routing and response boundary. |
-| localcloud/gateway.py and providers.py | Request pipeline, provider loading and operation tables. |
-| localcloud/engine.py | Shared state, policies and S3/SQS operations. |
-| localcloud/tooling.py | Portable state, inspection, faults and proposals. |
-| localcloud/project.py and ci.py | Project CI parsing and isolated runner. |
-| localcloud/kube.py | Kubernetes client and workload execution. |
-| localcloud/operator.py and kube_manifests.py | Instance reconciliation and generated install/example manifests. |
-| localcloud/dashboard.* | Browser UI assets. |
-| examples/node-app | Runnable S3/SQS application, tests, policies and CI config. |
-| examples/ec2-web | Containerized web application used for EC2 deployment. |
-| tests | Behavior, protocol, integration-boundary and regression tests. |
-| scripts | CLI installer, runtime smoke checks, source investigation and REA probes. |
-| docs/research | Captured evidence, inventories and scope reports. |
+| Location                                     | What to look for                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------- |
+| bin/localcloud                               | Checkout CLI entry point.                                                 |
+| pyproject.toml                               | Python package, entry point and bundled assets/model data.                |
+| localcloud/cli.py and client.py              | Commands, profiles, local HTTP transport and token selection.             |
+| localcloud/**main**.py                       | Server flags, HTTP routing and response boundary.                         |
+| localcloud/gateway.py and providers.py       | Request pipeline, provider loading and operation tables.                  |
+| localcloud/engine.py                         | Shared state, policies and S3/SQS operations.                             |
+| localcloud/tooling.py                        | Portable state, inspection, faults and proposals.                         |
+| localcloud/project.py and ci.py              | Project CI parsing and isolated runner.                                   |
+| localcloud/kube.py                           | Kubernetes client and workload execution.                                 |
+| localcloud/operator.py and kube_manifests.py | Instance reconciliation and generated install/example manifests.          |
+| localcloud/dashboard.\*                      | Browser UI assets.                                                        |
+| examples/node-app                            | Runnable S3/SQS application, tests, policies and CI config.               |
+| examples/ec2-web                             | Containerized web application used for EC2 deployment.                    |
+| tests                                        | Behavior, protocol, integration-boundary and regression tests.            |
+| scripts                                      | CLI installer, runtime smoke checks, source investigation and REA probes. |
+| docs/research                                | Captured evidence, inventories and scope reports.                         |
 
 ### Run the current test suite
 
@@ -1637,9 +1656,9 @@ tests cannot prove the daemon/cluster works on another developer's machine.
 Example: trace an SQS send operation.
 
 1. Find SendMessage in providers.py and engine.py.
-2. Inspect the HTTP target branch in __main__.py.
+2. Inspect the HTTP target branch in **main**.py.
 3. Follow Gateway.invoke to the SQS OperationProvider.
-4. Follow Engine.sqs through Tooling.call and Engine._sqs.
+4. Follow Engine.sqs through Tooling.call and Engine.\_sqs.
 5. Find authorization, message validation and state mutation.
 6. Read SQS tests for successful send/receive and failure behavior.
 7. Compare a real CLI request and the resulting trace if you need runtime evidence.
@@ -1691,39 +1710,39 @@ private source or bypassing entitlements.
 
 ## 23. Troubleshoot common problems
 
-| Symptom | Likely cause | What to do |
-| --- | --- | --- |
-| localcloud: command not found | Launcher directory is not on PATH. | Enable the checkout bin or ~/.local/bin, or activate the installed virtual environment. |
-| ModuleNotFoundError in a separate Python app | Only the CLI launcher was installed. | Install the Python package into that app's environment, or use the standalone HTTP adapter. |
-| Address already in use | Existing server or port-forward owns the port. | Inspect the listener; stop the intended old process or choose a separate port/database. |
-| Client uses 4568 while server says 4566 | Saved profile or environment selects another endpoint. | Check configure --list and endpoint variables; pass the intended endpoint explicitly. |
-| status succeeds but resources returns 401 | Health is public; management credential is wrong. | Log in with the running server's token and retry resources. |
-| Login seems ignored | Exported LOCALCLOUD_MANAGEMENT_TOKEN overrides saved login. | Unset the old exported value in that client shell. |
-| New token fails on an old server | File was regenerated after server startup. | Restart using the intended saved value and log in to that same value. Do not regenerate every time. |
-| Resources disappeared | Different endpoint, database path, CI instance or lost ephemeral storage. | Check server startup path/profile; CI resources are temporary. |
-| npm ENOENT for package.json | CI ran in the wrong directory. | Run from your app root or use --config with the correct application config. |
-| CI green but app never tested | No configured/explicit app test command. | Check application_tests; add ci.command and real assertions. |
-| CI waits forever | Command starts a server rather than finite tests. | Use tests that manage their app process and exit; set a suitable timeout. |
-| CI rejects ec2, stages or cd | Current TOML parser only supports documented CI fields and S3/SQS setup. | Use supported syntax; do not treat planned features as implemented config. |
-| AccessDenied | Enforce mode lacks a matching allow or has an explicit deny. | Check principal, action/resource and audit/proposal output; add only intended permissions. |
-| Queue receive returns no messages | No jobs, a delay, visibility timeout or another consumer. | Inspect attributes, wait for visibility expiry and check workers. |
-| DeleteMessage fails | Used message ID, stale receipt or wrong queue. | Use the receipt from the latest delivery of that message. |
-| Bucket deletion fails | Bucket is not empty. | Delete the intended objects first. |
-| Unknown S3 query/checksum request fails | SDK attempted unsupported options. | Use a verified supported client path; inspect the actual API/operation. |
-| InvalidAMIID.NotFound in Docker mode | AMI absent from allowed mappings or owned image catalogue. | Restart with the intended mapping; inspect describe-images. |
-| Mock instance runs but app does not | Mock mode only stores records. | Start a Docker-enabled backend to execute a container. |
-| Instance container exits immediately | Short command, incompatible user/filesystem or app crash. | Inspect console/Docker logs and image command; use a compatible long-lived workload. |
-| App not reachable | Wrong host/container port, internal loopback bind or stopped workload. | Inspect PortMappings and state; bind app to 0.0.0.0 inside the container. |
-| Volume attach fails | Docker instance is running or dependencies differ. | Stop it first; check IDs, zone and existing attachment. |
-| EIP/ENI records exist but traffic is unchanged | Those APIs do not install NAT or guest NICs. | Use published app endpoints; read the networking scope. |
-| Snapshot import fails in Docker mode | Portable mock-state restoration cannot reconstruct live runtimes. | Use documented Docker-volume/AMI workflows; do not remove validation to force import. |
-| Operator is Running but no backend exists | No LocalCloudInstance object was created. | Apply the generated example and inspect its status. |
-| Reconciliation storage initializing | CRD/API storage is not ready yet. | Check /readyz and CRD Established state; inspect current operator logs. |
-| Deployment log target NotFound | Typo or wrong namespace/context. | List deployments; use deployment/localcloud-operator exactly. |
-| Pod Pending | Image, scheduling, quota or PVC issue. | Inspect kubectl describe pod/events and PVCs in the intended namespace. |
-| kind image loading looks stuck | Image may already be present or node import is slow. | Check node crictl images and storage; verify the actual image/tag before retrying. |
-| Job submission succeeds but program fails | Pod/runtime error after API acceptance. | Read jobs status/logs; inspect pod events as needed. |
-| Dashboard cannot connect | Backend/forward stopped, wrong origin or wrong token. | Open the intended endpoint's own dashboard, verify protected CLI access and reconnect. |
+| Symptom                                        | Likely cause                                                              | What to do                                                                                          |
+| ---------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| localcloud: command not found                  | Launcher directory is not on PATH.                                        | Enable the checkout bin or ~/.local/bin, or activate the installed virtual environment.             |
+| ModuleNotFoundError in a separate Python app   | Only the CLI launcher was installed.                                      | Install the Python package into that app's environment, or use the standalone HTTP adapter.         |
+| Address already in use                         | Existing server or port-forward owns the port.                            | Inspect the listener; stop the intended old process or choose a separate port/database.             |
+| Client uses 4568 while server says 4566        | Saved profile or environment selects another endpoint.                    | Check configure --list and endpoint variables; pass the intended endpoint explicitly.               |
+| status succeeds but resources returns 401      | Health is public; management credential is wrong.                         | Log in with the running server's token and retry resources.                                         |
+| Login seems ignored                            | Exported LOCALCLOUD_MANAGEMENT_TOKEN overrides saved login.               | Unset the old exported value in that client shell.                                                  |
+| New token fails on an old server               | File was regenerated after server startup.                                | Restart using the intended saved value and log in to that same value. Do not regenerate every time. |
+| Resources disappeared                          | Different endpoint, database path, CI instance or lost ephemeral storage. | Check server startup path/profile; CI resources are temporary.                                      |
+| npm ENOENT for package.json                    | CI ran in the wrong directory.                                            | Run from your app root or use --config with the correct application config.                         |
+| CI green but app never tested                  | No configured/explicit app test command.                                  | Check application_tests; add ci.command and real assertions.                                        |
+| CI waits forever                               | Command starts a server rather than finite tests.                         | Use tests that manage their app process and exit; set a suitable timeout.                           |
+| CI rejects ec2, stages or cd                   | Current TOML parser only supports documented CI fields and S3/SQS setup.  | Use supported syntax; do not treat planned features as implemented config.                          |
+| AccessDenied                                   | Enforce mode lacks a matching allow or has an explicit deny.              | Check principal, action/resource and audit/proposal output; add only intended permissions.          |
+| Queue receive returns no messages              | No jobs, a delay, visibility timeout or another consumer.                 | Inspect attributes, wait for visibility expiry and check workers.                                   |
+| DeleteMessage fails                            | Used message ID, stale receipt or wrong queue.                            | Use the receipt from the latest delivery of that message.                                           |
+| Bucket deletion fails                          | Bucket is not empty.                                                      | Delete the intended objects first.                                                                  |
+| Unknown S3 query/checksum request fails        | SDK attempted unsupported options.                                        | Use a verified supported client path; inspect the actual API/operation.                             |
+| InvalidAMIID.NotFound in Docker mode           | AMI absent from allowed mappings or owned image catalogue.                | Restart with the intended mapping; inspect describe-images.                                         |
+| Mock instance runs but app does not            | Mock mode only stores records.                                            | Start a Docker-enabled backend to execute a container.                                              |
+| Instance container exits immediately           | Short command, incompatible user/filesystem or app crash.                 | Inspect console/Docker logs and image command; use a compatible long-lived workload.                |
+| App not reachable                              | Wrong host/container port, internal loopback bind or stopped workload.    | Inspect PortMappings and state; bind app to 0.0.0.0 inside the container.                           |
+| Volume attach fails                            | Docker instance is running or dependencies differ.                        | Stop it first; check IDs, zone and existing attachment.                                             |
+| EIP/ENI records exist but traffic is unchanged | Those APIs do not install NAT or guest NICs.                              | Use published app endpoints; read the networking scope.                                             |
+| Snapshot import fails in Docker mode           | Portable mock-state restoration cannot reconstruct live runtimes.         | Use documented Docker-volume/AMI workflows; do not remove validation to force import.               |
+| Operator is Running but no backend exists      | No LocalCloudInstance object was created.                                 | Apply the generated example and inspect its status.                                                 |
+| Reconciliation storage initializing            | CRD/API storage is not ready yet.                                         | Check /readyz and CRD Established state; inspect current operator logs.                             |
+| Deployment log target NotFound                 | Typo or wrong namespace/context.                                          | List deployments; use deployment/localcloud-operator exactly.                                       |
+| Pod Pending                                    | Image, scheduling, quota or PVC issue.                                    | Inspect kubectl describe pod/events and PVCs in the intended namespace.                             |
+| kind image loading looks stuck                 | Image may already be present or node import is slow.                      | Check node crictl images and storage; verify the actual image/tag before retrying.                  |
+| Job submission succeeds but program fails      | Pod/runtime error after API acceptance.                                   | Read jobs status/logs; inspect pod events as needed.                                                |
+| Dashboard cannot connect                       | Backend/forward stopped, wrong origin or wrong token.                     | Open the intended endpoint's own dashboard, verify protected CLI access and reconnect.              |
 
 Useful read-only Linux listener check:
 
@@ -1756,9 +1775,9 @@ server, forward or workload belonging to the environment you intend to change.
   adds overhead. Large blobs are not the target workload.
 - Only documented S3/SQS/EC2 subsets. Lambda, RDS, DynamoDB, Cognito and the other
   roadmap providers do not become available because the UI screenshot listed them.
-- EC2 has 97 AWS handler registrations, not complete support for all EC2 fields,
+- EC2 has 100 AWS handler registrations, not complete support for all EC2 fields,
   errors or execution modes. Actual Docker resource sizes are deliberately bounded.
-- No actual EKS provider, Kubernetes-backed EC2, general EIP forwarding, live AWS
+- No actual EKS provider, general EIP forwarding, live AWS
   firewall semantics, real VM/Windows boot, raw encrypted EBS or IAM role credentials.
 - Local CI supports one child command; scripts can run several checks, but native
   stage graphs and managed CD/rollback are not implemented.
@@ -1789,17 +1808,17 @@ volumes intentionally survive their owning process/container until you delete th
 
 ## 25. Recipes and further reading
 
-| Scenario | Suggested route |
-| --- | --- |
-| I have no app and want to learn | Start server; upload/download a file; send/acknowledge a queue message. |
-| I have a Node app | Separate transport from business logic; adapt the runnable example; add TOML and integration assertions. |
-| I have a Python process | Use the standalone JSON adapter or a verified SDK path; read endpoint/principal from the environment. |
-| I have a Go app | Start with the quality-check script; add actual HTTP/service assertions and seeded resources. |
-| I need a locally deployed web app | Build its image, allowlist it on the backend, publish a loopback port and verify a browser response. |
-| I need repeatable failures | Seed a fixture, inject a selected operation error and assert your application's failure/retry behavior. |
-| I need to test permissions | Use a separate enforce-mode environment and explicit positive/negative principal tests. |
-| I need Kubernetes jobs | Install/reconcile a LocalCloud instance; configure its image allowlist; inspect job status/logs. |
-| I want to add another service | Define a useful contract/runtime, extend the provider/protocol/state layers, and verify real behavior before adding coverage claims. |
+| Scenario                          | Suggested route                                                                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| I have no app and want to learn   | Start server; upload/download a file; send/acknowledge a queue message.                                                              |
+| I have a Node app                 | Separate transport from business logic; adapt the runnable example; add TOML and integration assertions.                             |
+| I have a Python process           | Use the standalone JSON adapter or a verified SDK path; read endpoint/principal from the environment.                                |
+| I have a Go app                   | Start with the quality-check script; add actual HTTP/service assertions and seeded resources.                                        |
+| I need a locally deployed web app | Build its image, allowlist it on the backend, publish a loopback port and verify a browser response.                                 |
+| I need repeatable failures        | Seed a fixture, inject a selected operation error and assert your application's failure/retry behavior.                              |
+| I need to test permissions        | Use a separate enforce-mode environment and explicit positive/negative principal tests.                                              |
+| I need Kubernetes jobs            | Install/reconcile a LocalCloud instance; configure its image allowlist; inspect job status/logs.                                     |
+| I want to add another service     | Define a useful contract/runtime, extend the provider/protocol/state layers, and verify real behavior before adding coverage claims. |
 
 Specialist references:
 
@@ -1818,6 +1837,1203 @@ Specialist references:
 - [Service implementation roadmap](SERVICE_IMPLEMENTATION_ROADMAP.md): all screenshot services, independent components and later work.
 - [Evidence ledger](EVIDENCE.md): observations, source boundaries and implementation choices.
 
-This handbook documents the current project. Further EC2 critical-feature
-implementation is a separate next step and is not performed by this documentation
-update.
+The preceding chapters document the current project. The following contributor
+chapters define proposed work. They do not start EC2 critical-feature implementation
+or turn planned capabilities into current service/configuration support.
+
+## 26. Contributor guide to the future project
+
+**Sections 26–33 are proposed development requirements.** They describe what
+contributors should build, not features currently enabled by a command or config.
+The earlier chapters describe the usable project. Check the feature ledger and
+source before assuming a planned capability already exists.
+
+The goal is a useful local cloud development platform with real supported behavior,
+clear boundaries and replaceable execution backends. A contributor should be able
+to choose one workflow, identify its owner/dependencies, implement it, and show
+another person how to use and verify it.
+
+### 26.1 Three kinds of future work
+
+| Kind | Meaning | Example | Completion rule |
+| --- | --- | --- | --- |
+| Service core | Required behavior for the explicitly chosen initial service contract. | DynamoDB table/item operations that really store and retrieve typed values. | A documented application workflow works through the provider and its public entry point, including failures and restart. |
+| Service add-on | Optional, later functionality owned by the same provider; not a separate AWS service. | DynamoDB secondary indexes, SQS FIFO, Lambda aliases or EC2 extra launch attributes. | Existing core behavior remains compatible and the added behavior has its own contracts/tests. |
+| Independent component | A separate provider, library, worker or execution backend that can be built and tested independently. | STS provider, SQL runtime adapter, scheduler, OCI registry or Kubernetes executor. | Its own contract works and each consuming service explicitly integrates it. |
+
+“Add-on” here is an engineering scope label, not a paid entitlement or billing
+system. A later feature becomes required when an agreed application workflow
+needs it. For example, role credentials cannot be postponed while claiming an
+EC2 application can use instance roles.
+
+Independent does not necessarily mean another repository or network service:
+
+- **Independent AWS provider:** its own service API, such as IAM, STS or EKS.
+- **Shared internal subsystem:** a component with a stable Python interface, such
+  as account-context resolution or volume management.
+- **Runtime adapter:** starts actual local software, such as a SQL engine or a VM.
+- **Platform service/tool:** CI/CD, snapshot sharing or a plugin registry.
+
+Avoid making every feature a microservice. Start with clear ownership/interfaces;
+separate processes when isolation, runtime requirements or independent scaling
+justify the extra operational work.
+
+### 26.2 What counts as core
+
+A service's initial release may support only a selected operation set. It must
+still perform that set honestly. For a queue, sending and receiving real messages
+is core; for a database, successful lifecycle metadata with no usable database
+is insufficient. For Account or IAM, configuration/policy state is itself part
+of the actual behavior, so correct records and evaluations are meaningful core.
+
+For each selected operation, core includes input validation, identity/context,
+resource state, errors, restart behavior and integration tests. Pagination,
+concurrency and retries must be included when the promised workflow requires them.
+Unsupported behavior must fail explicitly rather than return a fabricated success.
+
+### 26.3 Ownership example: completing EC2
+
+| Functionality | Owner | How another contributor can work independently |
+| --- | --- | --- |
+| Launch/stop/terminate semantics, selectors, attributes, template defaults and response/error compatibility | EC2 provider | Improve operation contracts and tests against the executor interface. |
+| Instance-profile records and role membership/trust | IAM provider | Build IAM records/evaluation with tests; expose stable lookup/evaluation methods. |
+| Temporary role sessions and expiration | STS provider | Implement credential issuance/validation; integrate IAM trust and request identity resolution. |
+| Delivering a role session to the guest | EC2/IMDS integration | Bind an instance to an authorized profile; serve only its session; renew/revoke correctly. |
+| Raw volumes, encryption, disk quota and volume recovery | Storage subsystem | Implement owned storage handles and failure cleanup behind the volume contract. |
+| Real routes, additional guest NICs and EIP forwarding | Networking subsystem | Implement network operations behind a bounded adapter; integrate EC2 lifecycle and inspect actual packets. |
+| Security-group policy translation/enforcement | Network-policy subsystem plus EC2/VPC configuration | Evaluate rules independently; enforce inside the intended runtime boundary and verify traffic. |
+| VM boot, Windows and alternate execution engines | Compute executor | Supply an execution backend; keep EC2 API behavior consistent across supported backends. |
+| Running workloads inside a cluster | Kubernetes executor | Implement workload lifecycle/status/logs using a selected cluster; do not label it EKS automatically. |
+
+Shared request identity, account/region isolation and state integrity remain core
+engine work. They are not optional EC2 add-ons.
+
+## 27. The future architecture and component contracts
+
+### 27.1 Proposed layers
+
+```mermaid
+flowchart TD
+    A[CLI / SDK / dashboard / applications] --> B[Protocol adapters]
+    B --> C[Identity and account/region context]
+    C --> D[Gateway and service registry]
+    D --> E[Service providers]
+    E --> F[Scoped state and transactions]
+    E --> G[Runtime adapter interfaces]
+    E --> H[Events / metrics / logs]
+    G --> I[Docker / Kubernetes / VM / data engines]
+    E --> J[Other providers through explicit integration adapters]
+    K[CI / CD / snapshot tools] --> D
+```
+
+This is the target layering, not the current module arrangement. Today identity
+is limited, state uses a single JSON document and HTTP routing has explicit
+service branches. Contributors should migrate those boundaries with compatibility
+tests rather than assume the proposed abstractions already exist.
+
+Providers own cloud-service semantics. Runtimes own execution. A provider should
+not duplicate SQL-container startup code, create its own global credential store
+or bypass the shared trace/authorization path.
+
+### 27.2 Proposed interfaces to agree before implementation
+
+These are contract responsibilities, not existing public Python method names.
+An implementation proposal should choose concrete types and versioning.
+
+| Component contract | Inputs | Outputs/behavior | Rules |
+| --- | --- | --- | --- |
+| Request context | Verified/local-test identity, service/operation, protocol, account, region, request ID. | Immutable identity/scope and request-local diagnostics. | Reject unsupported identities/scopes; do not trust a conflicting caller header in authenticated mode. |
+| Provider operation | Context plus validated operation arguments. | Typed result or documented service error. | No silent ignored fields or unapproved calls to real AWS. |
+| Scoped state store | Account, region, service, resource type/ID and transaction. | Stored records, listing/pagination and atomic updates. | Define cross-service transactions/compensation; do not expose the raw global database everywhere. |
+| Compute executor | Approved image/artifact, command, limits, network/storage references and ownership identity. | Opaque workload handle, state, logs, endpoints and lifecycle results. | Never adopt an unrelated runtime object; cleanup partial launches. |
+| Storage adapter | Owned volume/snapshot references, requested capacity and supported options. | Opaque handles, attach/detach/snapshot/restore results. | Separate declared capacity from enforced capacity; reject unsupported encryption/quota promises. |
+| Network adapter | Scoped VPC/subnet/interface/route configuration and ownership. | Actual endpoints/attachments/routes where implemented. | Configuration success is not proof of packet-level effect; expose supported capabilities. |
+| Policy evaluator | Principal/session, action, resource and supported context conditions. | Allow/deny plus bounded explanation. | Explicit deny precedence; unknown required policy constructs must not grant access. |
+| Credential issuer | Authorized role/profile/session request and lease. | Local access/session credentials, expiration and identity mapping. | Persist only intended material; expire/revoke and prevent cross-account/session confusion. |
+| Event/log interface | Typed event, source/context IDs and redacted metadata. | Durable/observable event or delivery result. | Document ordering, retention, retries and failure handling. |
+| Scheduler | Work ID, schedule/deadline, scoped payload and cancellation identity. | Durable pending/running/completed/failed/cancelled state. | Define restart, duplicate execution and clock behavior. |
+| Runtime capabilities | Backend and configuration. | Supported operations/options and meaningful limits. | Reject unsupported combinations before creating resources. |
+
+Use opaque handles rather than making every provider depend on Docker container
+names or host paths. Keep ownership metadata private; portable state must not
+let an imported file nominate arbitrary host resources to manage.
+
+### 27.3 Foundation work packages
+
+| Package | Minimum implementation | Evidence needed before integration is considered complete |
+| --- | --- | --- |
+| Account/region isolation | Scope resource keys and caches; carry scope through gateway, clients, events and runtimes; migrate old single-scope data. | Same resource name in two regions/accounts remains separate; cross-scope lookup, policy and restore tests. |
+| Credential identity | Resolve configured local test callers and issued sessions; distinguish management credentials; validate supported signing/session behavior. | Invalid, expired and cross-context sessions fail; no fallback to a spoofed caller header. |
+| Provider lifecycle | Explicit registration/capabilities, start/check/stop states, errors and shutdown. | Concurrent load, failed startup and clean shutdown tests; unsupported services fail predictably. |
+| State evolution | Versioned schemas/migrations; validators for every provider; scoped import/export. | Upgrade old fixtures, reject corrupt/unsafe state and recover after interrupted writes. |
+| Common operation metadata | Supported arguments, protocol shape, errors, pagination and capabilities. | CLI/API inventory agrees with dispatch and tests; model presence alone is not counted as behavior. |
+| Cross-provider integration | Explicit adapters and context propagation. | One end-to-end scenario per adapter; failures cannot silently leave orphan resources. |
+| Runtime lifecycle | Durable ownership mapping, reconciliation and failure cleanup. | Backend restart, missing external resource, partial launch failure and intentional termination. |
+
+A storage migration or identity change needs an explicit compatibility plan for
+existing databases, fixtures and clients. Do not solve a migration by silently
+resetting a developer's environment.
+
+## 28. How a contributor defines and delivers a feature
+
+### 28.1 Start with a concrete scenario
+
+Bad scope: “Implement DynamoDB fully.”
+
+Useful initial scope: “A local order application creates one table keyed by order
+ID, writes an order, rejects a duplicate conditional write, reads it after a
+server restart and deletes the test data.”
+
+That scenario determines the initial API surface, storage model and tests. More
+features can follow as explicit add-ons instead of hiding incomplete behavior
+behind an unrestricted service name.
+
+### 28.2 Contribution specification template
+
+Copy this outline into an issue/design document before substantial implementation:
+
+```text
+Feature name and owner:
+Current status: proposed / in progress / implemented subset / verified
+Application scenario:
+Core operations and supported request fields:
+Expected response fields, errors and transitions:
+Account/region/identity assumptions:
+State schema, persistence and migration:
+Independent dependencies and their contracts:
+External runtime and capability requirements:
+Retry/idempotency/pagination/concurrency rules:
+Partial failure, cancellation and cleanup:
+CLI/SDK/dashboard entry points:
+Exact unsupported behavior:
+Optional in-provider add-ons:
+Reference version, probes and known differences:
+Unit, integration, restart and runtime acceptance tests:
+User walkthrough and release-note changes:
+```
+
+Choose the owner explicitly. A networking contributor can implement a network
+adapter while an EC2 contributor implements lifecycle integration, but someone
+must own the acceptance test connecting them.
+
+### 28.3 Operation contract worksheet
+
+For every operation, define at least:
+
+| Question | What the contributor must write down |
+| --- | --- |
+| What identifies a resource? | Name/ID/ARN format, uniqueness scope and missing-resource behavior. |
+| What is required? | Fields, types, size bounds and cross-field constraints. |
+| What is accepted? | Supported optional fields and explicit rejection for unsupported ones. |
+| What changes? | Stored records, emitted events, runtime actions and resource dependencies. |
+| When is it ready? | Synchronous result or asynchronous states and polling/waiter behavior. |
+| Can it be retried? | Client token/idempotency semantics and mismatched-retry errors. |
+| How does it fail? | Validation, denied access, missing dependency, timeout and runtime errors. |
+| What survives restart? | Persistent state, leases, pending work and runtime reconciliation. |
+| What is returned? | Response fields/encoding, pagination tokens and request identifiers. |
+| How is it cleaned up? | Dependency order, retained data, cancellation and orphan recovery. |
+
+The exact wire contract must be verified against the chosen public contract and,
+when requested, pinned reference observations. The worksheets are not permission
+to invent AWS error codes or assume undocumented behavior.
+
+### 28.4 Development sequence
+
+1. Read chapters 21–22 and the relevant service card in chapter 30.
+2. Identify the smallest useful scenario and agree the interfaces/dependencies.
+3. Add tests for the intended contract, including denied/invalid requests.
+4. Implement scoped state and provider logic; add real execution if promised.
+5. Connect the HTTP/protocol route and shared gateway instrumentation.
+6. Add CLI commands and a dashboard workflow where appropriate.
+7. Test the scenario through the public endpoint, not only direct Python calls.
+8. Test restart, failed launch/delivery and cleanup.
+9. Record reference evidence/differences and update user-facing docs.
+10. Publish the supported subset and remaining add-ons without calling the entire
+    AWS service equivalent.
+
+A new provider must also update current hardcoded boundaries where applicable:
+service registration, HTTP routing, fault-rule service validation, fixture schema,
+CI dependency validation/seeding, dashboard navigation and operation inventory.
+Changing only one list leaves an incomplete integration.
+
+### 28.5 Definition of done
+
+A core slice is ready when another contributor can follow its documented recipe
+from a clean supported setup and obtain real expected results, with:
+
+- A published operation/parameter/error contract and explicit limits.
+- Validated state and safe account/region assumptions.
+- Authorization and management-auth boundaries appropriate to the claim.
+- Real runtime effects where promised, with observable readiness and failures.
+- Restart/retry behavior and ownership-aware cleanup.
+- Positive and negative public-endpoint tests plus meaningful unit tests.
+- Updated CLI/help/docs and a reproducible example.
+- Captured comparison evidence if reference compatibility is claimed.
+
+Provider registration, a passing health check, a generated schema, a frontend
+form or an accepted-but-ignored request is not this definition of done.
+
+### 28.6 Where a contributor puts the work
+
+Start from the current flat Python package unless the contribution explicitly
+includes a packaging/layout migration. The names below are **proposed new files**,
+not imports or extension locations already provided by the project.
+
+| Work | Suggested location with the current layout | Integration requirement |
+| --- | --- | --- |
+| A new service provider | localcloud/SERVICE.py | Explicit operation adapter/registry and shared context/tooling integration. |
+| Its wire codec | localcloud/SERVICE_protocol.py | Actual HTTP routing and request/response/error tests. |
+| New shared runtime | localcloud/RUNTIME_runtime.py | Capability/ownership contract, consumer adapter and real execution tests. |
+| Provider behavior tests | tests/test_SERVICE.py | Core success, invalid input, policies, persistence and concurrency where relevant. |
+| Protocol tests | tests/test_SERVICE_http.py | Cross the real handler/serializer, including negative requests. |
+| Reproducible runtime scenario | scripts/SERVICE_scenario.py | Explicit target/config, bounded execution and cleanup in failure paths. |
+| User/build contract | docs/SERVICE.md | Current subset, clean-start workflow, dependencies, limits and evidence. |
+
+Replace the uppercase placeholders with the chosen component names. For example,
+a DynamoDB slice could introduce localcloud/dynamodb.py and tests/test_dynamodb.py;
+the names do not register or expose the service automatically.
+
+The package currently explicitly lists the localcloud package and selected asset
+files in pyproject.toml. If adding nested packages or model/config assets, update
+package discovery/data configuration and test the built image/package. A module
+that imports from the checkout but is absent from the distributed artifact is
+not a complete contribution.
+
+For a shared component, write a small contract test suite against the adapter
+interface so each backend can run the same cases. Keep backend-specific tests for
+real networking, storage or process behavior. An integration test must also prove
+that the consuming provider passes the correct scope/ownership/options through.
+
+## 29. Independent services and reusable backends to build
+
+All entries in this chapter describe future component contracts. Existing partial
+adapters may be reused, but their current guarantees must be audited first.
+
+| Component | Type | Core contract | Optional later work | Example integration proof |
+| --- | --- | --- | --- | --- |
+| STS | Independent AWS provider | Local session issue/expiration, caller identity and authorized role assumption; connect sessions to IAM and scoped request identity. | Additional federation/session policy APIs and credential-renewal breadth. | An allowed role session calls a service; expired/unauthorized sessions fail. |
+| IAM identity/policy service | Independent AWS provider plus shared evaluator | User/role/profile records, supported trust/policy evaluation and principal resolution. | More condition keys, boundaries and simulation. | EC2 obtains only its assigned profile's authorized session through STS integration. |
+| Volume/snapshot backend | Shared storage subsystem; EBS API ownership remains with EC2 | Owned create/attach/detach/snapshot/restore/delete with durable handles and clear data guarantees. | Raw block devices, enforceable quotas, encryption and additional storage backends. | A writer stores data, snapshots it, replaces the volume and reads restored contents. |
+| VPC network backend | Shared subsystem; VPC API operations remain under the EC2 API family | Owned isolated networks, actual attachment/address/routing behavior for a documented runtime. | IPv6, more route targets, forwarding/NAT and more executors. | Two guests communicate or are isolated exactly as configured; inspect actual traffic. |
+| Network-policy engine | Shared evaluator/enforcer | Translate supported rules into enforcement at the chosen workload boundary; remove/reconcile owned rules. | More protocols, richer egress/stateful behavior and additional runtime backends. | Allow and revoke change actual traffic, without changing unrelated host rules. |
+| Compute executor | Shared runtime contract | Start/inspect/stop/restart/delete owned workloads with limits, logs and endpoints. | VM/Windows execution, resource profiles and more image formats. | EC2/ECS use the same tested executor without duplicating process-management code. |
+| Kubernetes executor | Optional runtime backend | Namespace-scoped workload lifecycle, ownership, limits, readiness, logs and cleanup. | More scheduling/storage/network options and workload kinds. | A consumer launches a workload and handles pending/failure/cancellation correctly. |
+| Cluster provisioner | Independent backend for EKS | Create/inspect/delete an actual local cluster; produce reachable API credentials; recover partial provisioning. | More provisioners, node groups and upgrade simulation. | EKS create yields a usable kubeconfig and an application can be deployed. |
+| Scheduler and job runtime | Shared subsystem | Durable task/timer state, cancellation, deadlines and restart-safe dispatch. | Parallelism, priorities, calendars and more retry policies. | A scheduled event runs after restart and does not silently execute twice. |
+| Object/artifact store | Shared storage contract; S3 keeps its own API semantics | Byte storage, metadata references, checksums and retention/ownership rules. | Larger streaming uploads, deduplication and remote backends. | CI produces an artifact that CD deploys by immutable reference. |
+| OCI registry | Runtime/service dependency for ECR | Real manifest/blob/tag operations, authentication and push/pull. | Scanning, replication and additional retention policies. | A pushed image can be pulled by an executor and has the expected digest. |
+| SQL/document/graph/cache/search runtimes | Separate adapters | Engine startup, credentials, endpoint, health, persistence and owned cleanup for one chosen backend each. | More engines/versions/topologies and backup modes. | RDS/OpenSearch/etc. return usable endpoints with actual read/write behavior. |
+| Broker/stream runtimes | Separate adapters | Durable publish/consume or append/read, connection details and failures. | More protocols, broker clusters and retention models. | MQ/MSK delivery tests survive a supported restart. |
+| Git transport/storage | Independent backend for CodeCommit | Real repository content, authorized clone/push/pull and safe storage ownership. | More transport/authentication modes and hooks. | A new clone receives a commit pushed through the provider's transport. |
+| DNS/proxy/TLS | Runtime adapters | Local resolution, routing/cache behavior and development certificate handling. | More policies, protocols, cache rules and renewal features. | Route 53/CloudFront/ACM settings change a real lookup or HTTPS request. |
+| Crypto/token backends | Shared protected-key operations | Private key persistence, supported crypto operations, signing/validation and key state. | More algorithms, rotation and hardware-backed adapters. | KMS decrypts valid ciphertext; invalid/disabled-key cases fail; Cognito validates issued tokens. |
+| Backup coordinator | Shared platform subsystem | Resource adapter registration, consistent capture/restore, recovery-point identity and job results. | Scheduling, retention, copy destinations and broader resources. | Backup restores actual provider data, not only its lifecycle record. |
+| CI/CD controllers | Platform tools | CI executes a reproducible test/build contract; CD deploys an identified artifact with readiness and rollback handling. | Stage graphs, promotion, strategies and shared/remote workers. | A failed test blocks deployment; a failed rollout restores the previous healthy release. |
+
+The same implementation may supply several contracts, but keep their ownership
+clear. For example, a shared queue worker can deliver SNS notifications without
+making SNS and SQS the same provider.
+
+## 30. Build specifications for all 51 screenshot services
+
+These cards expand the roadmap into contributor starting points. **Every operation
+list below is a proposed initial API target**, not a statement that it is already
+implemented or fully compatible. Confirm exact shapes/errors and select a bounded
+subset before coding. Existing services should retain their current tests while
+contributors close the specified gaps.
+
+Each card gives core work, an application acceptance scenario, independently
+buildable dependencies and later add-ons owned by that provider.
+
+### 30.1 API Gateway
+
+- **Core:** API/resource/route/stage lifecycle and a real invoke endpoint. Initial
+  targets: CreateRestApi/GetRestApi/DeleteRestApi and the required resource,
+  method, integration and deployment operations for one HTTP integration path.
+- **State and acceptance:** persist route/stage configuration; invoke a local
+  backend through the generated API URL; invalid routes and upstream failures
+  produce documented results; restart preserves deployed configuration.
+- **Independent dependencies:** HTTP proxy/router; Lambda and identity adapters
+  can be separate follow-up integrations.
+- **In-provider add-ons:** API keys/usage plans, transformations, caching,
+  WebSockets, custom-domain behavior and additional API types.
+
+### 30.2 SQS
+
+- **Core:** preserve existing queue/message behavior; verify send, receive,
+  visibility, acknowledgement, missing resources and restart through the endpoint.
+  Keep the current JSON contract explicit.
+- **State and acceptance:** a worker crash leaves a message recoverable; a stale
+  receipt cannot delete an unrelated/latest delivery; invalid batches do not
+  corrupt queue state.
+- **Independent dependencies:** durable message storage and clock/scheduling
+  helpers; do not move SQS API semantics into a generic scheduler.
+- **In-provider add-ons:** FIFO/deduplication, long polling, batching, message
+  attributes, retention and redrive/DLQs; each needs ordering/timing tests.
+
+### 30.3 SNS
+
+- **Core:** CreateTopic/ListTopics/DeleteTopic, Subscribe/Unsubscribe and Publish
+  for selected local SQS and HTTP endpoints; validate destination ownership/config.
+- **State and acceptance:** persist subscriptions; publishing creates an actual
+  destination message/request; failed delivery is observable and retriable under
+  the documented policy.
+- **Independent dependencies:** delivery worker, destination adapters and local
+  notification sink.
+- **In-provider add-ons:** subscription filtering, FIFO topics, more delivery
+  protocols, retry/DLQ policies and additional notification envelopes.
+
+### 30.4 Step Functions
+
+- **Core:** CreateStateMachine, StartExecution, DescribeExecution, execution
+  history and deletion for a documented initial state-language subset.
+- **State and acceptance:** run an order workflow with one real supported task,
+  choice and final result; persist execution state; recover/cancel according to
+  the published contract.
+- **Independent dependencies:** workflow/scheduler runtime and task adapters.
+- **In-provider add-ons:** Map/Parallel, wait/callback tokens, broader error
+  handling, versions/aliases and additional execution modes.
+
+### 30.5 EventBridge
+
+- **Core:** bus/rule/target lifecycle and PutEvents with a defined event-pattern
+  matcher; actually dispatch matching events to one supported target.
+- **State and acceptance:** matching order events reach the target; nonmatching
+  events do not; failed target delivery is visible; rules survive restart.
+- **Independent dependencies:** event store/dispatcher, scheduler and target adapters.
+- **In-provider add-ons:** archives/replay, additional matching operators,
+  transformation modes, cross-account buses and schema APIs.
+
+### 30.6 Application Auto Scaling
+
+- **Core:** RegisterScalableTarget, scaling-policy and scheduled-action lifecycle
+  for one implemented target; evaluate a metric/schedule and change real capacity.
+- **State and acceptance:** a target's capacity changes within declared min/max;
+  invalid targets fail and restart does not lose policy/schedule state.
+- **Independent dependencies:** metric reader, scaling controller and workload adapter.
+- **In-provider add-ons:** additional policy types/targets, richer metric math,
+  cooldown behavior and predictive simulation.
+
+### 30.7 MWAA
+
+- **Core:** create/describe/update/delete an environment backed by one supported
+  local Airflow version; load and execute a real DAG with logs/status.
+- **State and acceptance:** a simple two-task DAG produces its output; dependency
+  failure stops or marks downstream tasks as documented; environment data persists.
+- **Independent dependencies:** Airflow runtime, executor and artifact/DAG storage.
+- **In-provider add-ons:** additional versions, plugins/dependencies, worker scaling
+  and broader environment/network configuration.
+
+### 30.8 MQ
+
+- **Core:** broker lifecycle for one selected engine; generate usable private
+  endpoints/credentials; connect a producer and consumer using a supported protocol.
+- **State and acceptance:** a broker actually transfers messages and recovers
+  persistent messages after a supported restart; invalid credentials fail.
+- **Independent dependencies:** broker runtime/volume/network adapters.
+- **In-provider add-ons:** additional engines/protocols, richer users/configuration,
+  topology and failover simulation.
+
+### 30.9 EventBridge Pipes
+
+- **Core:** pipe lifecycle and a working supported source-to-target transfer,
+  with checkpoints, status and explicit failure behavior.
+- **State and acceptance:** consume a source record and deliver the target payload;
+  restarting follows declared duplicate/checkpoint semantics and does not skip work.
+- **Independent dependencies:** source poller, dispatcher, checkpoint storage and targets.
+- **In-provider add-ons:** enrichment, more sources/targets, batching,
+  filtering/transformations and DLQ/retry breadth.
+
+### 30.10 EC2
+
+- **Core:** maintain existing 97-operation subset; fix the operations required by
+  a chosen deployment workflow, identity/context handling, real runtime lifecycle,
+  persistence and response/error compatibility.
+- **State and acceptance:** deploy an application, restart its backend, recover
+  management, preserve intended data and terminate without touching other workloads;
+  verify every additional networking/credential guarantee through actual behavior.
+- **Independent dependencies:** IAM/STS, volume, network/policy and compute adapters;
+  optional Kubernetes and VM backends.
+- **In-provider add-ons:** more instance attributes/types, launch-template fields,
+  AMI metadata, waiter/error fidelity and supported operation breadth. Consult
+  chapter 26.3 for ownership of the critical cross-service work.
+
+### 30.11 Lambda
+
+- **Core:** function code/configuration lifecycle and Invoke for one supported
+  runtime; real execution, response/error handling, logs and execution limits.
+- **State and acceptance:** upload a function, invoke with input and assert output;
+  timeout/crash produces a documented failure and cleans the execution environment.
+- **Independent dependencies:** function executor, image/artifact store and logs;
+  IAM/STS when role behavior is promised.
+- **In-provider add-ons:** runtimes, layers, versions/aliases, concurrency,
+  hot reload/debugging and additional event-source mappings.
+
+### 30.12 ECS
+
+- **Core:** clusters, task definitions and run/describe/stop task APIs executing
+  allowlisted containers, with status/logs and usable endpoint configuration.
+- **State and acceptance:** a task starts the expected image/command, becomes
+  observable and stops cleanly; restart reconciles its owned runtime handle.
+- **Independent dependencies:** container executor, registry, networking and credentials.
+- **In-provider add-ons:** services/deployments, placement/capacity providers,
+  load-balancer integration and scaling policies.
+
+### 30.13 ECR
+
+- **Core:** repository lifecycle, registry authorization and real OCI image
+  push/pull, listing/tagging and deletion for a selected registry contract.
+- **State and acceptance:** push an image, pull by immutable digest and run it;
+  missing blobs and unauthorized access fail; repository data survives restart.
+- **Independent dependencies:** OCI registry and blob storage/auth adapter.
+- **In-provider add-ons:** tag immutability, lifecycle policies, scanning,
+  replication and more registry-policy behavior.
+
+### 30.14 EKS
+
+- **Core:** create/describe/delete an actual locally provisioned cluster and
+  provide its reachable Kubernetes API endpoint/credentials.
+- **State and acceptance:** obtain kubeconfig, deploy a simple workload and read
+  its result; failed provisioning and cluster deletion clean only owned resources.
+- **Independent dependencies:** cluster provisioner, Kubernetes client and identity
+  adapter; workload execution is a separate contract.
+- **In-provider add-ons:** node groups, add-ons, access entries, upgrade simulation
+  and additional cluster/network options.
+
+### 30.15 CloudFormation
+
+- **Core:** stack create/describe/update/delete for a selected resource set;
+  dependency order, outputs/events and rollback after partial failure.
+- **State and acceptance:** a template creates a bucket/queue combination, returns
+  outputs and updates/deletes it; failed creation cleans already-created resources
+  according to the documented retention policy.
+- **Independent dependencies:** template parser, dependency planner and provider adapters.
+- **In-provider add-ons:** more intrinsic functions/resources, change sets,
+  nested stacks, drift detection and stack sets.
+
+### 30.16 CloudWatch Logs
+
+- **Core:** group/stream lifecycle, PutLogEvents, GetLogEvents and a supported
+  FilterLogEvents subset with stable ordering and pagination.
+- **State and acceptance:** a runtime emits logs that a client can retrieve after
+  restart; duplicate/out-of-order requests follow an explicit contract.
+- **Independent dependencies:** durable log store and runtime log collectors.
+- **In-provider add-ons:** Insights queries, retention automation, subscriptions,
+  metric filters and export jobs.
+
+### 30.17 CloudWatch
+
+- **Core:** PutMetricData, supported metric retrieval/aggregates and alarm lifecycle
+  with an evaluator that actually changes alarm state.
+- **State and acceptance:** publish a threshold-crossing metric, observe the alarm
+  and recover after normal data returns; time-window behavior is testable.
+- **Independent dependencies:** time-series storage, scheduler and notification adapter.
+- **In-provider add-ons:** metric math, composite alarms, dashboards, additional
+  statistics and anomaly-detection simulation.
+
+### 30.18 Simple Systems Manager (SSM)
+
+- **Core:** Parameter Store put/get/delete, hierarchy lookup, versions and supported
+  secure-string handling; return actual stored values with documented access checks.
+- **State and acceptance:** a configuration client retrieves a version/path after
+  restart; denied or missing parameters do not leak values.
+- **Independent dependencies:** value/secret store and KMS; a command/session
+  executor can be developed separately for future execution capabilities.
+- **In-provider add-ons:** labels/policies/tiers, Run Command, sessions and
+  automation documents, each as an explicit SSM capability rather than a fake success.
+
+### 30.19 CloudTrail
+
+- **Core:** trail configuration, collection/lookup of selected real emulator API
+  events and delivery to a supported local S3/log destination.
+- **State and acceptance:** an application operation generates a correctly scoped
+  event; disabled selectors exclude it; retained data survives restart without
+  recording secret payloads unexpectedly.
+- **Independent dependencies:** shared request-event recorder and delivery adapters.
+- **In-provider add-ons:** more data events/selectors, query stores,
+  integrity/digest workflows and richer retention/export behavior.
+
+### 30.20 Account
+
+- **Core:** supported account metadata/contact/region-setting operations tied to
+  the actual emulator account-context registry.
+- **State and acceptance:** update one account's setting without changing another
+  account's setting; data and validation survive restart.
+- **Independent dependencies:** account registry and shared request/state isolation.
+- **In-provider add-ons:** additional contacts/settings, region opt-in simulation
+  and organization-related integrations; no real account creation or billing.
+
+### 30.21 SES
+
+- **Core:** identities, send operations, message validation and a local inbox that
+  stores actual message contents/results without external delivery.
+- **State and acceptance:** an app sends a message that tests can inspect; invalid
+  sender/body cases fail; data is scoped and persists as documented.
+- **Independent dependencies:** local mail capture/inbox and event notification adapter.
+- **In-provider add-ons:** templates, MIME/attachments, configuration sets,
+  event destinations and bounce/quota simulation.
+
+### 30.22 AppConfig
+
+- **Core:** application/environment/profile lifecycle, configuration versions,
+  deployment and real client session/poll retrieval for supported APIs.
+- **State and acceptance:** deploy a configuration and observe the expected version
+  from a client; invalid versions and expired sessions fail predictably.
+- **Independent dependencies:** configuration store and deployment scheduler.
+- **In-provider add-ons:** validators, richer deployment strategies, extensions,
+  monitoring-triggered rollback and more session semantics.
+
+### 30.23 CodeCommit
+
+- **Core:** repository lifecycle backed by local Git, basic branch/commit/file
+  operations and a usable supported clone/push/pull transport.
+- **State and acceptance:** push a commit through the published transport and
+  retrieve it from a new clone; unauthorized repository access fails.
+- **Independent dependencies:** Git storage/transport and credential adapter.
+- **In-provider add-ons:** pull requests, approvals, comments, triggers,
+  more merge strategies and repository-policy breadth.
+
+### 30.24 AppSync
+
+- **Core:** API/schema lifecycle, real GraphQL query/mutation execution and one
+  supported resolver/data-source path with authorization boundaries.
+- **State and acceptance:** a query returns actual stored/backend data; invalid
+  schema/resolver/auth cases fail and schema configuration survives restart.
+- **Independent dependencies:** GraphQL execution runtime and data-source/identity adapters.
+- **In-provider add-ons:** subscriptions, caching, pipeline resolvers,
+  conflict/version handling and additional auth modes.
+
+### 30.25 Amplify
+
+- **Core:** app/branch/deployment lifecycle, execute an explicit local build and
+  serve its produced static artifact through a working endpoint.
+- **State and acceptance:** a branch build publishes the expected page; failed
+  builds do not replace the last successful artifact; logs/status are available.
+- **Independent dependencies:** build runner, artifact storage and static host/proxy.
+- **In-provider add-ons:** preview lifecycle, more frameworks, domains,
+  rewrites/redirects and deeper CI/CD integration.
+
+### 30.26 Database Migration Service (DMS)
+
+- **Core:** endpoints/tasks for one source/target engine pair and an actual
+  bounded full-load data transfer with progress and failure reporting.
+- **State and acceptance:** source rows arrive at the target with documented type
+  mapping; interrupted transfers report a recoverable/failed state and clean owned work.
+- **Independent dependencies:** database connectors, copy engine and task executor.
+- **In-provider add-ons:** change-data capture, resumability, more engine pairs,
+  transformations and schema conversion.
+
+### 30.27 Cognito
+
+- **Core:** user-pool/client/user lifecycle, signup/confirmation, password auth,
+  token refresh and local signing-key discovery/validation.
+- **State and acceptance:** register a user, authenticate, validate the token and
+  reject invalid/expired credentials; passwords and signing material are not exposed.
+- **Independent dependencies:** identity store, password hashing and token-signing backend.
+- **In-provider add-ons:** MFA, hosted UI, federation, custom challenges,
+  triggers and identity-pool integration.
+
+### 30.28 Secrets Manager
+
+- **Core:** create/get/update/delete secret values, versions/stages and supported
+  access/recovery behavior with protected storage and no accidental trace leakage.
+- **State and acceptance:** an authorized app retrieves the intended version after
+  restart; denied requests cannot disclose it; deletion/stage changes are testable.
+- **Independent dependencies:** secret store, KMS and optional rotation worker.
+- **In-provider add-ons:** scheduled rotation, more integrations, replication
+  and broader recovery-window/version semantics.
+
+### 30.29 KMS
+
+- **Core:** key/alias lifecycle, key state, real local encrypt/decrypt and data-key
+  operations with private persistent key material and authorization.
+- **State and acceptance:** round-trip ciphertext decrypts after restart; tampered
+  ciphertext, wrong/disabled key and denied access fail without leaking plaintext.
+- **Independent dependencies:** cryptographic backend and protected key storage.
+- **In-provider add-ons:** key types, signing/MAC, import/rotation, grants
+  and policy-language breadth. A boolean Encrypted field alone is not encryption.
+
+### 30.30 IAM
+
+- **Core:** user/role/policy/profile lifecycle, supported trust/identity-policy
+  evaluation and stable identity mapping, integrated with STS for role sessions.
+- **State and acceptance:** a session with an allowed policy succeeds; explicit
+  denial, wrong trust, expired session and another account's resource fail correctly.
+- **Independent dependencies:** shared policy evaluator, identity registry and STS.
+- **In-provider add-ons:** more condition keys, boundaries, simulation,
+  federation and policy-management breadth.
+
+### 30.31 Certificate Manager (ACM)
+
+- **Core:** import/request/describe/list/delete development certificates with
+  private key storage and a real TLS integration path for supported endpoints.
+- **State and acceptance:** a locally trusted/configured client reaches a TLS
+  endpoint using the issued/imported certificate; invalid key/certificate pairs fail.
+- **Independent dependencies:** local CA/key backend and TLS proxy/endpoint adapter.
+- **In-provider add-ons:** renewal, more validation flows/key algorithms
+  and additional metadata/options; not public certificate issuance guarantees.
+
+### 30.32 S3
+
+- **Core:** preserve binary bucket/object behavior and expand the chosen SDK
+  workflow with correct metadata/headers/errors, persistence and authorization.
+- **State and acceptance:** exact bytes survive upload/download and restart;
+  nonempty deletion and missing/denied objects behave correctly; failed writes are atomic.
+- **Independent dependencies:** object/blob storage, streaming helpers and event adapters.
+- **In-provider add-ons:** versioning, multipart, lifecycle, notifications,
+  policy breadth, replication and object lock; do not advertise unimplemented query options.
+
+### 30.33 Backup
+
+- **Core:** vault/plan/job/recovery-point lifecycle connected to actual snapshot
+  and restore operations for a clearly selected resource set.
+- **State and acceptance:** save test data, mutate/delete it and restore it from
+  a recovery point; metadata-only backup success does not pass.
+- **Independent dependencies:** backup coordinator, scheduler and resource adapters.
+- **In-provider add-ons:** more resource types, retention/lifecycle,
+  copies, selection rules and richer restore options.
+
+### 30.34 SageMaker
+
+- **Core:** model/endpoint/job lifecycle executing one supported local inference
+  or training container; actual output/artifacts and status/logs.
+- **State and acceptance:** inference transforms a test input or training creates
+  the expected artifact; failure/timeout and cleanup are observable.
+- **Independent dependencies:** model/job executor, approved images and artifact storage.
+- **In-provider add-ons:** frameworks, tuning, pipelines, endpoint variants,
+  scaling and additional execution modes.
+
+### 30.35 Transcribe Service
+
+- **Core:** job start/get/list/delete with one chosen speech-to-text engine and
+  actual transcription output from supported local audio.
+- **State and acceptance:** a known audio fixture produces a usable transcript;
+  unsupported format/language and missing input produce documented failures.
+- **Independent dependencies:** speech runtime and audio/artifact storage adapters.
+- **In-provider add-ons:** streaming, languages/models, diarization,
+  custom vocabulary and richer alternatives/timestamps.
+
+### 30.36 Cost Explorer
+
+- **Core:** supported query/filter/group APIs over explicitly labelled local
+  fixture data or a documented usage-estimation model.
+- **State and acceptance:** deterministic usage fixtures produce the expected
+  totals/groups; invalid ranges/filters fail; no result is presented as a real bill.
+- **Independent dependencies:** usage-event collection and optional estimate engine.
+- **In-provider add-ons:** forecasts, anomaly fixtures, more dimensions,
+  exports and richer report/query shapes.
+
+### 30.37 DynamoDB
+
+- **Core:** table/key schema lifecycle, typed item CRUD, supported conditions,
+  Query/Scan expressions and required pagination; durable table/item data.
+- **State and acceptance:** the order workflow in chapter 31 passes through the
+  JSON endpoint, including conditional rejection, restart and deletion.
+- **Independent dependencies:** transactional key/value store and expression evaluator.
+- **In-provider add-ons:** secondary indexes, transactions, streams,
+  TTL, backup and capacity/throttling simulation.
+
+### 30.38 RDS
+
+- **Core:** instance lifecycle for one actual local SQL engine with credentials,
+  usable connection endpoint, readiness, SQL reads/writes and durable data.
+- **State and acceptance:** connect with the chosen engine's client, write/read a
+  row after restart and remove the owned instance without deleting another database.
+- **Independent dependencies:** SQL runtime, storage, network and backup adapters.
+- **In-provider add-ons:** engines/versions, clusters/replicas, parameter groups,
+  failover simulation and more snapshot/restore options.
+
+### 30.39 ElastiCache
+
+- **Core:** cache/replication-group lifecycle backed by one actual cache engine,
+  usable endpoint and documented command/persistence behavior.
+- **State and acceptance:** a client sets/gets values and observes declared expiry
+  and restart semantics; invalid credentials or failed startup are visible.
+- **Independent dependencies:** cache runtime, credentials and network adapter.
+- **In-provider add-ons:** more engines, shards/replicas, parameters,
+  failover and richer topology/configuration.
+
+### 30.40 Timestream
+
+- **Core:** database/table lifecycle, typed timestamped writes and an actual
+  documented query subset with persistence and scoped resources.
+- **State and acceptance:** insert sensor readings and query expected values/time
+  ranges after restart; type/time validation errors are deterministic.
+- **Independent dependencies:** time-series storage/query engine.
+- **In-provider add-ons:** more query functions, scheduled queries,
+  tier/retention behavior and wider data-format support.
+
+### 30.41 DocumentDB
+
+- **Core:** cluster/instance lifecycle tied to a selected document-query runtime,
+  real endpoint, document operations and durable storage within a stated subset.
+- **State and acceptance:** a supported driver inserts/queries a document after
+  restart; lifecycle readiness reflects the runtime and access failures are tested.
+- **Independent dependencies:** document-engine, volume and networking adapters.
+- **In-provider add-ons:** wider wire/query compatibility, replicas,
+  failover and additional snapshot/options coverage.
+
+### 30.42 Neptune
+
+- **Core:** graph cluster/instance lifecycle and a usable local endpoint for one
+  chosen graph language, with real writes/queries and persistence.
+- **State and acceptance:** create a small graph, query a known relationship and
+  repeat after restart; unsupported syntax is rejected explicitly.
+- **Independent dependencies:** graph-engine/query runtime and storage adapter.
+- **In-provider add-ons:** more query languages, bulk loading,
+  replicas, failover and additional graph API coverage.
+
+### 30.43 Athena
+
+- **Core:** workgroups, query lifecycle and actual selected SQL execution over
+  supported local datasets; results, status and output artifacts.
+- **State and acceptance:** query a known dataset and compare returned rows;
+  invalid SQL, cancellation and missing data produce documented outcomes.
+- **Independent dependencies:** SQL query runtime, Glue catalog and S3 adapters.
+- **In-provider add-ons:** formats/SQL breadth, prepared statements,
+  federated sources, result reuse and capacity simulation.
+
+### 30.44 Kinesis
+
+- **Core:** stream/shard lifecycle, put/get records, iterators and documented
+  per-shard ordering/retention with durable records.
+- **State and acceptance:** a producer/consumer reads records in the declared
+  order; cursor expiration/restart behavior and missing streams are tested.
+- **Independent dependencies:** append-only stream store and consumer runtime.
+- **In-provider add-ons:** resharding, enhanced fan-out,
+  broader throughput/retention models and encryption integration.
+
+### 30.45 Data Firehose
+
+- **Core:** delivery-stream lifecycle, put records, buffering and real delivery
+  to one supported local destination with failures/status.
+- **State and acceptance:** records reach a test destination in the published
+  format; flush/restart/failure behavior does not silently lose buffered data.
+- **Independent dependencies:** buffering scheduler and destination adapters.
+- **In-provider add-ons:** destinations, conversion, transformations,
+  dynamic partitioning and broader retry/error-output support.
+
+### 30.46 Kafka / MSK
+
+- **Core:** cluster lifecycle tied to a real local Kafka runtime, connection
+  endpoints and actual topic produce/consume with persistence.
+- **State and acceptance:** a client produces/reads a record and observes the
+  supported restart behavior; invalid auth and broker startup errors are visible.
+- **Independent dependencies:** Kafka runtime, storage/network and auth adapter.
+- **In-provider add-ons:** multi-broker configurations, more authentication,
+  upgrades and additional managed/serverless control-plane behavior.
+
+### 30.47 Glue
+
+- **Core:** catalog/database/table/partition APIs used by a consumer, plus one
+  supported job type with actual execution/output and logs/status.
+- **State and acceptance:** Athena or another consumer resolves table metadata;
+  a job transforms a fixture dataset; failed jobs do not report successful output.
+- **Independent dependencies:** metadata catalog, job executor and optional crawler engine.
+- **In-provider add-ons:** crawlers/classifiers, job versions/types,
+  workflows, schema registry and more connection/format support.
+
+### 30.48 Route 53
+
+- **Core:** hosted-zone/record lifecycle and actual record resolution through a
+  chosen local DNS endpoint; transactional validation for supported change batches.
+- **State and acceptance:** a configured client resolves a test record, sees an
+  update and no longer resolves a deleted record after the defined cache period.
+- **Independent dependencies:** DNS runtime and scoped record store.
+- **In-provider add-ons:** record types, routing policies,
+  health checks, DNSSEC simulation and private-zone association breadth.
+
+### 30.49 CloudFront
+
+- **Core:** distribution configuration connected to a real local proxy, origin
+  routing, a documented cache contract and invalidation.
+- **State and acceptance:** fetch an origin response through the distribution,
+  observe cached content and invalidate it; origin errors behave predictably.
+- **Independent dependencies:** proxy/cache, origin adapters and ACM/TLS integration.
+- **In-provider add-ons:** cache behaviors, signed requests,
+  edge-function integration, logging and richer origin/failover options.
+
+### 30.50 OpenSearch Service
+
+- **Core:** domain lifecycle backed by a selected actual search engine,
+  reachable endpoint, indexing/search, persistence and supported access controls.
+- **State and acceptance:** index a document, search it after restart and verify
+  failed startup/access/deletion behavior with a compatible client.
+- **Independent dependencies:** search runtime, storage and credential/network adapters.
+- **In-provider add-ons:** versions/topologies, snapshots,
+  advanced domain settings and additional security-plugin coverage.
+
+### 30.51 Redshift
+
+- **Core:** cluster/database lifecycle connected to a documented local SQL
+  analytics backend, actual queries and durable results/data.
+- **State and acceptance:** a supported SQL client loads/queries a fixture table,
+  reconnects after restart and handles invalid SQL and missing clusters correctly.
+- **Independent dependencies:** analytics SQL runtime and S3 load/unload adapter.
+- **In-provider add-ons:** SQL/type compatibility, COPY/UNLOAD formats,
+  workgroups, snapshots and scaling simulation.
+
+## 31. Worked contributor example: build DynamoDB in useful slices
+
+**Design example, not a runnable current feature.** DynamoDB is not currently a
+registered provider. The requests below are candidate contract fixtures for a
+contributor to implement and verify; they are not commands you can send to today's
+server and expect to work.
+
+### 31.1 The application story
+
+An order application needs to save an order by ID, reject a duplicate order,
+retrieve it after a LocalCloud restart and update its status. The application
+should not know whether its data is stored in SQLite or a different local backend.
+
+Define the first slice narrowly:
+
+- One table with a string partition key, no sort key in the initial contract.
+- CreateTable, DescribeTable, ListTables and DeleteTable.
+- PutItem, GetItem and DeleteItem with a documented initial type set.
+- A conditional insert sufficient to reject an existing partition key.
+- Account/region-scoped names, durable storage and basic policy integration.
+- Explicit unsupported errors for indexes, transactions and other unimplemented
+  options instead of accepting them and ignoring their meaning.
+
+UpdateItem, a sort key and Query/Scan can be the next core slices before the
+broader DynamoDB card is marked ready. A smaller slice is labelled as that slice,
+not as the completed core card.
+
+### 31.2 Candidate request fixtures
+
+Create a table for orders:
+
+```json
+{
+  "TableName": "orders",
+  "AttributeDefinitions": [{"AttributeName": "orderId", "AttributeType": "S"}],
+  "KeySchema": [{"AttributeName": "orderId", "KeyType": "HASH"}],
+  "BillingMode": "PAY_PER_REQUEST"
+}
+```
+
+Insert an order only if that key does not already exist:
+
+```json
+{
+  "TableName": "orders",
+  "Item": {
+    "orderId": {"S": "order-001"},
+    "status": {"S": "pending"},
+    "total": {"N": "42.50"}
+  },
+  "ConditionExpression": "attribute_not_exists(orderId)"
+}
+```
+
+Get that order:
+
+```json
+{
+  "TableName": "orders",
+  "Key": {"orderId": {"S": "order-001"}},
+  "ConsistentRead": true
+}
+```
+
+Confirm the exact operation target, protocol version, response shape and error
+encoding against the pinned public contract/reference before building wire tests.
+A JSON body alone does not define an SDK-compatible endpoint.
+
+### 31.3 Provider design
+
+The provider owns table/key/type/condition semantics. Its state design must specify:
+
+- How account + region + table name maps to a unique table.
+- How a typed primary key is encoded without collisions.
+- Whether number strings are preserved/canonicalized and how equality works;
+  do not convert decimal money to binary floating point casually.
+- How item type/size/key validation works before mutation.
+- How a condition and its write execute atomically under concurrent requests.
+- How deletion, restart and import/export treat table contents.
+- Which capacity/status fields are simulation/metadata rather than enforced limits.
+
+A separate expression evaluator can start with only the promised condition,
+rejecting other expressions. It can later expand without duplicating table storage.
+A separate storage adapter can handle bytes/transactions without knowing the full
+DynamoDB API language.
+
+Do not put this new provider's state into the existing shared JSON document
+without updating validation and migration. Unknown root fields are rejected by
+today's portability code. If a new storage layout is chosen, define how snapshots,
+fixtures and restart interact with it.
+
+### 31.4 Integration checklist against today's source
+
+| Boundary | Contributor change |
+| --- | --- |
+| Provider registration | Add an explicit operation adapter/factory and supported operation metadata. |
+| HTTP protocol | Recognize the verified DynamoDB target/JSON contract and encode its errors/results. |
+| Request context | Carry principal, account/region and request ID; do not hardcode a second unrelated identity path. |
+| IAM | Evaluate the intended table ARN/action; denied requests cannot write an item. |
+| Faults/traces | Add the service to allowed tooling scope; instrument actual operations. |
+| State | Add schemas, migration and export/import behavior for table/items. |
+| CLI | Add command flags and typed JSON/file input; reject unsupported inputs clearly. |
+| CI | Extend the current s3/sqs-only dependency/seed schema intentionally; keep version-1 config behavior compatible. |
+| Dashboard | Add a table/item workflow only when the backend path works. |
+| Documentation | State exact key/type/condition limitations; provide the order-app scenario and cleanup. |
+
+These changes belong together in an integrated feature. A separate backend PR
+can land first, but the provider is not usable until the entry points and shared
+boundaries are connected.
+
+### 31.5 Tests that prove the slice
+
+| Test | Required outcome |
+| --- | --- |
+| Create + describe + list | Correct table identity/schema and documented lifecycle state; persisted listing. |
+| Put + get | Exact typed order values return through the public endpoint. |
+| Duplicate conditional insert | Rejected without replacing the existing order. |
+| Concurrent conditional inserts | Exactly the intended write wins; no check-then-write race. |
+| Wrong key/type/unsupported option | Explicit documented error; no partial state. |
+| Missing table/item | Missing table error; missing item response matches the verified contract. |
+| Denied principal | No disclosure/mutation outside the supported permission contract. |
+| Restart | Previously inserted order remains available in the same scope. |
+| Isolation | Same table/key in another account/region does not see or overwrite the original, if isolation is promised. |
+| Fixture transfer | Round-trip supported data or reject an explicitly unsupported portability mode safely. |
+| Failure injection | Failed write leaves old data intact and is visible in diagnostics. |
+| Delete/cleanup | Removing the test table removes only its owned data. |
+
+An isolated unit test of a dictionary is useful but insufficient. At least one
+SDK/CLI or raw protocol test must cross the actual HTTP route and serializer.
+Runtime tests should compare contents/results, not only HTTP 200.
+
+### 31.6 Add-ons after the core slices
+
+| Add-on | Owner/dependencies | Additional evidence |
+| --- | --- | --- |
+| Sort keys and richer Query/Scan | DynamoDB provider + expression/storage support. | Key ordering, filters, pagination and projections produce correct rows. |
+| Secondary indexes | DynamoDB provider, reusable index storage. | Index creation/backfill/write updates and index queries are consistent under the stated model. |
+| Transactions | Provider coordinator + transaction-capable storage. | Multi-item operations are atomic under failure/concurrency. |
+| Streams | DynamoDB change-capture adapter + stream subsystem. | Writes emit ordered scoped records; checkpoints survive restart. |
+| TTL | DynamoDB configuration + scheduler. | Expiration matches the documented asynchronous/local timing model. |
+| Backup | DynamoDB data adapter + shared backup coordinator. | Actual table/item contents restore correctly. |
+| Encryption | Storage/KMS integration. | Actual encryption/decryption/key-state behavior, not a metadata flag. |
+
+An independent stream backend can be built before DynamoDB Streams, but its
+presence does not implement DynamoDB's stream API. The same distinction applies
+to shared backups and encryption.
+
+## 32. Platform features contributors can build independently
+
+These capabilities are part of the product roadmap even though they are not
+individual AWS tiles. Core and add-on scope below is proposed, not current syntax.
+
+### 32.1 CI pipeline evolution
+
+**Current baseline:** one application command, s3/sqs dependencies, fixtures,
+policies/seeding and diagnostics. A script can run many checks; native stage
+configuration is not implemented.
+
+**Next core contract:** named steps with explicit argv, working directory,
+environment, timeout, dependency and required/optional result semantics. Define
+validation and backward compatibility before introducing a configuration version.
+Do not silently reinterpret existing version-1 localcloud.toml files.
+
+The runner/controller can be developed separately from cloud providers. It should
+publish a stable run/step/artifact result contract that the CLI/dashboard consumes.
+
+Required acceptance scenarios:
+
+1. Formatting failure blocks dependent tests/build/deployment as configured.
+2. Independent steps may proceed only under the declared dependency rules.
+3. Timeout/cancellation handles child processes and reports partial artifacts.
+4. A rerun starts from the documented environment/fixture rather than leaked state.
+5. The recorded executable/argv and artifact identity match what actually ran.
+
+Later in-runner add-ons: matrices, cache policies, richer reports, remote workers,
+conditional execution and configurable parallelism. These are pipeline features,
+not new AWS services.
+
+### 32.2 CD controller
+
+**Core contract:** deploy an already identified artifact to one explicit local
+Docker or Kubernetes target, wait for readiness, run health/smoke checks, record
+success/failure and restore the previous release when the chosen rollback policy
+requires it.
+
+Independent components: artifact store, target adapters, health checker and release
+state store. The application provider need not know the entire pipeline language.
+
+A proposed release record should identify environment, target, immutable artifact
+reference/digest, configuration references, previous release, timestamps, health
+result and rollback outcome. Secrets should be referenced through an appropriate
+secret mechanism, not copied into public run reports.
+
+Acceptance: deploy version A, attempt unhealthy B, observe failure, and verify
+requests still reach restored A. A successful kubectl/docker command alone is not
+a passing rollout.
+
+Later in-controller add-ons: promotion without rebuild, release locks, more rollout
+strategies, approvals where configured, environment comparisons and additional
+target adapters. New configuration/commands must be labelled proposed until their
+parser, controller and tests exist.
+
+### 32.3 Cloud Pods / snapshot registry
+
+**Core contract:** save/version a supported portable state bundle, store it under
+an identified owner/scope, fetch it with access checks and restore atomically.
+Declare excluded runtimes and compatibility versions.
+
+Independent components: object store/registry, access-control service and
+provider-specific snapshot adapters. A shared registry does not automatically
+make every live database/container portable.
+
+Acceptance: publish a fixture, load it into a separate supported environment and
+compare actual resource data; reject corrupted, unauthorized and incompatible
+bundles without replacing the destination state.
+
+Later add-ons: diffs, retention, sharing workflows, compression/deduplication and
+additional runtime/provider adapters.
+
+### 32.4 Extensions and plugins
+
+**Core contract:** a versioned interface for provider/hook/runtime capabilities;
+installation/discovery, enable/disable and lifecycle/error reporting. Document
+trust and compatibility boundaries before loading external code.
+
+Independent components: loader/registry and packaging/catalogue tooling. Current
+internal gateway hook lists are a possible integration point, not already this
+public extension contract.
+
+Acceptance: load a test extension with an agreed capability, invoke it through
+the normal context, unload/disable it safely, and reject incompatible versions.
+
+Later add-ons: dependency resolution, catalogue UI, more hook categories and
+additional packaging/distribution options.
+
+### 32.5 Inspector, graph and observability
+
+**Core contract:** correlate actual operations, resource relationships, runtime
+states and failures with request/trace identities; publish a bounded redacted
+query contract.
+
+Independent components: event/trace store, collectors and graph/analysis engine.
+Providers supply events rather than each inventing a separate inspector database.
+
+Acceptance: an app sends an event that triggers a worker and writes an object;
+inspection can explain the observed calls and failures without guessing causality
+from timestamps alone.
+
+Later add-ons: richer visualizations, query language, performance aggregation,
+export/integrations and broader cross-service correlation.
+
+### 32.6 Resource Browser expansion
+
+**Core contract:** connection/authentication, service capability discovery and
+backend-backed resource operations with useful loading/error/empty states.
+
+Independent components: reusable API client and editor components. The UI does
+not own provider state or simulate backend success with local-only rows.
+
+Acceptance: a newly supported operation changes backend state and remains visible
+after refresh/reconnect; denied/invalid requests display their actual result.
+
+Later add-ons: bulk actions, schema-assisted editors, dependency navigation,
+search and richer job/pipeline views.
+
+### 32.7 Kubernetes operator and execution pack
+
+**Core contract:** reconcile an owned LocalCloud instance into its supported
+Deployment/Service/storage, report readiness, handle configuration changes and
+perform declared deletion/retention behavior.
+
+Independent components: operator, workload executor and cluster provisioner are
+separate contracts. An EKS provider consumes a cluster provisioner; it is not
+implemented merely by adding another LocalCloudInstance CRD field.
+
+Acceptance: create/update/delete an instance in a disposable namespace; verify
+endpoint, retained/deleted state, ownership conflict handling and bounded job logs.
+
+Later add-ons: more executor integrations, upgrade/recovery behavior, placements,
+additional storage/network configurations and richer status conditions.
+
+### 32.8 Chaos and fault-injection platform
+
+**Core contract:** scoped configured faults with observable outcomes, controlled
+lifecycle and reliable removal/recovery. Existing API faults are the baseline.
+
+Independent components: fault scheduler, provider adapters and an optional network
+fault backend. Any FIS-compatible API is its own explicitly scoped provider work.
+
+Acceptance: inject an intended failure, assert the app's retry/error behavior,
+remove the fault and verify recovery; unrelated workloads and management access
+remain within the declared scope.
+
+Later add-ons: coordinated scenarios, more protocols/resources and network/compute
+faults supported by an appropriate isolated runtime adapter.
+
+## 33. Contribution sequencing, handoff and release claims
+
+### 33.1 Recommended work tracks
+
+These are suggested dependency tracks, not promised dates or a new implementation
+started by this documentation update.
+
+| Track | Build first | Integrate next | Defer as explicit add-ons |
+| --- | --- | --- | --- |
+| Engine/identity | Context isolation, schema migration and policy/session contracts. | IAM/STS and EC2/other workload identity delivery. | Policy-language breadth and additional federation mechanisms. |
+| Application data | Expand tested S3/SQS contracts; implement bounded DynamoDB core. | EventBridge/SNS/Pipes and application workflows. | Broader indexes, streams and advanced delivery modes. |
+| Compute | Stable owned execution, storage and networking contracts. | EC2 critical integrations, Lambda and ECS slices. | VM/Windows and alternate backend breadth. |
+| Kubernetes | Reconciled instance and executor contracts. | Cluster provisioner, then EKS provider workflow. | More managed-node/add-on/configuration APIs. |
+| Databases/analytics | One usable data runtime and lifecycle contract. | RDS/cache/search/document/graph adapters; catalog/query integrations. | Engines, topologies, failover and dialect breadth. |
+| Developer platform | Reliable CI/artifact/result contracts. | CD rollback/health workflow and browser integration. | Remote workers, complex rollout strategies and collaboration. |
+
+Do not postpone shared isolation/state/identity rules and then claim a secure
+multi-user service. Conversely, do not force every provider to wait for a Windows
+VM executor when its initial local workflow only needs a container or pure state.
+
+### 33.2 What to include in a contribution handoff
+
+- The problem, service/component owner and exact core slice implemented.
+- Dependencies consumed/provided, their versions and supported capabilities.
+- Operations/fields/errors and intentional reference differences.
+- Schema/migration and runtime ownership/cleanup decisions.
+- Tests actually executed, environment requirements and observed outcomes.
+- A clean-start walkthrough, expected results, failure scenario and cleanup.
+- Known unsupported behavior and the next in-provider add-ons.
+
+Tests reported as passed must actually have run. Distinguish direct-unit tests,
+HTTP/SDK integration tests and actual Docker/cluster/data-engine execution.
+A mocked runtime cannot prove real startup, networking or storage behavior.
+
+### 33.3 Feature-state labels
+
+| Label | What it means |
+| --- | --- |
+| Proposed | Design/roadmap only; no runnable guarantee. |
+| Modelled | Shapes or schemas exist; behavior is not established. |
+| Implemented subset | Selected handlers and behavior exist with explicit limits. |
+| Integration verified | The stated public-endpoint scenario passed in the named environment. |
+| Runtime verified | The stated actual backend/packet/data execution was observed. |
+| Reference compared | Selected scenarios were compared against an identified reference, with differences retained. |
+
+These are evidence scopes, not a single ladder where one passing test implies
+all later labels. A pure metadata service may not need a container runtime; a
+database-backed service does. Record the relevant dimensions independently.
+
+### 33.4 Before calling a service complete
+
+State what “complete” refers to: the agreed core contract, a selected application's
+requirements, or a comprehensive external compatibility target. The first two
+can be released in useful slices. The last requires a substantially broader
+inventory and verification effort.
+
+For the agreed core contract, reviewers should be able to answer:
+
+1. What can an application really do now?
+2. Which dependencies must run, and how are they started/configured?
+3. What happens on invalid input, denied access, restart and partial failure?
+4. Which data/resources remain after deletion, and why?
+5. What is optional, what is still missing, and which component owns it?
+6. Can another contributor reproduce the acceptance scenario from the docs?
+
+Use this handbook for contributor context, the service roadmap for the overall
+catalogue, and the feature ledger/release evidence for what is actually available.
+Future implementation remains a separate task requiring the user's next direction.

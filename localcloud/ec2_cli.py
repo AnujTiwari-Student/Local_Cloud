@@ -15,7 +15,11 @@ def flag(name):
 
 def register(group, operation):
     for name, fields in PARAMETERS.items():
-        command = operation(group, flag(name))
+        if name in ('GetEbsEncryptionByDefault', 'EnableEbsEncryptionByDefault', 'DisableEbsEncryptionByDefault'):
+            command = operation(group, flag(name), help='Manage the emulated EBS encryption-default flag',
+                                description='Manages an emulated default flag. This setting does not encrypt local file storage.')
+        else:
+            command = operation(group, flag(name))
         command.set_defaults(ec2_infrastructure_operation=name)
         shape = MODEL['shapes'][MODEL['operations'][name]['input']]
         for field in sorted(fields):

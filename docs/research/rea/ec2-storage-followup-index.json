@@ -1,0 +1,42 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "aws_operations": 100,
+  "unit_tests_passed": 226,
+  "live_checks_passed": 10,
+  "bundle_records": 11,
+  "bundle_session_unknowns": 4,
+  "evidence": {
+    "sdk_shapes": "ev_d609225560565d4f8f6512b67d2d28d78094748af30a295763f44b7d1c731420",
+    "wire": "ev_c1162bdb20b2a16c0667aaa47ea951758fba9b2e915e3cd8ad1c8ca90ff1783b",
+    "batch": "ev_3c83c780c7a727b77537d672d941c45e6b56d108fdf05d51939e7660266236ac",
+    "tests": "ev_4ffc460d7e1e3971b6320529fee100da6e97816702a6a0df6a5f1661bd47ee3c",
+    "cleanup_and_schema": "ev_b1b9076b9a5f37c96c723f64854df230b6e498669e4cd0a98d606c1e92bd6f27",
+    "reference_encryption": "ev_7d1ac237d54c3ee34ee2771780a60cd3f9efcd469eb9d088836887d1886a660b",
+    "reference_batch": "ev_c3039b9f2464728b7f924f1de903e7050907daede8ef0067926349bff94fcc6a"
+  },
+  "bundle_sha256_uncompressed": "c643184f8ef93540155c0737b4de3cda9e2452ce0e0f2e724943e25d6786d634",
+  "files": {
+    "localcloud/ec2-model.json": "bb15fe370b4682fc444e2a51d18b7b40ffa860c54520ba51058c456b9201a5e0",
+    "localcloud/ec2_cli.py": "e946ea15802f2b0ac4f942a59823fd22122c8f49befddcb56c2ec7962d9f9abd",
+    "localcloud/ec2_infrastructure.py": "75091f1b8836779ab1fcc09bce783e7007be8a981a6bf97b3f6f577b14525af9",
+    "localcloud/ec2_storage.py": "3a72be0105cf69f6db654118e96060cd163397a121ee82b405d5125ccb938484",
+    "localcloud/ec2_ebs_defaults.py": "c227e16828a0e0a520a6b3437cc7bca7b8872eb79ca5d69d6b36a1d31ba77c06",
+    "localcloud/ec2_runtime.py": "f0b4b5698fd5198dd4eef7afa93c51d5b4f694f64bba9a53a795059a69f0131a",
+    "localcloud/ec2_storage_journal.py": "ba6019d28814aa0ea47b7be4c1045c25e9578c6e877721228f8d06174ed54beb",
+    "tests/test_ec2_ebs_defaults.py": "59a0c4ba3beff5f3de1b134f7dc1026dc96526b0d044752450dac21964558cab",
+    "tests/test_ec2_storage_history.py": "67c9adec05ead55d3630d259811c4712a96879aec9fa79ae6356b5b2250ebf80",
+    "tests/test_ec2_snapshot_group.py": "c396237c19301c684ce1246f8a58b480b64f04ec99e4c1aa378432660c7f8b2e",
+    "scripts/ec2-storage-wire-check.py": "b135aeb85754560952f8fcc61f546aef7c949f53db1a6349b276af42abed8a9f",
+    "scripts/ec2-storage-batch-live.py": "ce3fcf65f6aba4492e2c0f474de14bfbab90372b8acde9b3215daa4587bb7aed",
+    "docs/REA_EC2_STORAGE_FOLLOWUP.md": "13cd7637cccfeff3258b7b2a916b3b4289f0ef49fddf2c6b1ec1915b7b140be3",
+    "docs/research/rea/ec2-storage-followup-wire-localcloud.json": "733bdf04722ec246a2030cbd379eff230d2aaba49efb11b4b9bf8a87eca67c38",
+    "docs/research/rea/ec2-storage-followup-batch-localcloud.json": "5cf119e27141d4250144e7889f097f23ea839c1f461d134e80fa80ae27049606"
+  },
+  "limits": [
+    "Encryption-default APIs emulate a flag; they do not encrypt Docker file storage.",
+    "Reference encryption/resize/batch probes use mock API behavior. Earlier Docker guest evidence remains separate.",
+    "LocalCloud intentionally validates supported inputs more strictly and copies source tags that the reference ignored.",
+    "Batch quiescing prevents guest writes between copies; it is not application-transaction or external-writer atomicity.",
+    "Raw disks, EBS-boot restoration, filesystem growth, real quotas and at-rest encryption remain unsupported."
+  ]
+}

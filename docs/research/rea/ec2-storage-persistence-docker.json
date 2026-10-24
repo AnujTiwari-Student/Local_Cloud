@@ -1,0 +1,591 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "backend": "docker",
+  "reference_name": "localcloud-rea-storage-persist-29b382d2c4",
+  "state_volume": "localcloud-rea-storage-persist-29b382d2c4-data",
+  "steps": [
+    {
+      "phase": "initial",
+      "rows": [
+        {
+          "case": "create-volume",
+          "operation": "create_volume",
+          "parameters": {
+            "AvailabilityZone": "us-east-1a",
+            "Size": 1
+          },
+          "status": 200,
+          "result": {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-de547798eeddfd80d",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "creating",
+            "CreateTime": "2026-10-23 15:51:35+00:00",
+            "Encrypted": false
+          }
+        },
+        {
+          "case": "create-encrypted",
+          "operation": "create_volume",
+          "parameters": {
+            "AvailabilityZone": "us-east-1a",
+            "Size": 1,
+            "Encrypted": true
+          },
+          "status": 200,
+          "result": {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-f6edfc2afca8d9b92",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "creating",
+            "CreateTime": "2026-10-23 15:51:36+00:00",
+            "Encrypted": true,
+            "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/d96ad704-cd80-4083-af36-d2343c267794"
+          }
+        },
+        {
+          "case": "create-snapshot",
+          "operation": "create_snapshot",
+          "parameters": {
+            "VolumeId": "vol-de547798eeddfd80d"
+          },
+          "status": 200,
+          "result": {
+            "Tags": [],
+            "SnapshotId": "snap-5d166ae461d6e1696",
+            "VolumeId": "vol-de547798eeddfd80d",
+            "State": "pending",
+            "StartTime": "2026-10-23 15:51:36+00:00",
+            "Progress": "60%",
+            "OwnerId": "000000000000",
+            "Description": "",
+            "VolumeSize": 1,
+            "Encrypted": false
+          }
+        }
+      ]
+    },
+    {
+      "phase": "guest-before-controller-restart",
+      "instance": "i-238b3da4f1eee6ab2",
+      "guest_id": "920731f0eb1ce0bffb82a178452b54de4c7278359072736ec7db97535e5c4780",
+      "marker_exit": 0,
+      "marker": "survives-controller-restart\n",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "rows": [
+        {
+          "case": "run-instance",
+          "operation": "run_instances",
+          "parameters": {
+            "ImageId": "ami-61ad6e59d7b0",
+            "InstanceType": "t3.micro",
+            "MinCount": 1,
+            "MaxCount": 1
+          },
+          "status": 200,
+          "result": {
+            "ReservationId": "r-e04d6e95e9b3b2d6a",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-23 15:51:37+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-423801757db00f9c5"
+                    }
+                  }
+                ],
+                "ClientToken": "b6f26bad-5633-4168-bca7-d8c97e271c06",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-186-161.ec2.internal",
+                      "PublicIp": "54.214.186.161"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-23 15:51:37+00:00",
+                      "AttachmentId": "eni-attach-36624c31ef3d9dedd",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-82590f39d256e3947",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:11202x:302x:3602x",
+                    "NetworkInterfaceId": "eni-fe0a91be6601f1549",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-228-131-245.ec2.internal",
+                    "PrivateIpAddress": "10.228.131.245",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-54-214-186-161.ec2.internal",
+                          "PublicIp": "54.214.186.161"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.228.131.245"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-f6d900695e1e3378d",
+                    "VpcId": "vpc-cce8da1d989876dd6",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-82590f39d256e3947",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-238b3da4f1eee6ab2",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 0,
+                  "Name": "pending"
+                },
+                "PrivateDnsName": "ip-10-228-131-245.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-23 15:51:37+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-f6d900695e1e3378d",
+                "VpcId": "vpc-cce8da1d989876dd6",
+                "PrivateIpAddress": "10.228.131.245",
+                "PublicIpAddress": "172.17.0.3"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "phase": "after-controller-restart",
+      "rows": [
+        {
+          "case": "describe-volume-after-restart",
+          "operation": "describe_volumes",
+          "parameters": {
+            "VolumeIds": [
+              "vol-de547798eeddfd80d",
+              "vol-f6edfc2afca8d9b92"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Volumes": [
+              {
+                "VolumeType": "gp2",
+                "VolumeId": "vol-de547798eeddfd80d",
+                "Size": 1,
+                "SnapshotId": "",
+                "AvailabilityZone": "us-east-1a",
+                "State": "available",
+                "CreateTime": "2026-10-23 15:51:35+00:00",
+                "Attachments": [],
+                "Encrypted": false
+              },
+              {
+                "VolumeType": "gp2",
+                "VolumeId": "vol-f6edfc2afca8d9b92",
+                "Size": 1,
+                "SnapshotId": "",
+                "AvailabilityZone": "us-east-1a",
+                "State": "available",
+                "CreateTime": "2026-10-23 15:51:36+00:00",
+                "Attachments": [],
+                "Encrypted": true,
+                "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/d96ad704-cd80-4083-af36-d2343c267794"
+              }
+            ]
+          }
+        },
+        {
+          "case": "describe-snapshot-after-restart",
+          "operation": "describe_snapshots",
+          "parameters": {
+            "SnapshotIds": [
+              "snap-5d166ae461d6e1696"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Snapshots": [
+              {
+                "Tags": [],
+                "SnapshotId": "snap-5d166ae461d6e1696",
+                "VolumeId": "vol-de547798eeddfd80d",
+                "State": "completed",
+                "StartTime": "2026-10-23 15:51:36+00:00",
+                "Progress": "100%",
+                "OwnerId": "000000000000",
+                "Description": "",
+                "VolumeSize": 1,
+                "Encrypted": false
+              }
+            ]
+          }
+        },
+        {
+          "case": "restore-volume-after-restart",
+          "operation": "create_volume",
+          "parameters": {
+            "AvailabilityZone": "us-east-1a",
+            "SnapshotId": "snap-5d166ae461d6e1696"
+          },
+          "status": 200,
+          "result": {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-abddb1612df2d25d4",
+            "Size": 1,
+            "SnapshotId": "snap-5d166ae461d6e1696",
+            "AvailabilityZone": "us-east-1a",
+            "State": "creating",
+            "CreateTime": "2026-10-23 15:51:46+00:00",
+            "Encrypted": false
+          }
+        },
+        {
+          "case": "grow-restored-volume",
+          "operation": "modify_volume",
+          "parameters": {
+            "VolumeId": "vol-abddb1612df2d25d4",
+            "Size": 2
+          },
+          "status": 200,
+          "result": {
+            "VolumeModification": {
+              "VolumeId": "vol-abddb1612df2d25d4",
+              "ModificationState": "modifying",
+              "TargetSize": 2,
+              "OriginalSize": 1,
+              "Progress": 0,
+              "StartTime": "2026-10-23 15:51:46+00:00"
+            }
+          }
+        },
+        {
+          "case": "describe-grown-volume",
+          "operation": "describe_volumes",
+          "parameters": {
+            "VolumeIds": [
+              "vol-abddb1612df2d25d4"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Volumes": [
+              {
+                "VolumeType": "gp2",
+                "VolumeId": "vol-abddb1612df2d25d4",
+                "Size": 2,
+                "SnapshotId": "snap-5d166ae461d6e1696",
+                "AvailabilityZone": "us-east-1a",
+                "State": "available",
+                "CreateTime": "2026-10-23 15:51:46+00:00",
+                "Attachments": [],
+                "Encrypted": false
+              }
+            ]
+          }
+        },
+        {
+          "case": "attach-restored-volume-after-restart",
+          "operation": "attach_volume",
+          "parameters": {
+            "VolumeId": "vol-abddb1612df2d25d4",
+            "InstanceId": "i-238b3da4f1eee6ab2",
+            "Device": "/dev/sdf"
+          },
+          "status": 200,
+          "result": {
+            "VolumeId": "vol-abddb1612df2d25d4",
+            "InstanceId": "i-238b3da4f1eee6ab2",
+            "Device": "/dev/sdf",
+            "State": "attaching",
+            "AttachTime": "2026-10-23 15:51:46+00:00"
+          }
+        },
+        {
+          "case": "describe-instance-after-restart",
+          "operation": "describe_instances",
+          "parameters": {
+            "InstanceIds": [
+              "i-238b3da4f1eee6ab2"
+            ]
+          },
+          "status": 200,
+          "result": {
+            "Reservations": [
+              {
+                "ReservationId": "r-e04d6e95e9b3b2d6a",
+                "OwnerId": "000000000000",
+                "Groups": [],
+                "Instances": [
+                  {
+                    "Architecture": "amd64",
+                    "BlockDeviceMappings": [
+                      {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                          "AttachTime": "2026-10-23 15:51:37+00:00",
+                          "DeleteOnTermination": true,
+                          "Status": "attached",
+                          "VolumeId": "vol-423801757db00f9c5"
+                        }
+                      },
+                      {
+                        "DeviceName": "/dev/sdf",
+                        "Ebs": {
+                          "AttachTime": "2026-10-23 15:51:46+00:00",
+                          "DeleteOnTermination": false,
+                          "Status": "attached",
+                          "VolumeId": "vol-abddb1612df2d25d4"
+                        }
+                      }
+                    ],
+                    "ClientToken": "b6f26bad-5633-4168-bca7-d8c97e271c06",
+                    "EbsOptimized": false,
+                    "Hypervisor": "xen",
+                    "NetworkInterfaces": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                          "PublicIp": "172.17.0.3"
+                        },
+                        "Attachment": {
+                          "AttachTime": "2026-10-23 15:51:37+00:00",
+                          "AttachmentId": "eni-attach-36624c31ef3d9dedd",
+                          "DeleteOnTermination": false,
+                          "DeviceIndex": 0,
+                          "Status": "attached",
+                          "NetworkCardIndex": 0
+                        },
+                        "Description": "Primary network interface",
+                        "Groups": [
+                          {
+                            "GroupId": "sg-82590f39d256e3947",
+                            "GroupName": "default"
+                          }
+                        ],
+                        "Ipv6Addresses": [],
+                        "MacAddress": "02:00:00:11202x:302x:3602x",
+                        "NetworkInterfaceId": "eni-fe0a91be6601f1549",
+                        "OwnerId": "000000000000",
+                        "PrivateDnsName": "ip-10-228-131-245.ec2.internal",
+                        "PrivateIpAddress": "10.228.131.245",
+                        "PrivateIpAddresses": [
+                          {
+                            "Association": {
+                              "IpOwnerId": "000000000000",
+                              "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                              "PublicIp": "172.17.0.3"
+                            },
+                            "Primary": true,
+                            "PrivateIpAddress": "10.228.131.245"
+                          }
+                        ],
+                        "SourceDestCheck": true,
+                        "Status": "in-use",
+                        "SubnetId": "subnet-f6d900695e1e3378d",
+                        "VpcId": "vpc-cce8da1d989876dd6",
+                        "InterfaceType": "interface"
+                      }
+                    ],
+                    "RootDeviceName": "/dev/sda1",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                      {
+                        "GroupId": "sg-82590f39d256e3947",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "SriovNetSupport": "simple",
+                    "StateReason": {
+                      "Code": "",
+                      "Message": ""
+                    },
+                    "VirtualizationType": "hvm",
+                    "HibernationOptions": {},
+                    "MetadataOptions": {
+                      "State": "applied",
+                      "HttpTokens": "optional",
+                      "HttpPutResponseHopLimit": 1,
+                      "HttpEndpoint": "enabled",
+                      "HttpProtocolIpv6": "disabled",
+                      "InstanceMetadataTags": "disabled"
+                    },
+                    "InstanceId": "i-238b3da4f1eee6ab2",
+                    "ImageId": "ami-61ad6e59d7b0",
+                    "State": {
+                      "Code": 16,
+                      "Name": "running"
+                    },
+                    "PrivateDnsName": "ip-10-228-131-245.ec2.internal",
+                    "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+                    "StateTransitionReason": "",
+                    "AmiLaunchIndex": 0,
+                    "ProductCodes": [],
+                    "InstanceType": "t3.micro",
+                    "LaunchTime": "2026-10-23 15:51:37+00:00",
+                    "Placement": {
+                      "GroupName": "",
+                      "Tenancy": "default",
+                      "AvailabilityZone": "us-east-1a"
+                    },
+                    "Monitoring": {
+                      "State": "disabled"
+                    },
+                    "SubnetId": "subnet-f6d900695e1e3378d",
+                    "VpcId": "vpc-cce8da1d989876dd6",
+                    "PrivateIpAddress": "10.228.131.245",
+                    "PublicIpAddress": "172.17.0.3"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "restored_volume": "vol-abddb1612df2d25d4",
+      "matching_guest_containers": [],
+      "guest_error": {
+        "type": "RuntimeError",
+        "message": "Expected exactly one matching guest after restart"
+      }
+    }
+  ],
+  "limits": [
+    "A volume encryption flag is not evidence of at-rest encryption.",
+    "No host block writes, actual size quota test, or performance benchmark.",
+    "One normal graceful controller restart, not crash/power-loss recovery."
+  ],
+  "cleanup_api": [
+    {
+      "case": "cleanup-instance",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-238b3da4f1eee6ab2"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-238b3da4f1eee6ab2",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-restored_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-abddb1612df2d25d4"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-de547798eeddfd80d"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-encrypted_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-f6edfc2afca8d9b92"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-5d166ae461d6e1696"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "logs": "2026-10-23T15:51:36.115  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.CreateSnapshot => 200\n2026-10-23T15:51:37.278  INFO --- [et.reactor-0] l.u.container_networking   : Determined main container network: bridge\n2026-10-23T15:51:37.279  INFO --- [et.reactor-0] l.u.container_networking   : Determined main container target IP: 172.17.0.2\n2026-10-23T15:51:37.832  INFO --- [et.reactor-0] l.p.c.s.e.vmmanager.docker : Instance i-238b3da4f1eee6ab2 will be accessible via SSH at: 127.0.0.1:22, 172.17.0.3:22\n2026-10-23T15:51:37.832  INFO --- [et.reactor-0] l.p.c.s.e.vmmanager.docker : Instance i-238b3da4f1eee6ab2 port mappings (container -> host): {'22/tcp': 22}\n2026-10-23T15:51:37.845  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RunInstances => 200\nLocalstack runtime received signal 15\n2026-10-23T15:51:38.265  INFO --- [ime-Shutdown] l.persistence.manager      : Saving state for ec2 took 246 ms\n2026-10-23T15:51:38.275  INFO --- [ime-Shutdown] l.runtime.shutdown         : [shutdown] Stopping all services\n\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\n2026-10-23T15:51:41.800  INFO --- [  MainThread] l.licensing.licensingv2    : Successfully activated cached license 3f469994-0b52-46d6-8e85-64da8dac5852:student from /var/lib/localstack/cache/license.json \ud83d\udd11\u2705\n2026-10-23T15:51:44.049  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: logodev ready at http://logodev.localhost.localstack.cloud:4566 -> 127.0.0.1:4115\n2026-10-23T15:51:44.051  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: posthog ready at http://posthog.localhost.localstack.cloud:4566 -> 127.0.0.1:4113\n2026-10-23T15:51:44.053  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: resend ready at http://resend.localhost.localstack.cloud:4566 -> 127.0.0.1:4114\n2026-10-23T15:51:44.057  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: stripe ready at http://stripe.localhost.localstack.cloud:4566 -> 127.0.0.1:4111\n2026-10-23T15:51:44.062  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: twilio ready at http://twilio.localhost.localstack.cloud:4566 -> 127.0.0.1:4112\n2026-10-23T15:51:44.311  WARN --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST load strategy: this strategy has known limitations to not restore state correctly for certain services\n2026-10-23T15:51:44.311  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering SCHEDULED save strategy\n2026-10-23T15:51:44.316  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-23T15:51:44.663  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\nReady.\n2026-10-23T15:51:46.512  INFO --- [et.reactor-0] l.persistence.manager      : Loading state for ec2 took 79 ms\n2026-10-23T15:51:46.651  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeVolumes => 200\n2026-10-23T15:51:46.659  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DescribeSnapshots => 200\n2026-10-23T15:51:46.667 ERROR --- [et.reactor-0] l.p.c.s.ec2.imds.core      : Error initialising IMDS: localstack-main\n2026-10-23T15:51:46.873  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.CreateVolume => 200\n2026-10-23T15:51:46.880  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.ModifyVolume => 200\n2026-10-23T15:51:46.884  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeVolumes => 200\n2026-10-23T15:51:46.888  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.AttachVolume => 200\n2026-10-23T15:51:46.897  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeInstances => 200\n2026-10-23T15:51:47.316  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.TerminateInstances => 200\n2026-10-23T15:51:47.319  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:51:47.322  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:51:47.325  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DeleteVolume => 200\n2026-10-23T15:51:47.328  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DeleteSnapshot => 200\n",
+  "reference_removed": true,
+  "guest_remaining": false,
+  "state_volume_removed": true
+}

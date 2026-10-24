@@ -1,5 +1,8 @@
 # Service implementation roadmap
 
+For detailed contributor contracts, all 51 service build cards and a worked
+implementation example, read [handbook chapters 26–33](HANDBOOK.md#26-contributor-guide-to-the-future-project).
+
 This roadmap covers all **51 service tiles** visible in the supplied LocalStack
 Resource Browser screenshot. It describes the proposed LocalCloud architecture,
 not verified LocalStack implementation details, paid-plan entitlements or a claim
@@ -67,7 +70,8 @@ being described as integrated, reliable services.
 
 An EKS provider, a generic Kubernetes executor and the LocalCloud Kubernetes
 operator are different components. An operator managing LocalCloud deployments
-does not by itself implement EKS or EC2 execution in Kubernetes.
+does not by itself implement EKS. EC2 execution now uses the separate
+[EC2 Kubernetes adapter](EC2_KUBERNETES.md), with readiness, lifecycle and PVC mounts.
 
 ## Management and governance — 6 services
 

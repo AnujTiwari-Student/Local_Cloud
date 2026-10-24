@@ -2,13 +2,16 @@
 
 Start with the **[complete handbook](HANDBOOK.md)**. It explains the project in
 plain language and walks through setup, application integration, local CI,
-EC2, Kubernetes, the core engine, development and troubleshooting.
+EC2, Kubernetes, the core engine, development and troubleshooting. Chapters 26–33
+define future contributor work: all 51 service build cards, core versus optional
+features, independent component contracts, acceptance tests and release criteria.
 
 ## Choose a guide
 
 | Need                                                | Guide                                                |
 | --------------------------------------------------- | ---------------------------------------------------- |
 | A complete introduction and working scenarios       | [Handbook](HANDBOOK.md)                              |
+| Build a future service, add-on or reusable backend | [Contributor chapters](HANDBOOK.md#26-contributor-guide-to-the-future-project) |
 | Short first-run steps                               | [Getting started](USAGE.md)                          |
 | Exact CLI command families                          | [CLI reference](CLI.md)                              |
 | Browser connection and resource controls            | [Dashboard](DASHBOARD.md)                            |
@@ -17,6 +20,10 @@ EC2, Kubernetes, the core engine, development and troubleshooting.
 | Current EC2 implementation and limits               | [EC2 release checkpoint](EC2_RELEASE.md)             |
 | EC2 networking, storage, SSH and metadata           | [Infrastructure](EC2_INFRASTRUCTURE.md)              |
 | Actual networking observations and differences      | [Networking REA report](EC2_NETWORKING.md)           |
+| Actual Docker storage observations and differences | [Storage REA report](REA_EC2_STORAGE.md)             |
+| EBS defaults, history and batch consistency          | [Storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md)       |
+| EC2 mock, Docker and Kubernetes executor evidence   | [Executor REA report](REA_EC2_EXECUTORS.md)           |
+| Run EC2 guests and persistent data in Kubernetes    | [EC2 Kubernetes guide](EC2_KUBERNETES.md)             |
 | Template/version workflow                           | [Launch templates](EC2_TEMPLATES.md)                 |
 | Operator, persistent instances and Kubernetes Jobs  | [Kubernetes](KUBERNETES.md)                          |
 | Direct HTTP integration                             | [HTTP reference](HTTP_API.md)                        |

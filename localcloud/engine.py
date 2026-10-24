@@ -39,7 +39,7 @@ def wildcard(value, pattern):
 
 
 class Engine:
-    def __init__(self, path, endpoint='http://127.0.0.1:4566', iam_mode='off', ec2_images=None):
+    def __init__(self, path, endpoint='http://127.0.0.1:4566', iam_mode='off', ec2_images=None, ec2_kubernetes=None):
         if iam_mode not in ('off', 'soft', 'enforce'):
             raise ValueError('Invalid IAM mode')
         self.endpoint, self.iam_mode = endpoint.rstrip('/'), iam_mode
@@ -54,24 +54,32 @@ class Engine:
         from .tooling import Tooling
         self.tools = Tooling(self)
         from .ec2 import EC2
-        self.ec2 = EC2(self, ec2_images)
+        self.ec2 = EC2(self, ec2_images, kubernetes=ec2_kubernetes)
         from .gateway import Gateway
         self.gateway = Gateway(self)
+        self.ec2.runtime.storage_journal.recover()
 
     @contextmanager
     def transaction(self):
-        with self.lock, self.db:
-            state = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+        with self.lock:
             try:
-                yield state
-            except Error as error:
-                if error.code == 'AccessDenied':
+                with self.db:
+                    state = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+                    try:
+                        yield state
+                    except Error as error:
+                        if error.code == 'AccessDenied':
+                            self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
+                            self.db.commit()
+                        raise
                     self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
-                    self.db.commit()
-                raise
-            self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
+            finally:
+                # SQLite has settled before recovery inspects committed resource
+                # references or writes through its independent durable journal.
+                self.ec2.runtime.storage_journal.recover()
 
     def close(self):
+        self.ec2.runtime.storage_journal.close()
         self.db.close()
 
     def authorize(self, state, principal, action, resource):
@@ -117,7 +125,7 @@ class Engine:
     def snapshot(self, name, restore=False):
         valid_name(name)
         if self.ec2.images:
-            raise Error('UnsupportedOperation', 'Snapshots are disabled in Docker EC2 mode', 409)
+            raise Error('UnsupportedOperation', 'Snapshots are disabled in container EC2 mode', 409)
         with self.lock, self.db:
             if restore:
                 row = self.db.execute('SELECT body FROM snapshots WHERE name=?', (name,)).fetchone()
@@ -145,7 +153,8 @@ class Engine:
                     'buckets': [{'name': n, 'objects': len(b)} for n, b in s['buckets'].items()],
                     'snapshots': [{'name': n, 'created': t} for n, t in self.db.execute('SELECT name,created FROM snapshots ORDER BY created DESC')],
                     'instances': [self.ec2.public(i) for i in s.get('instances', {}).values()],
-                    'principals': list(s['policies']), 'audit': s['audit']}
+                    'principals': list(s['policies']), 'audit': s['audit'],
+                    'storageRecovery': copy.deepcopy(self.ec2.runtime.storage_journal.last_recovery)}
 
     def sqs(self, operation, args, principal='test'):
         name = args.get('QueueName', '')

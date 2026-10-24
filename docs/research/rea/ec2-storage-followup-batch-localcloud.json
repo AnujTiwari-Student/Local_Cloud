@@ -1,0 +1,15 @@
+{
+  "evidence_id": "ev_3c83c780c7a727b77537d672d941c45e6b56d108fdf05d51939e7660266236ac",
+  "passed": true,
+  "checks": [
+    "one-pause-window-across-both-volume-copies",
+    "both-snapshots-contain-real-volume-file-bytes",
+    "batch-preserves-caller-owned-pause",
+    "interrupted-batch-removes-child-helper-and-resumes-parent-writer",
+    "interrupted-batch-rolls-back-new-snapshots-and-preserves-committed-copies"
+  ],
+  "cleanup_completed": true,
+  "pending_storage_operations": 0,
+  "owned_volumes_remaining": [],
+  "owned_helpers_remaining": []
+}

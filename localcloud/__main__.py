@@ -86,7 +86,7 @@ class Handler(BaseHTTPRequestHandler):
                 executor = getattr(self.server, 'executor', None)
                 overview['instanceName'] = getattr(self.server, 'instance_name', 'localcloud')
                 overview['services'] = ['ec2', 's3', 'sqs']
-                overview['ec2Backend'] = 'docker' if engine.ec2.images else 'mock'
+                overview['ec2Backend'] = engine.ec2.backend
                 overview['ec2Images'] = [{'ImageId': ami, 'DockerImage': image} for ami, image in sorted(engine.ec2.images.items())]
                 overview['executor'] = executor is not None
                 overview['workloadImages'] = sorted(executor.images) if executor is not None else []
@@ -213,8 +213,10 @@ def main(argv=None):
     parser.add_argument('--workload-image', action='append', default=[], help='Exact allowed workload image; repeat to allow more')
     parser.add_argument('--instance-name', default='localcloud')
     parser.add_argument('--instance-uid', help='Optional LocalCloudInstance UID for workload ownership')
-    parser.add_argument('--ec2-image', action='append', default=[], metavar='AMI=DOCKER_IMAGE', help='Enable Docker EC2 with an explicit image mapping; repeatable')
-    parser.add_argument('--ec2-helper-image', help='Built LocalCloud Docker image for managed volumes and IMDS')
+    parser.add_argument('--ec2-executor', choices=['docker', 'kubernetes'], default='docker', help='Runtime for allowlisted EC2 images; default docker')
+    parser.add_argument('--ec2-kube-image-pull-policy', choices=['Always', 'IfNotPresent', 'Never'], default='IfNotPresent')
+    parser.add_argument('--ec2-image', action='append', default=[], metavar='AMI=CONTAINER_IMAGE', help='Enable EC2 execution with an explicit image mapping; repeatable')
+    parser.add_argument('--ec2-helper-image', help='LocalCloud image for Docker helpers or Kubernetes metadata sidecars')
     parser.add_argument('--ec2-imds', action='store_true', help='Enable per-instance metadata at 169.254.169.254 using the helper image')
     parser.add_argument('--ec2-guest-mode', action='store_true', help='Opt in to root/writable EC2 guests; KeyName starts preinstalled OpenSSH in the image')
     args = parser.parse_args(argv)
@@ -228,7 +230,11 @@ def main(argv=None):
             parser.error('--ec2-image must be AMI=DOCKER_IMAGE')
         ec2_images[ami] = image
     if ec2_images and not management_token:
-        parser.error('Docker EC2 requires LOCALCLOUD_MANAGEMENT_TOKEN')
+        parser.error('EC2 execution requires LOCALCLOUD_MANAGEMENT_TOKEN')
+    if args.ec2_executor == 'kubernetes' and not ec2_images:
+        parser.error('Kubernetes EC2 requires at least one --ec2-image mapping')
+    if args.ec2_executor == 'kubernetes' and (args.ec2_imds or args.ec2_guest_mode):
+        parser.error('Kubernetes EC2 does not support Docker --ec2-imds or --ec2-guest-mode')
     if args.ec2_imds and (not ec2_images or not args.ec2_helper_image):
         parser.error('--ec2-imds requires --ec2-image and --ec2-helper-image')
     if args.executor == 'kubernetes' and (not management_token or not args.workload_image):
@@ -239,7 +245,15 @@ def main(argv=None):
             parser.error('Public endpoint must be an HTTP(S) origin without credentials, path or query')
     Path(args.data).parent.mkdir(parents=True, exist_ok=True)
     endpoint = args.public_endpoint or f'http://{args.host}:{args.port}'
-    engine = Engine(args.data, endpoint, args.iam, ec2_images)
+    ec2_kubernetes = None
+    if args.ec2_executor == 'kubernetes':
+        from .kube import KubeClient, dns_name
+        try:
+            ec2_kubernetes = {'client': KubeClient(args.kube_api_server), 'namespace': dns_name(args.kube_namespace),
+                              'helper_image': args.ec2_helper_image, 'image_pull_policy': args.ec2_kube_image_pull_policy}
+        except (Error, ValueError, OSError) as error:
+            parser.error(str(error))
+    engine = Engine(args.data, endpoint, args.iam, ec2_images, **({'ec2_kubernetes': ec2_kubernetes} if ec2_kubernetes else {}))
     engine.ec2.runtime.helper_image = args.ec2_helper_image
     engine.ec2.runtime.imds = args.ec2_imds
     engine.ec2.runtime.guest_mode = args.ec2_guest_mode

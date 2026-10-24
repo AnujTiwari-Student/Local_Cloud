@@ -1,0 +1,710 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "executor": "mock",
+  "scope": "Metadata and validation only; no encryption or raw-device claim",
+  "exit": 0,
+  "records": [
+    {
+      "case": "initial-encryption-default",
+      "operation": "get_ebs_encryption_by_default",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "EbsEncryptionByDefault": false
+      }
+    },
+    {
+      "case": "initial-default-key",
+      "operation": "get_ebs_default_kms_key_id",
+      "parameters": {},
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The get_ebs_default_kms_key_id action has not been implemented"
+      }
+    },
+    {
+      "case": "unencrypted-default",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-8db7c13559d805a48",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "enable-default-encryption",
+      "operation": "enable_ebs_encryption_by_default",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "EbsEncryptionByDefault": true
+      }
+    },
+    {
+      "case": "enabled-encryption-default",
+      "operation": "get_ebs_encryption_by_default",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "EbsEncryptionByDefault": true
+      }
+    },
+    {
+      "case": "implicit-after-enable",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-71e9c51a539e3d05f",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "explicit-false-after-enable",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "Encrypted": false
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-3d0855f481d210b86",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "set-default-key",
+      "operation": "modify_ebs_default_kms_key_id",
+      "parameters": {
+        "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/11111111-2222-3333-4444-555555555555"
+      },
+      "status": 500,
+      "error": {
+        "Code": "InternalError",
+        "Message": "exception while calling ec2.ModifyEbsDefaultKmsKeyId: '11111111-2222-3333-4444-555555555555'"
+      }
+    },
+    {
+      "case": "modified-default-key",
+      "operation": "get_ebs_default_kms_key_id",
+      "parameters": {},
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The get_ebs_default_kms_key_id action has not been implemented"
+      }
+    },
+    {
+      "case": "create-local-kms-key",
+      "operation": "kms.create_key",
+      "status": 200,
+      "result": {
+        "KeyId": "e961e4ae-5a45-4129-b655-20f71436408e",
+        "Arn": "arn:aws:kms:us-east-1:000000000000:key/e961e4ae-5a45-4129-b655-20f71436408e"
+      }
+    },
+    {
+      "case": "set-valid-default-key",
+      "operation": "modify_ebs_default_kms_key_id",
+      "parameters": {
+        "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/e961e4ae-5a45-4129-b655-20f71436408e"
+      },
+      "status": 500,
+      "error": {
+        "Code": "InternalError",
+        "Message": "exception while calling ec2.ModifyEbsDefaultKmsKeyId: 'e961e4ae-5a45-4129-b655-20f71436408e'"
+      }
+    },
+    {
+      "case": "valid-default-key-read",
+      "operation": "get_ebs_default_kms_key_id",
+      "parameters": {},
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The get_ebs_default_kms_key_id action has not been implemented"
+      }
+    },
+    {
+      "case": "implicit-after-valid-default-key",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-1e228fe0b7b2f733c",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "cleanup-local-kms-key",
+      "operation": "kms.schedule_key_deletion",
+      "status": 200
+    },
+    {
+      "case": "implicit-with-default-key",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-69d9f814a793f8e2a",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "explicit-key-encrypted",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "Encrypted": true,
+        "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-bdfbd371d96c5fced",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+      }
+    },
+    {
+      "case": "explicit-key-unencrypted",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "Encrypted": false,
+        "KmsKeyId": "alias/rea-key"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidParameterDependency",
+        "Message": "The parameter [KmsKeyId] requires the parameter Encrypted to be set."
+      }
+    },
+    {
+      "case": "reset-default-key",
+      "operation": "reset_ebs_default_kms_key_id",
+      "parameters": {},
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The reset_ebs_default_kms_key_id action has not been implemented"
+      }
+    },
+    {
+      "case": "reset-key-read",
+      "operation": "get_ebs_default_kms_key_id",
+      "parameters": {},
+      "status": 501,
+      "error": {
+        "Code": "InternalFailure",
+        "Message": "The get_ebs_default_kms_key_id action has not been implemented"
+      }
+    },
+    {
+      "case": "disable-default-encryption",
+      "operation": "disable_ebs_encryption_by_default",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "EbsEncryptionByDefault": false
+      }
+    },
+    {
+      "case": "disabled-encryption-default",
+      "operation": "get_ebs_encryption_by_default",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "EbsEncryptionByDefault": false
+      }
+    },
+    {
+      "case": "encrypted-for-snapshot",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "Encrypted": true
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-0b02ae24c4aeb18ba",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/5e06802a-6822-4ece-a3c5-2a2a661a19bf"
+      }
+    },
+    {
+      "case": "encrypted-snapshot",
+      "operation": "create_snapshot",
+      "parameters": {
+        "VolumeId": "vol-0b02ae24c4aeb18ba"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-d4a756f4d0249e69e",
+        "VolumeId": "vol-0b02ae24c4aeb18ba",
+        "State": "pending",
+        "StartTime": "2026-10-24 14:43:30+00:00",
+        "Progress": "60%",
+        "OwnerId": "000000000000",
+        "Description": "",
+        "VolumeSize": 1,
+        "Encrypted": true
+      }
+    },
+    {
+      "case": "restore-encrypted-default",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "SnapshotId": "snap-d4a756f4d0249e69e"
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-8c507587c66cec158",
+        "Size": 1,
+        "SnapshotId": "snap-d4a756f4d0249e69e",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "None"
+      }
+    },
+    {
+      "case": "restore-encrypted-false",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "SnapshotId": "snap-d4a756f4d0249e69e",
+        "Encrypted": false
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-322a66312e1c13a82",
+        "Size": 1,
+        "SnapshotId": "snap-d4a756f4d0249e69e",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "None"
+      }
+    },
+    {
+      "case": "restore-encrypted-key",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "SnapshotId": "snap-d4a756f4d0249e69e",
+        "Encrypted": true,
+        "KmsKeyId": "alias/rea-key"
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-49d3e7d1eb59a7eb6",
+        "Size": 1,
+        "SnapshotId": "snap-d4a756f4d0249e69e",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-24 14:43:30+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "alias/rea-key"
+      }
+    },
+    {
+      "case": "resize-grow",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "Size": 2
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-8db7c13559d805a48",
+          "ModificationState": "modifying",
+          "TargetSize": 2,
+          "OriginalSize": 1,
+          "Progress": 0,
+          "StartTime": "2026-10-24 14:43:30+00:00"
+        }
+      }
+    },
+    {
+      "case": "resize-shrink",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-8db7c13559d805a48",
+          "ModificationState": "modifying",
+          "TargetSize": 1,
+          "OriginalSize": 2,
+          "Progress": 0,
+          "StartTime": "2026-10-24 14:43:30+00:00"
+        }
+      }
+    },
+    {
+      "case": "resize-zero",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "Size": 0
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidParameterValue",
+        "Message": "Value Invalid input: Must specify at least one of size, type, iops, throughput, multi_attach_enabled is invalid for parameter."
+      }
+    },
+    {
+      "case": "resize-gp3",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "VolumeType": "gp3",
+        "Iops": 3000,
+        "Throughput": 125
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-8db7c13559d805a48",
+          "ModificationState": "modifying",
+          "TargetIops": 3000,
+          "TargetVolumeType": "gp3",
+          "TargetThroughput": 125,
+          "OriginalVolumeType": "gp2",
+          "Progress": 0,
+          "StartTime": "2026-10-24 14:43:30+00:00"
+        }
+      }
+    },
+    {
+      "case": "resize-low-iops",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "Iops": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-8db7c13559d805a48",
+          "ModificationState": "modifying",
+          "TargetIops": 1,
+          "OriginalIops": 3000,
+          "Progress": 0,
+          "StartTime": "2026-10-24 14:43:30+00:00"
+        }
+      }
+    },
+    {
+      "case": "resize-low-throughput",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "Throughput": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-8db7c13559d805a48",
+          "ModificationState": "modifying",
+          "TargetThroughput": 1,
+          "OriginalThroughput": 125,
+          "Progress": 0,
+          "StartTime": "2026-10-24 14:43:30+00:00"
+        }
+      }
+    },
+    {
+      "case": "resize-invalid-type",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48",
+        "VolumeType": "not-real"
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-8db7c13559d805a48",
+          "ModificationState": "modifying",
+          "TargetVolumeType": "not-real",
+          "OriginalVolumeType": "gp3",
+          "Progress": 0,
+          "StartTime": "2026-10-24 14:43:30+00:00"
+        }
+      }
+    },
+    {
+      "case": "resize-describe",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-8db7c13559d805a48"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Volumes": [
+          {
+            "Iops": 1,
+            "VolumeType": "not-real",
+            "Throughput": 1,
+            "VolumeId": "vol-8db7c13559d805a48",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "available",
+            "CreateTime": "2026-10-24 14:43:30+00:00",
+            "Attachments": [],
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "resize-modifications",
+      "operation": "describe_volumes_modifications",
+      "parameters": {
+        "VolumeIds": [
+          "vol-8db7c13559d805a48"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "VolumesModifications": [
+          {
+            "VolumeId": "vol-8db7c13559d805a48",
+            "ModificationState": "completed",
+            "TargetSize": 2,
+            "OriginalSize": 1,
+            "Progress": 100,
+            "StartTime": "2026-10-24 14:43:30+00:00",
+            "EndTime": "2026-10-24 14:43:30+00:00"
+          },
+          {
+            "VolumeId": "vol-8db7c13559d805a48",
+            "ModificationState": "completed",
+            "TargetSize": 1,
+            "OriginalSize": 2,
+            "Progress": 100,
+            "StartTime": "2026-10-24 14:43:30+00:00",
+            "EndTime": "2026-10-24 14:43:30+00:00"
+          },
+          {
+            "VolumeId": "vol-8db7c13559d805a48",
+            "ModificationState": "completed",
+            "TargetIops": 3000,
+            "TargetVolumeType": "gp3",
+            "TargetThroughput": 125,
+            "OriginalVolumeType": "gp2",
+            "Progress": 100,
+            "StartTime": "2026-10-24 14:43:30+00:00",
+            "EndTime": "2026-10-24 14:43:30+00:00"
+          },
+          {
+            "VolumeId": "vol-8db7c13559d805a48",
+            "ModificationState": "completed",
+            "TargetIops": 1,
+            "OriginalIops": 3000,
+            "Progress": 100,
+            "StartTime": "2026-10-24 14:43:30+00:00",
+            "EndTime": "2026-10-24 14:43:30+00:00"
+          },
+          {
+            "VolumeId": "vol-8db7c13559d805a48",
+            "ModificationState": "completed",
+            "TargetThroughput": 1,
+            "OriginalThroughput": 125,
+            "Progress": 100,
+            "StartTime": "2026-10-24 14:43:30+00:00",
+            "EndTime": "2026-10-24 14:43:30+00:00"
+          },
+          {
+            "VolumeId": "vol-8db7c13559d805a48",
+            "ModificationState": "completed",
+            "TargetVolumeType": "not-real",
+            "OriginalVolumeType": "gp3",
+            "Progress": 100,
+            "StartTime": "2026-10-24 14:43:30+00:00",
+            "EndTime": "2026-10-24 14:43:30+00:00"
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-d4a756f4d0249e69e"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-49d3e7d1eb59a7eb6"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-322a66312e1c13a82"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-8c507587c66cec158"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-0b02ae24c4aeb18ba"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-bdfbd371d96c5fced"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-69d9f814a793f8e2a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-1e228fe0b7b2f733c"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-3d0855f481d210b86"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-71e9c51a539e3d05f"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-8db7c13559d805a48"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": "",
+  "cleanup_completed": true
+}

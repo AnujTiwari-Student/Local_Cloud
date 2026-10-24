@@ -3,6 +3,7 @@
 **Start here: [Complete handbook](docs/HANDBOOK.md)** — setup, real application
 integration, local CI, EC2, Kubernetes, core-engine internals and troubleshooting.
 The [documentation index](docs/README.md) links the specialist guides.
+Contributors can start with [the future-service build guide](docs/HANDBOOK.md#26-contributor-guide-to-the-future-project): core scope, optional add-ons, independent backends and acceptance scenarios for all 51 screenshot services.
 
 An independent, dependency-free Python development emulator. This implementation provides EC2, SQS and S3 subsets, durable state, named snapshots, state portability, IAM policy proposals, request inspection, fault injection and a resource dashboard. It is a starting project for adding the specific services you need, not full AWS or LocalStack Pro parity.
 

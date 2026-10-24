@@ -129,8 +129,8 @@ class Tooling:
     def export_state(self):
         with self.engine.lock:
             state = json.loads(self.engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
-        if any(i.get('Backend') == 'docker' for i in state.get('instances', {}).values()):
-            raise Error('UnsupportedOperation', 'Docker EC2 instances cannot be exported as portable state', 409)
+        if any(i.get('Backend') in ('docker', 'kubernetes') for i in state.get('instances', {}).values()):
+            raise Error('UnsupportedOperation', 'Container EC2 instances cannot be exported as portable state', 409)
         body = json.dumps(state, sort_keys=True, separators=(',', ':'), allow_nan=False)
         if len(body.encode()) > 6 * 1024 * 1024:
             raise Error('StateTooLarge', 'Portable state is limited to 6 MiB; local snapshots remain available', 413)
@@ -139,7 +139,7 @@ class Tooling:
 
     def import_state(self, bundle):
         if self.engine.ec2.images:
-            raise Error('UnsupportedOperation', 'State import is disabled in Docker EC2 mode', 409)
+            raise Error('UnsupportedOperation', 'State import is disabled in container EC2 mode', 409)
         # Validate everything before opening the replacement transaction.
         if not isinstance(bundle, dict) or set(bundle) != {'format', 'version', 'sha256', 'state'} or bundle['format'] != 'localcloud-state' or type(bundle['version']) is not int or bundle['version'] != 1:
             raise Error('InvalidState', 'Unsupported state bundle format or version')

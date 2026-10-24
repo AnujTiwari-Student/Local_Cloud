@@ -2,8 +2,10 @@
 import copy
 import re
 from .engine import Error
+from .ec2_ebs_defaults import PARAMETERS as DEFAULT_PARAMETERS, Defaults
 
 PARAMETERS = {
+ **DEFAULT_PARAMETERS,
  'DescribeVolumeAttribute': {'VolumeId','Attribute'},
  'ModifyVolumeAttribute': {'VolumeId','AutoEnableIO'},
  'DescribeSnapshotAttribute': {'SnapshotId','Attribute'},
@@ -21,6 +23,7 @@ class StorageExtension:
  def perform(self,data,resources,operation,args):
   from .ec2_infrastructure import ACCOUNT,REGION,identifier,now,boolean,tag_specs
   infra=self.infra
+  if operation in DEFAULT_PARAMETERS:return Defaults(infra).perform(data,resources,operation,args)
   if operation=='DescribeRegions':
    names=args.get('RegionNames',['us-east-1'])
    if any(n!='us-east-1' for n in names):raise Error('InvalidParameterValue','Only us-east-1 is supported')
@@ -46,22 +49,27 @@ class StorageExtension:
    if not isinstance(specification,dict) or set(specification)-{'InstanceId','ExcludeBootVolume'} or 'InstanceId' not in specification:raise Error('UnsupportedOperation','Specify InstanceId and optional ExcludeBootVolume',501)
    instance=infra.instance(data,specification['InstanceId'])
    if instance['State']['Name']=='terminated':raise Error('IncorrectInstanceState','Instance is terminated')
-   exclude=boolean(specification.get('ExcludeBootVolume',False));copy_tags=boolean(args.get('CopyTagsFromSource',False))
+   exclude=boolean(specification.get('ExcludeBootVolume',False))
+   if args.get('CopyTagsFromSource') not in (None,'volume'):raise Error('InvalidParameterValue','CopyTagsFromSource must be volume')
+   copy_tags=args.get('CopyTagsFromSource')=='volume'
    tags=tag_specs(args.get('TagSpecifications'),'snapshot')
    made=[]
    try:
-    for mapping in instance.get('BlockDeviceMappings',[]):
-     if exclude and mapping['DeviceName'] in ('/dev/sda1','/dev/xvda','/dev/xvda1'):continue
-     volume=infra.get(resources,'Volume',mapping['Ebs']['VolumeId'])
-     request={'VolumeId':volume['VolumeId'],'Description':args.get('Description','')}
-     merged={t['Key']:t['Value'] for t in volume.get('Tags',[]) if copy_tags}
-     merged.update({t['Key']:t['Value'] for t in tags})
-     request['TagSpecifications']=[{'ResourceType':'snapshot','Tags':[{'Key':k,'Value':v} for k,v in merged.items()]}]
-     result=infra.storage(data,resources,'CreateSnapshot',request);made.append(result)
+    with infra.ec2.runtime.freeze_snapshot_writers([instance]):
+     for mapping in instance.get('BlockDeviceMappings',[]):
+      if exclude and mapping['DeviceName'] in ('/dev/sda1','/dev/xvda','/dev/xvda1'):continue
+      volume=infra.get(resources,'Volume',mapping['Ebs']['VolumeId'])
+      request={'VolumeId':volume['VolumeId'],'Description':args.get('Description','')}
+      merged={t['Key']:t['Value'] for t in volume.get('Tags',[]) if copy_tags}
+      merged.update({t['Key']:t['Value'] for t in tags})
+      request['TagSpecifications']=[{'ResourceType':'snapshot','Tags':[{'Key':k,'Value':v} for k,v in merged.items()]}]
+      result=infra.storage(data,resources,'CreateSnapshot',request);made.append(result)
     return {'Snapshots':made}
-   except Exception:
+   except Exception as failure:
     for snapshot in made:
-     infra.ec2.runtime.delete_volume(snapshot['SnapshotId']);resources['snapshots'].pop(snapshot['SnapshotId'],None)
+     try:infra.ec2.runtime.delete_volume(snapshot['SnapshotId'])
+     except Error as cleanup_error:failure.add_note('Batch snapshot cleanup failed: '+str(cleanup_error))
+     finally:resources['snapshots'].pop(snapshot['SnapshotId'],None)
     raise
   snapshot=infra.get(resources,'Snapshot',args.get('SourceSnapshotId') if operation=='CopySnapshot' else args.get('SnapshotId'))
   if operation=='CopySnapshot':

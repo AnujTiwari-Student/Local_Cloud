@@ -604,6 +604,8 @@ class Infrastructure(Networking):
             if kind not in ('standard', 'gp2', 'gp3', 'io1', 'io2', 'st1', 'sc1'):
                 raise Error('InvalidParameterValue', 'Unsupported volume type')
             encrypted = boolean(args.get('Encrypted', snapshot['Encrypted'] if snapshot else False))
+            if snapshot and snapshot['Encrypted'] and not encrypted:
+                raise Error('InvalidParameterValue', 'Cannot decrypt an encrypted snapshot')
             if self.ec2.images and encrypted:
                 raise Error('UnsupportedOperation', 'Docker filesystem volumes do not provide at-rest encryption', 501)
             item = {'VolumeId': identifier('vol'), 'Size': size, 'AvailabilityZone': args['AvailabilityZone'], 'VolumeType': kind, 'State': 'available',
@@ -612,7 +614,10 @@ class Infrastructure(Networking):
                 item['Iops'] = integer(args.get('Iops', 3000 if kind == 'gp3' else max(100, size * 3)), 100, 64000)
             if kind == 'gp3':
                 item['Throughput'] = integer(args.get('Throughput', 125), 125, 1000)
-            self.ec2.runtime.create_volume(item['VolumeId'], snapshot['SnapshotId'] if snapshot else None)
+            if self.ec2.kubernetes is not None:
+                self.ec2.runtime.create_volume(item['VolumeId'], snapshot['SnapshotId'] if snapshot else None, size=size)
+            else:
+                self.ec2.runtime.create_volume(item['VolumeId'], snapshot['SnapshotId'] if snapshot else None)
             item.update(self.token_fields(args))
             r['volumes'][item['VolumeId']] = item
             response = copy.deepcopy(item)
@@ -630,11 +635,13 @@ class Infrastructure(Networking):
             volume = self.get(r, 'Volume', args.get('VolumeId'))
             item = {'SnapshotId': identifier('snap'), 'VolumeId': volume['VolumeId'], 'VolumeSize': volume['Size'], 'State': 'completed', 'StartTime': now(),
                     'Progress': '100%', 'OwnerId': ACCOUNT, 'Description': args.get('Description', ''), 'Encrypted': volume['Encrypted'], 'Tags': tag_specs(args.get('TagSpecifications'), 'snapshot')}
-            self.ec2.runtime.create_volume(item['SnapshotId'], volume['VolumeId'])
+            writers = [self.instance(data, attachment['InstanceId']) for attachment in volume['Attachments']]
+            self.ec2.runtime.snapshot_volume(item['SnapshotId'], volume['VolumeId'], writers)
             r['snapshots'][item['SnapshotId']] = item
             return {**item, 'State': 'pending', 'Progress': '60%'}
         if operation == 'DescribeVolumesModifications':
-            items = [v['Modification'] for v in self.select(r, 'Volume', args) if 'Modification' in v]
+            items = [entry for v in self.select(r, 'Volume', args)
+                     for entry in v.get('_modifications', [v['Modification']] if 'Modification' in v else [])]
             return paginated({'VolumesModifications': copy.deepcopy(items)}, 'VolumesModifications', args)
         volume = self.get(r, 'Volume', args.get('VolumeId'))
         if operation == 'DeleteVolume':
@@ -644,16 +651,35 @@ class Infrastructure(Networking):
             del r['volumes'][volume['VolumeId']]
             return {}
         if operation == 'ModifyVolume':
+            if self.ec2.kubernetes is not None:
+                raise Error('UnsupportedOperation', 'Kubernetes PVC resize and performance modification are not implemented', 501)
+            if len(volume.get('_modifications', [])) >= 1000:
+                raise Error('ResourceLimitExceeded', 'Local volume modification history limit is 1000')
             size = integer(args.get('Size', volume['Size']), volume['Size'], 1000)
-            modification = {'VolumeId': volume['VolumeId'], 'OriginalSize': volume['Size'], 'TargetSize': size, 'ModificationState': 'completed', 'Progress': 100, 'StartTime': now()}
-            volume['Size'] = size
+            changes = {'Size': size} if 'Size' in args else {}
             for key in ('VolumeType', 'Iops', 'Throughput'):
                 if key in args:
                     if key == 'VolumeType' and args[key] not in ('standard', 'gp2', 'gp3', 'io1', 'io2', 'st1', 'sc1'):
                         raise Error('InvalidParameterValue', 'Unsupported volume type')
-                    volume[key] = args[key] if key == 'VolumeType' else integer(args[key], 100 if key == 'Iops' else 125, 64000 if key == 'Iops' else 1000)
+                    changes[key] = args[key] if key == 'VolumeType' else integer(args[key], 100 if key == 'Iops' else 125, 64000 if key == 'Iops' else 1000)
+            if changes.get('VolumeType') == 'gp3' and volume['VolumeType'] != 'gp3':
+                changes.setdefault('Iops', 3000)
+                changes.setdefault('Throughput', 125)
+            timestamp = now()
+            modification = {'VolumeId': volume['VolumeId'], 'ModificationState': 'completed',
+                            'Progress': 100, 'StartTime': timestamp, 'EndTime': timestamp}
+            for key, value in changes.items():
+                modification['Target' + key] = value
+                if key in volume:
+                    modification['Original' + key] = volume[key]
+            previous = [copy.deepcopy(volume['Modification'])] if 'Modification' in volume else []
+            history = volume.setdefault('_modifications', previous)
+            volume.update(changes)
             volume['Modification'] = modification
-            return {'VolumeModification': {**modification, 'ModificationState': 'modifying', 'Progress': 0}}
+            history.append(copy.deepcopy(modification))
+            response = {**modification, 'ModificationState': 'modifying', 'Progress': 0}
+            response.pop('EndTime', None)
+            return {'VolumeModification': response}
         if operation == 'AttachVolume':
             instance = self.instance(data, args.get('InstanceId'))
             if instance['State']['Name'] == 'terminated':
@@ -792,10 +818,14 @@ class Infrastructure(Networking):
                 r['volumes'][key].update(Attachments=[attachment], State='in-use')
                 output.append({'DeviceName': device, 'Ebs': {'VolumeId': key, 'Status': 'attached', 'AttachTime': attachment['AttachTime'], 'DeleteOnTermination': delete}})
             return output, created
-        except Error:
+        except Error as failure:
             for key in created:
-                self.ec2.runtime.delete_volume(key)
-                r['volumes'].pop(key, None)
+                try:
+                    self.ec2.runtime.delete_volume(key)
+                except Error as cleanup_error:
+                    failure.add_note('Launch volume cleanup failed: ' + str(cleanup_error))
+                finally:
+                    r['volumes'].pop(key, None)
             raise
 
     def published_ingress(self, data, instance, existing):
@@ -993,8 +1023,10 @@ def validate_instance_fields(item):
 
 def validate_infrastructure(resources):
     required_collections = {'initialized', *[v[0] for v in COLLECTIONS.values()]}
-    if not isinstance(resources, dict) or not required_collections <= set(resources) or set(resources) - required_collections - {'images', 'launch_templates'}:
+    if not isinstance(resources, dict) or not required_collections <= set(resources) or set(resources) - required_collections - {'images', 'launch_templates', '_ebs_encryption_default'}:
         raise ValueError('Invalid EC2 infrastructure state')
+    if '_ebs_encryption_default' in resources and type(resources['_ebs_encryption_default']) is not bool:
+        raise ValueError('Invalid EBS encryption default metadata')
     if type(resources.get('initialized', False)) is not bool:
         raise ValueError('Invalid EC2 initialization flag')
     from .ec2_images import validate_images
@@ -1022,7 +1054,7 @@ def validate_infrastructure(resources):
                         'Address': {'AllocationId', 'PublicIp', 'Domain'}}[kind]
             if not required <= set(item):
                 raise ValueError('Missing EC2 resource fields')
-            standard = {k: v for k, v in item.items() if k not in ({'EnableDnsSupport', 'EnableDnsHostnames'} if kind == 'Vpc' else {'Modification', '_auto_enable_io'} if kind == 'Volume' else {'_permissions'} if kind == 'Snapshot' else set()) | {'_client_token', '_request_hash'}}
+            standard = {k: v for k, v in item.items() if k not in ({'EnableDnsSupport', 'EnableDnsHostnames'} if kind == 'Vpc' else {'Modification', '_modifications', '_auto_enable_io'} if kind == 'Volume' else {'_permissions'} if kind == 'Snapshot' else set()) | {'_client_token', '_request_hash'}}
             if '_auto_enable_io' in item and (kind != 'Volume' or type(item['_auto_enable_io']) is not bool):
                 raise ValueError('Invalid volume auto-enable IO metadata')
             if '_permissions' in item:
@@ -1041,6 +1073,14 @@ def validate_infrastructure(resources):
                 if item['VpcId'] not in resources.get('vpcs', {}):
                     raise ValueError('Subnet has missing VPC')
             if kind == 'Volume':
+                if '_modifications' in item:
+                    history = item['_modifications']
+                    if not isinstance(history, list) or len(history) > 1000:
+                        raise ValueError('Invalid volume modification history')
+                    for entry in history:
+                        validate_model(entry, 'VolumeModification')
+                        if entry.get('VolumeId') != key:
+                            raise ValueError('Modification history volume mismatch')
                 if item.get('State') not in ('available', 'in-use') or type(item.get('Size')) is not int or not 1 <= item['Size'] <= 1000:
                     raise ValueError('Invalid volume')
                 if 'Modification' in item:

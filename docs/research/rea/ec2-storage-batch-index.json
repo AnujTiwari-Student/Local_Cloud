@@ -1,0 +1,298 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "evidence": {
+    "first_probe_with_sdk_boolean_errors": "ev_140da74629999f151e71bc3aa4203f93b7a51b424097ba04029cbe1ad74c1dc4",
+    "final_corrected_probe": "ev_c3039b9f2464728b7f924f1de903e7050907daede8ef0067926349bff94fcc6a"
+  },
+  "canonical_sha256": "0bbf40b6489f34a7a4db7bbc84085aa813bda1fd265fcadbd6abf036e0e89a00",
+  "gzip_sha256": "ad1d0b72fdbe95baeb8acb96c13e3b71375b6c51047e020ca3a6a43636bdef64",
+  "source_sha256": {
+    "scripts/ec2-storage-batch-reference.py": "fc86a492f7c8e43b1554fc87c022444596cb8cd78561395596a49751022cdc33",
+    "docs/research/rea/ec2-storage-batch-reference.json": "bc5e17b3dd6455a0a5c9fc6d9082488ce64664d2593f9d98bd0837de89fd1474"
+  },
+  "results": [
+    {
+      "case": "all-volumes",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-15968a291a271aa5c",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-e6561747b69798631",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-7a3cb8be0abe2e10e",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "exclude-boot",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-fe1505cce66d16223",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-8e2ca5fe32d605793",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "explicit-include-boot",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-9744edb82d0b990f9",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-494fe1efd043989cc",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-9a8eed19ab22049dc",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "copy-volume-tags",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-4ed1ebdf57050bd7a",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-fb7b40c390b116b35",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-b818fa6975fec2cff",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "snapshot-tag-overrides",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-432633052cfad6eec",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": [
+            {
+              "Key": "Shared",
+              "Value": "snapshot"
+            },
+            {
+              "Key": "Batch",
+              "Value": "yes"
+            }
+          ]
+        },
+        {
+          "SnapshotId": "snap-ce4150edbc620c2f1",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": [
+            {
+              "Key": "Shared",
+              "Value": "snapshot"
+            },
+            {
+              "Key": "Batch",
+              "Value": "yes"
+            }
+          ]
+        },
+        {
+          "SnapshotId": "snap-4d56daf0322d2392b",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": [
+            {
+              "Key": "Shared",
+              "Value": "snapshot"
+            },
+            {
+              "Key": "Batch",
+              "Value": "yes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "no-volume-tags",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-60be152f3dca38ef4",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": [
+            {
+              "Key": "Batch",
+              "Value": "only"
+            }
+          ]
+        },
+        {
+          "SnapshotId": "snap-3a69b133c9db5207f",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": [
+            {
+              "Key": "Batch",
+              "Value": "only"
+            }
+          ]
+        },
+        {
+          "SnapshotId": "snap-c62601c0ffb3ac21e",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": [
+            {
+              "Key": "Batch",
+              "Value": "only"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "exclude-one-data",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-ce1a8330089c5e726",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-3b281a00b5efd2c65",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-c3b5308e19ea15a88",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "exclude-boot-and-data",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-a11eb2ef569809278",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-714d07958f3f72002",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "exclude-unknown-data",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-fb95205daece988a7",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-4f1f43d4c6f0bfd7d",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-188911acf35520a11",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "invalid-copy-tag-value",
+      "status": 200,
+      "error": null,
+      "snapshots": [
+        {
+          "SnapshotId": "snap-0521064bca294bd37",
+          "VolumeId": "vol-534ecebb6354d6d8c",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-3d4b3b8f182103cef",
+          "VolumeId": "vol-eb00f7f0b8e2e20bc",
+          "Tags": []
+        },
+        {
+          "SnapshotId": "snap-3bc1fb590daa58e14",
+          "VolumeId": "vol-b0cae0ff6bfaabb42",
+          "Tags": []
+        }
+      ]
+    },
+    {
+      "case": "unknown-instance",
+      "status": 400,
+      "error": {
+        "Code": "InvalidInstanceID.NotFound",
+        "Message": "The instance ID 'i-00000000000000000' does not exist"
+      },
+      "snapshots": []
+    },
+    {
+      "case": "missing-instance",
+      "status": null,
+      "error": {
+        "type": "ParamValidationError",
+        "message": "Parameter validation failed:\nMissing required parameter in InstanceSpecification: \"InstanceId\""
+      },
+      "snapshots": []
+    }
+  ],
+  "observations": [
+    "CopyTagsFromSource is SDK string enum volume; booleans were rejected locally by Botocore before an HTTP request.",
+    "Reference accepted volume and invalid strings but did not copy existing source-volume tags.",
+    "Explicit snapshot tags were applied; no source tags appeared in copied snapshot metadata.",
+    "ExcludeBootVolume filters the standard root mapping; ExcludeDataVolumeIds was accepted but ignored.",
+    "Unknown instance returned 400 InvalidInstanceID.NotFound; invalid requests left snapshot count unchanged.",
+    "All fixture-created snapshots/volumes and owned controller cleaned up."
+  ],
+  "limitations": [
+    "Mock executor metadata only; no atomic multi-volume byte-level snapshot proof.",
+    "First probe output was truncated and included SDK boolean validation failures; corrected final probe is authoritative and untruncated.",
+    "Reference preloads a large snapshot catalogue; final cleanup retained baseline catalogue and removed only fixture additions."
+  ]
+}

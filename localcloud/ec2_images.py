@@ -29,7 +29,7 @@ class ImageLifecycle:
         configured = self.ec2.images or {'ami-local': None}
         catalogue = {key: {'ImageId': key, 'Name': key, 'State': 'available', 'OwnerId': '000000000000',
                            'Public': False, 'Architecture': 'x86_64', 'ImageType': 'machine',
-                           'Tags': [{'Key': 'ec2_vm_manager', 'Value': 'docker' if self.ec2.images else 'mock'}]}
+                           'Tags': [{'Key': 'ec2_vm_manager', 'Value': self.ec2.backend}]}
                      for key in configured}
         for instance in data.get('instances', {}).values():
             if instance['Backend'] == 'mock':
@@ -51,13 +51,15 @@ class ImageLifecycle:
         """Restore only this database's committed AMI to the runtime allowlist."""
         item = self.get(data, key)
         if '_docker_image' in item:
+            if self.ec2.kubernetes is not None:
+                raise Error('UnsupportedOperation', 'Docker root images cannot be used by the Kubernetes executor', 501)
             runtime = self.ec2.runtime
             if item.get('_docker_owner') != runtime.owner or not re.fullmatch(r'localcloud-ec2-ami:ami-[0-9a-f]{17}', item['_docker_image']):
                 raise Error('RuntimeFailure', 'AMI runtime ownership mismatch', 409)
             runtime.owned('image', item['_docker_image'])
             self.ec2.images[key] = item['_docker_image']
         elif self.ec2.images and key not in self.ec2.images:
-            raise Error('InvalidAMIID.NotFound', 'Mock AMI cannot be launched in Docker mode')
+            raise Error('InvalidAMIID.NotFound', 'Mock AMI cannot be launched by a container executor')
         return item
 
     def tagtarget(self, data, key):
@@ -145,6 +147,8 @@ class ImageLifecycle:
                 item['EnaSupport'] = boolean(args['EnaSupport'])
             if operation == 'CreateImage':
                 instance = self.infra.instance(data, args.get('InstanceId'))
+                if instance['Backend'] == 'kubernetes':
+                    raise Error('UnsupportedOperation', 'Kubernetes root image capture is not implemented', 501)
                 if instance['State']['Name'] not in ('running', 'stopped'):
                     raise Error('IncorrectInstanceState', 'Image creation requires a running or stopped instance')
                 if 'NoReboot' in args:

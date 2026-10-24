@@ -1,7 +1,7 @@
 # EC2 release checkpoint — 20 October 2026
 
 This is the current release checkpoint for local EC2 workflows. **Full LocalStack
-EC2 equivalence is not complete.** LocalCloud dispatches 97 selected AWS operations
+EC2 equivalence is not complete.** LocalCloud dispatches 100 selected AWS operations
 plus the local NameInstance operation. The public SDK catalogue has 807 EC2
 operation names; that catalogue does not establish what LocalStack implements.
 The [inventory](research/rea/ec2-release-inventory.json) distinguishes these counts.
@@ -148,7 +148,8 @@ also differ. These are deliberate behavior differences, not a claim of exact par
 The earlier [networking report](EC2_NETWORKING.md) records three stricter validation
 checks and actual packet-level observations. Live firewalls, extra guest NICs,
 EIP NAT, actual VM/Windows execution, IAM role credentials, full multi-region/account
-isolation and Kubernetes-backed EC2 are still outside the implemented scope.
+isolation remain outside the implemented scope. Kubernetes-backed EC2 now has
+a [working subset](EC2_KUBERNETES.md) with Deployment readiness, lifecycle and PVC mounts.
 
 Run the checks:
 
@@ -159,3 +160,5 @@ python3 scripts/ec2-coverage-audit.py --output docs/research/rea/ec2-release-inv
 
 A registered operation means a bounded handler exists. It does not mean all AWS
 parameters, error conditions, executor modes or response fields have been reproduced.
+
+The [24 October storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md) adds three EBS encryption-default flag operations, modification history and journaled batch-copy quiescing. Earlier evidence counts remain historical checkpoints.

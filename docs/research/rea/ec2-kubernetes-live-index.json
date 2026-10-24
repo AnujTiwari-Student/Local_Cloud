@@ -1,0 +1,26 @@
+{
+  "evidence": {
+    "preflight": "ev_33038f44e262dfde47e96bf34a51b44e9b72285e7c552c608bbe80f0d854ab60",
+    "initial_rejected_dynamic_port": "ev_971ff779dd16510cd62f2f8b6375ea1868ccf4874ab235613a544112f7e5a5b4",
+    "final_no_metadata": "ev_168ea8d87941cc860b68b097750d4b8ff031471f4b10ad4ec66b3cd9539bc01c",
+    "offline_production_dockerfile_blocked": "ev_6c3d88b5befe2ab5b0f75ee775b365146792a2cda4c969092d4cdd3c49bcd4de",
+    "final_metadata_and_lifecycle": "ev_a9e3abcae166878663fdfad21572087a718bdf13cfa32c50c8ee795a0e5cec72",
+    "cleanup": "ev_0434fb2c57148446b7292072b1e1800ab893b2aee43e7ae047d5793c669ea4f1"
+  },
+  "canonical_sha256": "0e4135dd91b3e9995fe2e336f942c63dda61ca0bfb9322d1a9f90cfde5f3e74d",
+  "source_sha256": {
+    "scripts/ec2-kubernetes-live.py": "b411c6709351dd032b8547d3cc8fa392f11d91e7e7efcd3270dc8f86d205323b",
+    "docs/research/rea/ec2-kubernetes-live-report.json": "ef3899c7502d26a01bc643928a3901057050242254453df38a3fae9db5d047a9"
+  },
+  "live_checks_passed": 12,
+  "limits": [
+    "Own disposable namespace on existing kind-localcloud; loopback kubectl proxy uses caller authorization, not a minimal ServiceAccount RBAC live test.",
+    "Metadata helper uses current source copied over cached localcloud:ec2-runtime dependencies; production Dockerfile offline APT build was blocked and is not claimed.",
+    "Metadata binds Pod localhost1338, not standard link-local address.",
+    "UserData init precedes metadata sidecar; bootstrap metadata calls not supported by this ordering.",
+    "Snapshots/raw block/CSI operations intentionally unsupported and snapshot501 tested.",
+    "Evidence bundle includes preliminary failures; record count is not compatibility score."
+  ],
+  "records": 11,
+  "session_unknowns": 4
+}

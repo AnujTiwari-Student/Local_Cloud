@@ -1,0 +1,31 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "records": 8,
+  "session_unknowns": 4,
+  "canonical_sha256": "1bbf51516c581611586fcc3858e4371ccbc1f44ee0007a34b7a35924d8d2f87f",
+  "gzip_sha256": "da66bbb47a9a6c770f1098e6053fc2d8b5106f63e802dfd90173ce11adb26307",
+  "evidence": {
+    "mock_restart": "ev_c3bb27a6ad5b4f7a7749675e20cdd22feea7511eb7aa0021fdc4ce7446f87bd0",
+    "first_docker_restart": "ev_a63cd3f777e428a43a7b3969943f558798a7b74655898b84e7586ac72f0dbc3c",
+    "docker_matching_guest_followup": "ev_4ee767a799e97dda7fab2158fc70efd4517378195146ffb1992bb8b4b0e04521",
+    "cleanup": "ev_c20446d1e0262698478b06be225a888da95360c98777b2e4e153909a7e9a93fd"
+  },
+  "source_sha256": {
+    "scripts/ec2-storage-persistence-reference.py": "d85722b61d2d35c64d69eff9c4433a8409b1ae29e51e8d3cca69445d5d83e52a",
+    "docs/research/rea/ec2-storage-persistence-mock.json": "4c4030087314ee182df0848665eaaaeda38505909defafb4af561d32a211a679",
+    "docs/research/rea/ec2-storage-persistence-docker.json": "d920bc0c242f3852f51e3d3b9d22b9a3ce6433a235587a4dc3147217662d717d"
+  },
+  "observations": [
+    "PERSISTENCE=1 survived graceful normal controller restart for volume, snapshot and encryption metadata in mock and Docker executors.",
+    "Restoring volume from snapshot and changing 1 to 2GiB returned200 and updated metadata.",
+    "Docker guest root marker existed before controller restart; original guest removed afterward and no matching instance-named guest existed, although DescribeInstances reported running.",
+    "Guest root durability across controller restart was not achieved in this fixture; log reported IMDS initialisation error localstack-main."
+  ],
+  "limitations": [
+    "No data-plane encryption or quota enforcement proof.",
+    "No raw block disk data could be tested after restart because no guest existed.",
+    "Controller was gracefully stopped, not power-loss/crash test.",
+    "The retained mock capture predates Docker guest-identification followup addition; API sequence unchanged.",
+    "Records are session evidence including preliminary observations, not parity coverage."
+  ]
+}

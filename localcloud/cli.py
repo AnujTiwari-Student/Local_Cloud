@@ -117,7 +117,7 @@ def parser():
     launch.add_argument('--key-name')
     launch.add_argument('--metadata-options', help='JSON metadata options')
     launch.add_argument('--block-device-mappings', help='JSON EBS filesystem mappings')
-    launch.add_argument('--publish', action='append', default=[], metavar='HOST_PORT:CONTAINER_PORT', help='Publish a Docker TCP port on 127.0.0.1; repeatable')
+    launch.add_argument('--publish', action='append', default=[], metavar='HOST_PORT:CONTAINER_PORT', help='Docker localhost port; use 0:CONTAINER_PORT for a Kubernetes service; repeatable')
     for name in ('describe-instances', 'start-instances', 'stop-instances', 'terminate-instances', 'name-instance', 'modify-instance-attribute', 'reboot-instances', 'get-console-output', 'describe-instance-status', 'modify-instance-metadata-options'):
         op = operation(ec2, name)
         selector = op.add_mutually_exclusive_group(required=name not in ('describe-instances', 'describe-instance-status'))

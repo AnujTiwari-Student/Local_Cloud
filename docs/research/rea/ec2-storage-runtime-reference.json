@@ -1,0 +1,511 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "guest_image": "ami-61ad6e59d7b0",
+  "reference_container": "localcloud-rea-storage-runtime-86fd04da54",
+  "baseline_link_local_network": {
+    "CreatedAt": "2026-10-14 00:24:08.134819461 +0530 IST",
+    "Driver": "bridge",
+    "ID": "d68d24cb4217",
+    "IPv4": "true",
+    "IPv6": "false",
+    "Internal": "false",
+    "Labels": "",
+    "Name": "localstack-ec2-link-local",
+    "Scope": "local"
+  },
+  "scope_limits": [
+    "One normally licensed Docker guest and one secondary ENI in one VPC.",
+    "Direct bridge reachability does not establish every host publishing path.",
+    "IPv6, routing, egress filters, custom port mappings and multi-guest EIP uniqueness were not tested.",
+    "No encrypted provider code was inspected; no host firewall or route was modified."
+  ],
+  "exit": 0,
+  "records": [
+    {
+      "case": "create-volume",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-23 15:40:51+00:00",
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "create-encrypted",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "Size": 1,
+        "Encrypted": true
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-e3dee2aa50b63bbb9",
+        "Size": 1,
+        "SnapshotId": "",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-23 15:40:51+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/29afd41f-244b-44e9-bb73-db11db0779be"
+      }
+    },
+    {
+      "case": "run",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-8471f37b2275e9906",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:40:51+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-5e1184aed1f16f032"
+                }
+              }
+            ],
+            "ClientToken": "a2526ea1-a56a-4353-991e-e349e9f71f5c",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-51-235.ec2.internal",
+                  "PublicIp": "54.214.51.235"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-23 15:40:51+00:00",
+                  "AttachmentId": "eni-attach-500b1c0fc0b57d69b",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-326474e66a455f9b4",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:14502x:1702x:202x",
+                "NetworkInterfaceId": "eni-c0d298aafebf6bc5f",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-210-8-81.ec2.internal",
+                "PrivateIpAddress": "10.210.8.81",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-51-235.ec2.internal",
+                      "PublicIp": "54.214.51.235"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.210.8.81"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-83a970924e61c9952",
+                "VpcId": "vpc-2a32c0b01e666dbbb",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-326474e66a455f9b4",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-20a37c382e708af53",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-210-8-81.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-23 15:40:51+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-83a970924e61c9952",
+            "VpcId": "vpc-2a32c0b01e666dbbb",
+            "PrivateIpAddress": "10.210.8.81",
+            "PublicIpAddress": "172.17.0.3"
+          }
+        ]
+      }
+    },
+    {
+      "case": "before-attach",
+      "container_id": "28a2c4da03c6ddbc780b65e8cee8f555f4305751da0bdd84bad109eda01372f3",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "privileged": false,
+      "guest_exit": 0,
+      "guest_output": "overlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/536/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/59/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/58/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/57/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/work 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nshm /dev/shm tmpfs rw,seclabel,nosuid,nodev,noexec,relatime,size=65536k,inode64 0 0\n/dev/nvme0n1p5 /usr/sbin/docker-init btrfs ro,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\ntmpfs /run/docker.sock tmpfs rw,seclabel,nosuid,nodev,size=3191592k,nr_inodes=819200,mode=755,inode64 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\n{\n   \"blockdevices\": [\n      {\n         \"name\": \"zram0\",\n         \"maj:min\": \"251:0\",\n         \"rm\": false,\n         \"size\": \"8G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [\n             \"[SWAP]\"\n         ]\n      },{\n         \"name\": \"nvme0n1\",\n         \"maj:min\": \"259:0\",\n         \"rm\": false,\n         \"size\": \"476.9G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [],\n         \"children\": [\n            {\n               \"name\": \"nvme0n1p1\",\n               \"maj:min\": \"259:1\",\n               \"rm\": false,\n               \"size\": \"600M\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p2\",\n               \"maj:min\": \"259:2\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p3\",\n               \"maj:min\": \"259:3\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p4\",\n               \"maj:min\": \"259:4\",\n               \"rm\": false,\n               \"size\": \"238G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p5\",\n               \"maj:min\": \"259:5\",\n               \"rm\": false,\n               \"size\": \"234.3G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": [\n                   \"/etc/resolv.conf\", \"/etc/hosts\", \"/etc/hostname\", \"/usr/sbin/docker-init\"\n               ]\n            }\n         ]\n      }\n   ]\n}\n"
+    },
+    {
+      "case": "attach-running",
+      "operation": "attach_volume",
+      "parameters": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "InstanceId": "i-20a37c382e708af53",
+        "Device": "/dev/sdf"
+      },
+      "status": 200,
+      "result": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "InstanceId": "i-20a37c382e708af53",
+        "Device": "/dev/sdf",
+        "State": "attaching",
+        "AttachTime": "2026-10-23 15:40:52+00:00"
+      }
+    },
+    {
+      "case": "after-attach",
+      "container_id": "28a2c4da03c6ddbc780b65e8cee8f555f4305751da0bdd84bad109eda01372f3",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "privileged": false,
+      "guest_exit": 0,
+      "guest_output": "overlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/536/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/59/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/58/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/57/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/work 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nshm /dev/shm tmpfs rw,seclabel,nosuid,nodev,noexec,relatime,size=65536k,inode64 0 0\n/dev/nvme0n1p5 /usr/sbin/docker-init btrfs ro,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\ntmpfs /run/docker.sock tmpfs rw,seclabel,nosuid,nodev,size=3191592k,nr_inodes=819200,mode=755,inode64 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\n{\n   \"blockdevices\": [\n      {\n         \"name\": \"zram0\",\n         \"maj:min\": \"251:0\",\n         \"rm\": false,\n         \"size\": \"8G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [\n             \"[SWAP]\"\n         ]\n      },{\n         \"name\": \"nvme0n1\",\n         \"maj:min\": \"259:0\",\n         \"rm\": false,\n         \"size\": \"476.9G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [],\n         \"children\": [\n            {\n               \"name\": \"nvme0n1p1\",\n               \"maj:min\": \"259:1\",\n               \"rm\": false,\n               \"size\": \"600M\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p2\",\n               \"maj:min\": \"259:2\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p3\",\n               \"maj:min\": \"259:3\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p4\",\n               \"maj:min\": \"259:4\",\n               \"rm\": false,\n               \"size\": \"238G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p5\",\n               \"maj:min\": \"259:5\",\n               \"rm\": false,\n               \"size\": \"234.3G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": [\n                   \"/etc/resolv.conf\", \"/etc/hosts\", \"/etc/hostname\", \"/usr/sbin/docker-init\"\n               ]\n            }\n         ]\n      }\n   ]\n}\n"
+    },
+    {
+      "case": "stop",
+      "operation": "stop_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-20a37c382e708af53"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "StoppingInstances": [
+          {
+            "InstanceId": "i-20a37c382e708af53",
+            "CurrentState": {
+              "Code": 80,
+              "Name": "stopped"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "attach-stopped",
+      "operation": "attach_volume",
+      "parameters": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "InstanceId": "i-20a37c382e708af53",
+        "Device": "/dev/sdf"
+      },
+      "status": 200,
+      "result": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "InstanceId": "i-20a37c382e708af53",
+        "Device": "/dev/sdf",
+        "State": "attaching",
+        "AttachTime": "2026-10-23 15:40:53+00:00"
+      }
+    },
+    {
+      "case": "start",
+      "operation": "start_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-20a37c382e708af53"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "StartingInstances": [
+          {
+            "InstanceId": "i-20a37c382e708af53",
+            "CurrentState": {
+              "Code": 16,
+              "Name": "running"
+            },
+            "PreviousState": {
+              "Code": 80,
+              "Name": "stopped"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "after-restart",
+      "container_id": "28a2c4da03c6ddbc780b65e8cee8f555f4305751da0bdd84bad109eda01372f3",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "privileged": false,
+      "guest_exit": 0,
+      "guest_output": "overlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/536/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/59/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/58/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/57/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/work 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nshm /dev/shm tmpfs rw,seclabel,nosuid,nodev,noexec,relatime,size=65536k,inode64 0 0\n/dev/nvme0n1p5 /usr/sbin/docker-init btrfs ro,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\ntmpfs /run/docker.sock tmpfs rw,seclabel,nosuid,nodev,size=3191592k,nr_inodes=819200,mode=755,inode64 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\n{\n   \"blockdevices\": [\n      {\n         \"name\": \"zram0\",\n         \"maj:min\": \"251:0\",\n         \"rm\": false,\n         \"size\": \"8G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [\n             \"[SWAP]\"\n         ]\n      },{\n         \"name\": \"nvme0n1\",\n         \"maj:min\": \"259:0\",\n         \"rm\": false,\n         \"size\": \"476.9G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [],\n         \"children\": [\n            {\n               \"name\": \"nvme0n1p1\",\n               \"maj:min\": \"259:1\",\n               \"rm\": false,\n               \"size\": \"600M\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p2\",\n               \"maj:min\": \"259:2\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p3\",\n               \"maj:min\": \"259:3\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p4\",\n               \"maj:min\": \"259:4\",\n               \"rm\": false,\n               \"size\": \"238G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p5\",\n               \"maj:min\": \"259:5\",\n               \"rm\": false,\n               \"size\": \"234.3G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": [\n                   \"/etc/resolv.conf\", \"/etc/hosts\", \"/etc/hostname\", \"/usr/sbin/docker-init\"\n               ]\n            }\n         ]\n      }\n   ]\n}\nroot-survives\n"
+    },
+    {
+      "case": "grow-volume",
+      "operation": "modify_volume",
+      "parameters": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "Size": 2
+      },
+      "status": 200,
+      "result": {
+        "VolumeModification": {
+          "VolumeId": "vol-95f9af2aef611a54a",
+          "ModificationState": "modifying",
+          "TargetSize": 2,
+          "OriginalSize": 1,
+          "Progress": 0,
+          "StartTime": "2026-10-23 15:40:54+00:00"
+        }
+      }
+    },
+    {
+      "case": "snapshot",
+      "operation": "create_snapshot",
+      "parameters": {
+        "VolumeId": "vol-95f9af2aef611a54a"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-1ce87be3742778d1d",
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "State": "pending",
+        "StartTime": "2026-10-23 15:40:54+00:00",
+        "Progress": "60%",
+        "OwnerId": "000000000000",
+        "Description": "",
+        "VolumeSize": 2,
+        "Encrypted": false
+      }
+    },
+    {
+      "case": "describe-snapshot",
+      "operation": "describe_snapshots",
+      "parameters": {
+        "SnapshotIds": [
+          "snap-1ce87be3742778d1d"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Tags": [],
+            "SnapshotId": "snap-1ce87be3742778d1d",
+            "VolumeId": "vol-95f9af2aef611a54a",
+            "State": "completed",
+            "StartTime": "2026-10-23 15:40:54+00:00",
+            "Progress": "100%",
+            "OwnerId": "000000000000",
+            "Description": "",
+            "VolumeSize": 2,
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "detach-running",
+      "operation": "detach_volume",
+      "parameters": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "InstanceId": "i-20a37c382e708af53",
+        "Device": "/dev/sdf",
+        "Force": true
+      },
+      "status": 200,
+      "result": {
+        "VolumeId": "vol-95f9af2aef611a54a",
+        "InstanceId": "i-20a37c382e708af53",
+        "Device": "/dev/sdf",
+        "State": "detaching",
+        "AttachTime": "2013-10-04 17:38:53+00:00"
+      }
+    },
+    {
+      "case": "after-detach",
+      "container_id": "28a2c4da03c6ddbc780b65e8cee8f555f4305751da0bdd84bad109eda01372f3",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "privileged": false,
+      "guest_exit": 0,
+      "guest_output": "overlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/536/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/59/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/58/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/57/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/537/work 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nshm /dev/shm tmpfs rw,seclabel,nosuid,nodev,noexec,relatime,size=65536k,inode64 0 0\n/dev/nvme0n1p5 /usr/sbin/docker-init btrfs ro,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\ntmpfs /run/docker.sock tmpfs rw,seclabel,nosuid,nodev,size=3191592k,nr_inodes=819200,mode=755,inode64 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\n{\n   \"blockdevices\": [\n      {\n         \"name\": \"zram0\",\n         \"maj:min\": \"251:0\",\n         \"rm\": false,\n         \"size\": \"8G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [\n             \"[SWAP]\"\n         ]\n      },{\n         \"name\": \"nvme0n1\",\n         \"maj:min\": \"259:0\",\n         \"rm\": false,\n         \"size\": \"476.9G\",\n         \"ro\": false,\n         \"type\": \"disk\",\n         \"mountpoints\": [],\n         \"children\": [\n            {\n               \"name\": \"nvme0n1p1\",\n               \"maj:min\": \"259:1\",\n               \"rm\": false,\n               \"size\": \"600M\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p2\",\n               \"maj:min\": \"259:2\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p3\",\n               \"maj:min\": \"259:3\",\n               \"rm\": false,\n               \"size\": \"2G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p4\",\n               \"maj:min\": \"259:4\",\n               \"rm\": false,\n               \"size\": \"238G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": []\n            },{\n               \"name\": \"nvme0n1p5\",\n               \"maj:min\": \"259:5\",\n               \"rm\": false,\n               \"size\": \"234.3G\",\n               \"ro\": false,\n               \"type\": \"part\",\n               \"mountpoints\": [\n                   \"/etc/resolv.conf\", \"/etc/hosts\", \"/etc/hostname\", \"/usr/sbin/docker-init\"\n               ]\n            }\n         ]\n      }\n   ]\n}\nroot-survives\n"
+    },
+    {
+      "case": "describe-volumes",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-95f9af2aef611a54a"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Volumes": [
+          {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-95f9af2aef611a54a",
+            "Size": 2,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "available",
+            "CreateTime": "2026-10-23 15:40:51+00:00",
+            "Attachments": [],
+            "Encrypted": false
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-20a37c382e708af53"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-20a37c382e708af53",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-95f9af2aef611a54a"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-e3dee2aa50b63bbb9"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-1ce87be3742778d1d"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "stderr": "",
+  "reference_container_removed": true,
+  "captured_guest_containers_remaining": [],
+  "link_local_network_cleanup": "preexisting shared network preserved"
+}

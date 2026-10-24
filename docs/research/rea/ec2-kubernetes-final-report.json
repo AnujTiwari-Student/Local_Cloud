@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "namespace": "ec2-kube-live-d46858c9",
+  "context": "kind-localcloud",
+  "checks": [
+    "real-ready-pod-drives-running-ec2-state",
+    "user-data-init-and-real-pvc-file-bytes",
+    "pod-local-imdsv1-guest-instance-id",
+    "metadata-option-rollout-and-imdsv2-token-enforcement",
+    "cluster-service-and-owned-port-forward-web-reachability",
+    "unsupported-kubernetes-snapshot-fails-explicitly",
+    "instance-console-contains-user-data-log",
+    "stop-start-recreates-pod-and-preserves-pvc-bytes",
+    "reboot-replaces-real-pod",
+    "missing-image-remains-pending-instead-of-false-running",
+    "backend-restart-reconciles-existing-owned-deployment",
+    "terminate-removes-owned-workloads-service-config-and-delete-on-termination-pvc"
+  ],
+  "guest_image": "localcloud-ec2-web:rea-c45adc7578",
+  "helper_base_image_id": "sha256:eac7920363f08a6aac3fe0dcdef13ad2c2c75625cec46eb52a39ce89b2befd19",
+  "helper_build": "cached runtime dependencies plus current localcloud source; no package downloads",
+  "metadata_helper_image": "localcloud-ec2-helper:rea-86545d92fd",
+  "launched": {
+    "InstanceId": "i-f020377fa4bd4b809",
+    "Backend": "kubernetes",
+    "State": {
+      "Name": "running",
+      "Code": 16
+    },
+    "Endpoints": [
+      "http://lc-ec2-6691825e-i-f020377fa4bd4b809.ec2-kube-live-d46858c9.svc:8080"
+    ]
+  },
+  "bad_image": {
+    "State": {
+      "Name": "pending",
+      "Code": 0
+    },
+    "RuntimeStatusReason": "ErrImageNeverPull",
+    "pod_reason": "ErrImageNeverPull"
+  },
+  "namespace_removed": true,
+  "helper_node_tag_removed": true,
+  "helper_host_tag_removed": true,
+  "node_tag_removed": true,
+  "host_tag_removed": true
+}

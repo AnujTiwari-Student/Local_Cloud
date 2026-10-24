@@ -1,0 +1,23 @@
+{
+  "reference": "LocalStack 2026.10.0",
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "evidence": {
+    "docker_storage_reference": "ev_d656ac610804dc1d9bdd293648d8fc527f9154c25ef17875bea86f61ab7c0f09",
+    "retained_artifact_comparison": "ev_03f2f0c12d5cb2a8d05b3394a497ec6d45bccf83e92bd9682c0fd2a5bbf93d81",
+    "localcloud_live_smoke": "ev_b5a976c166053c064137bd3fb1843257837e8ab8aff5a408a0713b4010428eb8",
+    "cleanup_and_credential_check": "ev_4aa93daba8cdf06422ec5553b9dfdc708fe8ec612ba66398dfbd56f84098e656"
+  },
+  "bundle_sha256_uncompressed": "edab32e9672e45d7e1d0839124eafe9d730acffb7dc919c15567ff2fa2f43aae",
+  "files": {
+    "docs/research/rea/ec2-storage-runtime-reference.json": "23f8cca5c480ef03181449fbe41efed44eadffd7394f439bfec30773022f4204",
+    "scripts/ec2-storage-runtime-reference.py": "c52219ed5dca83440a13f5ba0ba1312790ece2e76272fbfc7e6a05bc498bb072",
+    "scripts/ec2-docker-smoke.py": "f8ccf4fbb3ef15be41af57b6585da8ba2187928ace2b0b6be93873073c1672e4",
+    "docs/research/rea/ec2-storage-runtime-localcloud.json": "9e276b2eaef90b8e92684b184c74d3b7b307dab4c752ea707dee07beec7d2f3d"
+  },
+  "limits": [
+    "LocalStack Docker backend only; one Linux guest.",
+    "API flags do not prove encryption or raw device behavior.",
+    "LocalCloud file-backed storage is intentionally different from observed reference attachment behavior.",
+    "Script reporting and scope text were clarified after the recorded run; runtime probe unchanged."
+  ]
+}

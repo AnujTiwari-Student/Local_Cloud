@@ -1,0 +1,35 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "evidence": {
+    "live_integrity": "ev_2856a7c775f6a558f94b1986da70a163f2ee6ec2d96a9cdef493b848cb23336f",
+    "unit_tests": "ev_fa3043f4ddff3d5cfef39bc92a78393f0ac419f3b4f7b7a3bb859864a56362be",
+    "cleanup_and_credential_scan": "ev_1a0cdd68dc89a9606ad3fdf5f89eb65547edb081a6a031d17f4711b162e05d65"
+  },
+  "unit_tests_passed": 212,
+  "live_checks_passed": 9,
+  "bundle_sha256_uncompressed": "8d76c85f21fba15ecbb8b1d8c933b3822bb844a13b3ea2ef222fc0e9d06e1434",
+  "files": {
+    "localcloud/ec2.py": "6ad27e946d7650d6a22f4e34ae4762df2ba832eadaf7e11b060ada0e60c20630",
+    "localcloud/ec2_infrastructure.py": "2d5ca31105318f411e0088479d97929c8b8b9072f2f6370c1176643d789c8878",
+    "localcloud/ec2_runtime.py": "dbb5c7589184856432b1ed5f51dc30cd8a5e3e7faa63bff16e99547c85e5120d",
+    "localcloud/ec2_storage.py": "0d6647e24416607ebc55ab6c571a4a6aad07e6d0ca8d66520d32556ceb6f192f",
+    "localcloud/ec2_storage_journal.py": "ea0ccac66fe73a372f377e5393c15bd5197bded0f02083cfd61b1350fe528f80",
+    "localcloud/engine.py": "1f969d810b63d945fbcbb5d0a7ef09b27aff5eafc2cb8ede47a6385a9bad7f83",
+    "tests/test_ec2_storage.py": "71acc4221509792feeed42a53b58afcede9fe8d02ed08d91269b22e1d5da5494",
+    "tests/test_ec2_storage_recovery.py": "14c879ce9a58e6399c2e6a4667229f1bb910a9cdf318b63f8311012ac4f49b65",
+    "tests/test_ec2_storage_journal.py": "606f9631affc49324c2fd7fdf13a2b85ce2b12b62985569c92aa85a0e343e375",
+    "tests/test_ec2_launch_storage_rollback.py": "4066a6c0172937d3e5434ce7ec744b26de0e12f609f6bdc58e7d017e1cc5e402",
+    "scripts/ec2-storage-integrity.py": "f0588ea9fdd46ad236a38736edf5d40ff1c9ca6abdfe8d07349494ee4170ae7b",
+    "docs/REA_EC2_STORAGE.md": "2ddf9e7e2d81561c026c1b4f541ff38091651cff111bb2f4965397cff9efa4f5",
+    "docs/research/rea/ec2-storage-completion-localcloud.json": "77a6e6bdec1eaf1d84af0e649510686247e7bfa9e9ab475a4848b6a65b7a1e38",
+    "docs/FEATURES.md": "3bfb900f0fc54028ef3c1d10884d005e498896a6705fc45fe2702e80553c9662"
+  },
+  "limitations": [
+    "File-backed Docker storage, not raw EBS devices or at-rest encryption.",
+    "SIGKILL tested during delayed file copy and after acknowledged write, not host power loss.",
+    "Quiescing guest writers does not flush application buffers or make a multi-volume batch atomic.",
+    "Full reference root/data/persistence evidence is in separate agent bundles linked from REA_EC2_STORAGE.md."
+  ],
+  "bundle_records": 15,
+  "bundle_session_unknowns": 4
+}

@@ -1,0 +1,924 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "guest_image": "ami-61ad6e59d7b0",
+  "reference_container": "localcloud-rea-storage-edges-9b69908e51",
+  "baseline_link_local_network": {
+    "CreatedAt": "2026-10-14 00:24:08.134819461 +0530 IST",
+    "Driver": "bridge",
+    "ID": "d68d24cb4217",
+    "IPv4": "true",
+    "IPv6": "false",
+    "Internal": "false",
+    "Labels": "",
+    "Name": "localstack-ec2-link-local",
+    "Scope": "local"
+  },
+  "scope_limits": [
+    "Two normally licensed Docker guests, explicit root/data mappings, one snapshot and a restored volume.",
+    "A successful API encryption flag does not establish at-rest encryption.",
+    "Root snapshot launch and deletion metadata tested; live-writer crash consistency, raw block I/O and physical encryption not established.",
+    "No encrypted provider code was inspected; no host block device or filesystem was modified."
+  ],
+  "exit": 0,
+  "records": [
+    {
+      "case": "launch-root-data-mappings",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "VolumeSize": 3,
+              "DeleteOnTermination": true
+            }
+          },
+          {
+            "DeviceName": "/dev/sdf",
+            "Ebs": {
+              "VolumeSize": 1,
+              "DeleteOnTermination": false
+            }
+          },
+          {
+            "DeviceName": "/dev/sdg",
+            "Ebs": {
+              "VolumeSize": 2,
+              "DeleteOnTermination": true
+            }
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-cf1a55826c99adeab",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:50:20+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-4a78cd2cb72fc1e38"
+                }
+              },
+              {
+                "DeviceName": "/dev/sdf",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:50:20+00:00",
+                  "DeleteOnTermination": false,
+                  "Status": "attached",
+                  "VolumeId": "vol-48edd2efdcb93272f"
+                }
+              },
+              {
+                "DeviceName": "/dev/sdg",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:50:20+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-d6f20165fc977ad6e"
+                }
+              }
+            ],
+            "ClientToken": "89ed8342-3a38-4f66-99ab-6bb2533f8faa",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-171-145.ec2.internal",
+                  "PublicIp": "54.214.171.145"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-23 15:50:20+00:00",
+                  "AttachmentId": "eni-attach-39df8f5f341997f36",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-ded9a652c7fe8d417",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:15902x:9802x:24102x",
+                "NetworkInterfaceId": "eni-91d86921dac57b323",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-218-82-75.ec2.internal",
+                "PrivateIpAddress": "10.218.82.75",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-171-145.ec2.internal",
+                      "PublicIp": "54.214.171.145"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.218.82.75"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-08f4e8e40fd4967a1",
+                "VpcId": "vpc-2ee3a0398c5996178",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-ded9a652c7fe8d417",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-79c4a841c63d54bea",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-218-82-75.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-4.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-23 15:50:20+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-08f4e8e40fd4967a1",
+            "VpcId": "vpc-2ee3a0398c5996178",
+            "PrivateIpAddress": "10.218.82.75",
+            "PublicIpAddress": "172.17.0.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "describe-launched",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-79c4a841c63d54bea"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-cf1a55826c99adeab",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-23 15:50:20+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-4a78cd2cb72fc1e38"
+                    }
+                  },
+                  {
+                    "DeviceName": "/dev/sdf",
+                    "Ebs": {
+                      "AttachTime": "2026-10-23 15:50:20+00:00",
+                      "DeleteOnTermination": false,
+                      "Status": "attached",
+                      "VolumeId": "vol-48edd2efdcb93272f"
+                    }
+                  },
+                  {
+                    "DeviceName": "/dev/sdg",
+                    "Ebs": {
+                      "AttachTime": "2026-10-23 15:50:20+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-d6f20165fc977ad6e"
+                    }
+                  }
+                ],
+                "ClientToken": "89ed8342-3a38-4f66-99ab-6bb2533f8faa",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-172-17-0-4.ec2.internal",
+                      "PublicIp": "172.17.0.4"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-23 15:50:20+00:00",
+                      "AttachmentId": "eni-attach-39df8f5f341997f36",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-ded9a652c7fe8d417",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:15902x:9802x:24102x",
+                    "NetworkInterfaceId": "eni-91d86921dac57b323",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-218-82-75.ec2.internal",
+                    "PrivateIpAddress": "10.218.82.75",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-4.ec2.internal",
+                          "PublicIp": "172.17.0.4"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.218.82.75"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-08f4e8e40fd4967a1",
+                    "VpcId": "vpc-2ee3a0398c5996178",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-ded9a652c7fe8d417",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-79c4a841c63d54bea",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-218-82-75.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-4.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-23 15:50:20+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-08f4e8e40fd4967a1",
+                "VpcId": "vpc-2ee3a0398c5996178",
+                "PrivateIpAddress": "10.218.82.75",
+                "PublicIpAddress": "172.17.0.4"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "launch-guest-storage",
+      "container_id": "91a79923dd922fb66c6283dee7eec84fc25c221491de3a5c14a979293215ef3a",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "guest_exit": 0,
+      "guest_output": "DEVICES\nMOUNTS\noverlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/578/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/59/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/58/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/57/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/579/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/579/work 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nshm /dev/shm tmpfs rw,seclabel,nosuid,nodev,noexec,relatime,size=65536k,inode64 0 0\n/dev/nvme0n1p5 /usr/sbin/docker-init btrfs ro,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\ntmpfs /run/docker.sock tmpfs rw,seclabel,nosuid,nodev,size=3191592k,nr_inodes=819200,mode=755,inode64 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\nMARKER\n"
+    },
+    {
+      "case": "source-root-marker-written",
+      "exit": 0,
+      "output": "root-snapshot-marker\n"
+    },
+    {
+      "case": "snapshot-root",
+      "operation": "create_snapshot",
+      "parameters": {
+        "VolumeId": "vol-4a78cd2cb72fc1e38"
+      },
+      "status": 200,
+      "result": {
+        "Tags": [],
+        "SnapshotId": "snap-61da1afede03fe052",
+        "VolumeId": "vol-4a78cd2cb72fc1e38",
+        "State": "pending",
+        "StartTime": "2026-10-23 15:50:21+00:00",
+        "Progress": "60%",
+        "OwnerId": "000000000000",
+        "Description": "",
+        "VolumeSize": 3,
+        "Encrypted": true
+      }
+    },
+    {
+      "case": "describe-root-snapshot",
+      "operation": "describe_snapshots",
+      "parameters": {
+        "SnapshotIds": [
+          "snap-61da1afede03fe052"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Snapshots": [
+          {
+            "Tags": [],
+            "SnapshotId": "snap-61da1afede03fe052",
+            "VolumeId": "vol-4a78cd2cb72fc1e38",
+            "State": "completed",
+            "StartTime": "2026-10-23 15:50:21+00:00",
+            "Progress": "100%",
+            "OwnerId": "000000000000",
+            "Description": "",
+            "VolumeSize": 3,
+            "Encrypted": true
+          }
+        ]
+      }
+    },
+    {
+      "case": "restore-root-volume",
+      "operation": "create_volume",
+      "parameters": {
+        "AvailabilityZone": "us-east-1a",
+        "SnapshotId": "snap-61da1afede03fe052"
+      },
+      "status": 200,
+      "result": {
+        "VolumeType": "gp2",
+        "VolumeId": "vol-6768813c5c8bc3490",
+        "Size": 3,
+        "SnapshotId": "snap-61da1afede03fe052",
+        "AvailabilityZone": "us-east-1a",
+        "State": "creating",
+        "CreateTime": "2026-10-23 15:50:21+00:00",
+        "Encrypted": true,
+        "KmsKeyId": "None"
+      }
+    },
+    {
+      "case": "describe-restored-volume",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-6768813c5c8bc3490"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Volumes": [
+          {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-6768813c5c8bc3490",
+            "Size": 3,
+            "SnapshotId": "snap-61da1afede03fe052",
+            "AvailabilityZone": "us-east-1a",
+            "State": "available",
+            "CreateTime": "2026-10-23 15:50:21+00:00",
+            "Attachments": [],
+            "Encrypted": true,
+            "KmsKeyId": "None"
+          }
+        ]
+      }
+    },
+    {
+      "case": "launch-from-root-snapshot",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "SnapshotId": "snap-61da1afede03fe052",
+              "VolumeSize": 3,
+              "DeleteOnTermination": true
+            }
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-b4d7e0b10ef9bfe8a",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-23 15:50:21+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-fd0e54af0786f8517"
+                }
+              }
+            ],
+            "ClientToken": "59d95796-8c41-4997-b3c3-1edcdddce201",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-135-165.ec2.internal",
+                  "PublicIp": "54.214.135.165"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-23 15:50:21+00:00",
+                  "AttachmentId": "eni-attach-1c146b714f6e3324b",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-ded9a652c7fe8d417",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:8402x:23802x:10102x",
+                "NetworkInterfaceId": "eni-bba5c2e88791b2437",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-182-118-157.ec2.internal",
+                "PrivateIpAddress": "10.182.118.157",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-135-165.ec2.internal",
+                      "PublicIp": "54.214.135.165"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.182.118.157"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-08f4e8e40fd4967a1",
+                "VpcId": "vpc-2ee3a0398c5996178",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-ded9a652c7fe8d417",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-877523856788bf971",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-182-118-157.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-5.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-23 15:50:21+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-08f4e8e40fd4967a1",
+            "VpcId": "vpc-2ee3a0398c5996178",
+            "PrivateIpAddress": "10.182.118.157",
+            "PublicIpAddress": "172.17.0.5"
+          }
+        ]
+      }
+    },
+    {
+      "case": "snapshot-launched-guest",
+      "container_id": "3ba0f3988ddf079f523eabed5198b4b5e094d228d7b987b49d9826c2776f4e26",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/var/run/docker.sock",
+          "Destination": "/var/run/docker.sock",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "guest_exit": 0,
+      "guest_output": "DEVICES\nMOUNTS\noverlay / overlay rw,seclabel,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/584/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/59/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/58/fs:/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/57/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/585/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/585/work 0 0\nproc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\ntmpfs /dev tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ndevpts /dev/pts devpts rw,seclabel,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=666 0 0\nsysfs /sys sysfs ro,seclabel,nosuid,nodev,noexec,relatime 0 0\ncgroup /sys/fs/cgroup cgroup2 ro,seclabel,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot,memory_hugetlb_accounting 0 0\nmqueue /dev/mqueue mqueue rw,seclabel,nosuid,nodev,noexec,relatime 0 0\nshm /dev/shm tmpfs rw,seclabel,nosuid,nodev,noexec,relatime,size=65536k,inode64 0 0\n/dev/nvme0n1p5 /usr/sbin/docker-init btrfs ro,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hostname btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/hosts btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\n/dev/nvme0n1p5 /etc/resolv.conf btrfs rw,seclabel,relatime,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=256,subvol=/root 0 0\ntmpfs /run/docker.sock tmpfs rw,seclabel,nosuid,nodev,size=3191592k,nr_inodes=819200,mode=755,inode64 0 0\nproc /proc/bus proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/fs proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/irq proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sys proc ro,nosuid,nodev,noexec,relatime 0 0\nproc /proc/sysrq-trigger proc ro,nosuid,nodev,noexec,relatime 0 0\ntmpfs /proc/acpi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/asound tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/interrupts tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/kcore tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/keys tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/latency_stats tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /proc/scsi tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /proc/timer_list tmpfs rw,seclabel,nosuid,size=65536k,mode=755,inode64 0 0\ntmpfs /sys/devices/virtual/powercap tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/firmware tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu0/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu1/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu2/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu3/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu4/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu5/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu6/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu7/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu8/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu9/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu10/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\ntmpfs /sys/devices/system/cpu/cpu11/thermal_throttle tmpfs ro,seclabel,relatime,size=4k,nr_inodes=1,inode64 0 0\nMARKER\n"
+    },
+    {
+      "case": "describe-snapshot-launched",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-877523856788bf971"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-b4d7e0b10ef9bfe8a",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-23 15:50:21+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-fd0e54af0786f8517"
+                    }
+                  }
+                ],
+                "ClientToken": "59d95796-8c41-4997-b3c3-1edcdddce201",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-172-17-0-5.ec2.internal",
+                      "PublicIp": "172.17.0.5"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-23 15:50:21+00:00",
+                      "AttachmentId": "eni-attach-1c146b714f6e3324b",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-ded9a652c7fe8d417",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:8402x:23802x:10102x",
+                    "NetworkInterfaceId": "eni-bba5c2e88791b2437",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-182-118-157.ec2.internal",
+                    "PrivateIpAddress": "10.182.118.157",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-5.ec2.internal",
+                          "PublicIp": "172.17.0.5"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.182.118.157"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-08f4e8e40fd4967a1",
+                    "VpcId": "vpc-2ee3a0398c5996178",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-ded9a652c7fe8d417",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-877523856788bf971",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-182-118-157.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-5.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-23 15:50:21+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-08f4e8e40fd4967a1",
+                "VpcId": "vpc-2ee3a0398c5996178",
+                "PrivateIpAddress": "10.182.118.157",
+                "PublicIpAddress": "172.17.0.5"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "terminate-mapped-instance",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-79c4a841c63d54bea"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-79c4a841c63d54bea",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "post-terminate-/dev/sda1",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-4a78cd2cb72fc1e38"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidVolume.NotFound",
+        "Message": "The volume '{'vol-4a78cd2cb72fc1e38'}' does not exist."
+      }
+    },
+    {
+      "case": "post-terminate-/dev/sdf",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-48edd2efdcb93272f"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Volumes": [
+          {
+            "VolumeType": "gp2",
+            "VolumeId": "vol-48edd2efdcb93272f",
+            "Size": 1,
+            "SnapshotId": "",
+            "AvailabilityZone": "us-east-1a",
+            "State": "available",
+            "CreateTime": "2026-10-23 15:50:20+00:00",
+            "Attachments": [],
+            "Encrypted": true,
+            "KmsKeyId": "arn:aws:kms:us-east-1:000000000000:key/e4ed1eb5-cf69-4bf8-aba6-253cbc179c62"
+          }
+        ]
+      }
+    },
+    {
+      "case": "post-terminate-/dev/sdg",
+      "operation": "describe_volumes",
+      "parameters": {
+        "VolumeIds": [
+          "vol-d6f20165fc977ad6e"
+        ]
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidVolume.NotFound",
+        "Message": "The volume '{'vol-d6f20165fc977ad6e'}' does not exist."
+      }
+    },
+    {
+      "case": "cleanup-terminate",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-877523856788bf971"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-877523856788bf971",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-4a78cd2cb72fc1e38"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidVolume.NotFound",
+        "Message": "The volume 'vol-4a78cd2cb72fc1e38' does not exist."
+      }
+    },
+    {
+      "case": "cleanup-delete-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-48edd2efdcb93272f"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-d6f20165fc977ad6e"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidVolume.NotFound",
+        "Message": "The volume 'vol-d6f20165fc977ad6e' does not exist."
+      }
+    },
+    {
+      "case": "cleanup-delete-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-6768813c5c8bc3490"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-volume",
+      "operation": "delete_volume",
+      "parameters": {
+        "VolumeId": "vol-fd0e54af0786f8517"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidVolume.NotFound",
+        "Message": "The volume 'vol-fd0e54af0786f8517' does not exist."
+      }
+    },
+    {
+      "case": "cleanup-delete-snapshot",
+      "operation": "delete_snapshot",
+      "parameters": {
+        "SnapshotId": "snap-61da1afede03fe052"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-guest-containers",
+      "remaining": []
+    }
+  ],
+  "stderr": "",
+  "reference_container_removed": true,
+  "captured_guest_containers_remaining": [],
+  "link_local_network_cleanup": "preexisting shared network preserved"
+}
