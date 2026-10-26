@@ -1,0 +1,635 @@
+{
+  "namespace": "ec2-iam-ref-kube-2987e80f",
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "context": "kind-localcloud",
+  "records": [
+    {
+      "case": "register-image",
+      "operation": "register_image",
+      "parameters": {
+        "Name": "rea-completion-ec2-iam-ref-kube-2987e80f",
+        "Architecture": "x86_64",
+        "RootDeviceName": "/dev/sda1",
+        "VirtualizationType": "hvm"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-8f8a6f72d9697853b"
+      }
+    },
+    {
+      "case": "run-instance",
+      "operation": "run_instances",
+      "parameters": {
+        "IamInstanceProfile": {
+          "Name": "rea-ec2-profile"
+        },
+        "ImageId": "ami-8f8a6f72d9697853b",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "UserData": "#!/bin/sh\necho REA-bootstrap >/tmp/rea-bootstrap\necho REA-console\npython3 - <<'PYIMDS'\nimport urllib.request,json,time,socket,re\nr=[]\niid=re.search(r\"i-[0-9a-f]{17}\",socket.gethostname()).group()\nheaders={\"x-localstack-imds-account-id\":\"000000000000\",\"x-localstack-imds-region-name\":\"us-east-1\",\"x-localstack-imds-instance-id\":iid}\nfor _ in range(50):\n try:\n  op=urllib.request.build_opener(urllib.request.ProxyHandler({}))\n  with op.open(urllib.request.Request(\"http://169.254.169.254/latest/meta-data/instance-id\",headers=headers),timeout=1) as x:r.append({\"status\":x.status,\"body\":x.read(100).decode()})\n  break\n except Exception as e:r.append({\"error\":str(e)});time.sleep(.2)\nopen(\"/tmp/rea-bootstrap-metadata.json\",\"w\").write(json.dumps(r))\nPYIMDS\n"
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-92f18cab52cc9b738",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-26 15:10:21+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-0a348b8a576778db9"
+                }
+              }
+            ],
+            "ClientToken": "5b2be9ab-c1bb-4ea0-8e39-107dc992e717",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "IamInstanceProfile": {
+              "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile",
+              "Id": "iip-assoc-458ba31fec43ece1c"
+            },
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-94-158.ec2.internal",
+                  "PublicIp": "54.214.94.158"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-26 15:10:21+00:00",
+                  "AttachmentId": "eni-attach-954ac3ca768c8ce1d",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-9272a21f2a23801a1",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:19502x:16102x:21002x",
+                "NetworkInterfaceId": "eni-b0211b07af8427c55",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-9-92-107.ec2.internal",
+                "PrivateIpAddress": "10.9.92.107",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-94-158.ec2.internal",
+                      "PublicIp": "54.214.94.158"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.9.92.107"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-05a070e319aea559e",
+                "VpcId": "vpc-9e25760020efa2c27",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-9272a21f2a23801a1",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-9f41314c0bb9b9ddc",
+            "ImageId": "ami-8f8a6f72d9697853b",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-9-92-107.ec2.internal",
+            "PublicDnsName": "10-244-0-110.ec2-iam-ref-kube-2987e80f.pod",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-26 15:10:21+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-05a070e319aea559e",
+            "VpcId": "vpc-9e25760020efa2c27",
+            "PrivateIpAddress": "10.9.92.107",
+            "PublicIpAddress": "10.244.0.110"
+          }
+        ]
+      }
+    },
+    {
+      "case": "stock-created-workloads",
+      "objects": [
+        {
+          "kind": "Deployment",
+          "name": "localstack-ec2-i-9f41314c0bb9b9ddc",
+          "uid": "9a000deb-19e3-4b14-9176-b6dc4fdea4fe",
+          "phase": null,
+          "replicas": 1,
+          "readyReplicas": 1,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Deployment",
+          "name": "reference",
+          "uid": "40672c26-d082-4b25-8a45-0892cb97ab0d",
+          "phase": null,
+          "replicas": 1,
+          "readyReplicas": 1,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Pod",
+          "name": "localstack-ec2-i-9f41314c0bb9b9ddc-c8cf6cbbf-4z8rk",
+          "uid": "b7b962c8-f98d-44d1-bfaf-7813a88c7e04",
+          "phase": "Running",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [
+            {
+              "name": "localstack-ec2-i-9f41314c0bb9b9ddc",
+              "image": "ami-8f8a6f72d9697853b",
+              "imagePullPolicy": "Never"
+            },
+            {
+              "name": "imds-proxy-sidecar",
+              "image": "alpine/socat:latest",
+              "imagePullPolicy": "Always"
+            }
+          ],
+          "volumes": [
+            {
+              "name": "kube-api-access-82l8d",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Pod",
+          "name": "reference-7df857dffd-6tsxr",
+          "uid": "4b213d4b-0143-44fc-b00f-355dd051d826",
+          "phase": "Running",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [
+            {
+              "name": "reference",
+              "image": "localstack/localstack:latest",
+              "imagePullPolicy": "Never"
+            }
+          ],
+          "volumes": [
+            {
+              "name": "state",
+              "persistentVolumeClaim": {
+                "claimName": "reference-state"
+              }
+            },
+            {
+              "name": "kube-api-access-65vlj",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Service",
+          "name": "localstack",
+          "uid": "85d0d243-595a-4742-b5a6-24853dfa13bd",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Service",
+          "name": "localstack-ec2-i-9f41314c0bb9b9ddc",
+          "uid": "99fc0d41-ab34-4fa6-abf2-7922a42b2c89",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Service",
+          "name": "localstack-main",
+          "uid": "cfb6c421-5cae-450a-acc8-5e0c35d181ec",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "ConfigMap",
+          "name": "kube-root-ca.crt",
+          "uid": "466c5e76-afeb-445f-9802-adb854c2bf18",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "PersistentVolumeClaim",
+          "name": "reference-state",
+          "uid": "e6eec23c-9d16-41c9-b935-c16a661a6c8d",
+          "phase": "Bound",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        }
+      ]
+    },
+    {
+      "case": "post-ready-describe",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-9f41314c0bb9b9ddc"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-92f18cab52cc9b738",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-26 15:10:21+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-0a348b8a576778db9"
+                    }
+                  }
+                ],
+                "ClientToken": "5b2be9ab-c1bb-4ea0-8e39-107dc992e717",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "IamInstanceProfile": {
+                  "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile",
+                  "Id": "iip-assoc-458ba31fec43ece1c"
+                },
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-10-244-0-110.ec2.internal",
+                      "PublicIp": "10.244.0.110"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-26 15:10:21+00:00",
+                      "AttachmentId": "eni-attach-954ac3ca768c8ce1d",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-9272a21f2a23801a1",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:19502x:16102x:21002x",
+                    "NetworkInterfaceId": "eni-b0211b07af8427c55",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-9-92-107.ec2.internal",
+                    "PrivateIpAddress": "10.9.92.107",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-10-244-0-110.ec2.internal",
+                          "PublicIp": "10.244.0.110"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.9.92.107"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-05a070e319aea559e",
+                    "VpcId": "vpc-9e25760020efa2c27",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-9272a21f2a23801a1",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-9f41314c0bb9b9ddc",
+                "ImageId": "ami-8f8a6f72d9697853b",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-9-92-107.ec2.internal",
+                "PublicDnsName": "10-244-0-110.ec2-iam-ref-kube-2987e80f.pod",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-26 15:10:21+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-05a070e319aea559e",
+                "VpcId": "vpc-9e25760020efa2c27",
+                "PrivateIpAddress": "10.9.92.107",
+                "PublicIpAddress": "10.244.0.110"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "diagnostic-require-imdsv2",
+      "operation": "modify_instance_metadata_options",
+      "parameters": {
+        "InstanceId": "i-9f41314c0bb9b9ddc",
+        "HttpTokens": "required"
+      },
+      "status": 200,
+      "result": {
+        "InstanceId": "i-9f41314c0bb9b9ddc",
+        "InstanceMetadataOptions": {
+          "State": "pending",
+          "HttpTokens": "required",
+          "HttpPutResponseHopLimit": 1,
+          "HttpEndpoint": "enabled",
+          "HttpProtocolIpv6": "disabled",
+          "InstanceMetadataTags": "disabled"
+        }
+      }
+    }
+  ],
+  "reference_gateway_service": "localstack-main:4566 selects own reference Deployment",
+  "reference_metadata_service": "localstack.ec2-iam-ref-kube-2987e80f.svc.cluster.local:4510 selects own reference Deployment metadata server",
+  "reference_node_images": [
+    {
+      "image": "docker.io/localstack/localstack:latest",
+      "imageID": "docker.io/library/import-2026-10-20@sha256:1e0da331934569a86390059ffca6fd41762e48caa0e6189cd1558eee0383b535"
+    }
+  ],
+  "reference_startup_logs": "2026-10-26T15:10:08.703  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_STARTUP load strategy\n2026-10-26T15:10:08.703  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST save strategy\n2026-10-26T15:10:08.709  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\n2026-10-26T15:10:15.092  INFO --- [ady_monitor)] l.p.c.p.snapshot.plugins   : restoring state of all services on startup\nReady.\n",
+  "attached_profile_setup": {
+    "InstanceProfile": {
+      "Path": "/",
+      "InstanceProfileName": "rea-ec2-profile",
+      "InstanceProfileId": "AIPAQAAAAAAABC3CNS6XW",
+      "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile",
+      "CreateDate": "2026-10-26 15:10:20.688427+00:00",
+      "Roles": [
+        {
+          "Path": "/",
+          "RoleName": "rea-ec2-role",
+          "RoleId": "AROAQAAAAAAAPVCFOJPAI",
+          "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role",
+          "CreateDate": "2026-10-26 15:10:20.646699+00:00",
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ec2.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+        }
+      ],
+      "Tags": []
+    },
+    "ResponseMetadata": {
+      "RequestId": "4bbb25d6-264f-4ca2-a362-21fabef44416",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "server": "TwistedWeb/26.4.0",
+        "date": "Mon, 26 Oct 2026 15:10:20 GMT",
+        "content-type": "text/xml",
+        "content-length": "1097",
+        "x-amzn-requestid": "4bbb25d6-264f-4ca2-a362-21fabef44416",
+        "x-localstack": "2026.10.0"
+      },
+      "RetryAttempts": 0
+    }
+  },
+  "early_pull_policy_intervention": [
+    "localstack-ec2-i-9f41314c0bb9b9ddc"
+  ],
+  "controlled_identity_intervention": "UserData derives own instance ID from Kubernetes hostname and explicitly adds the three missing LocalStack identity headers; not stock guest behavior",
+  "controlled_intervention": {
+    "reason": "Stock Always policy bypasses node cache and attempts unavailable AMI-name registry pull",
+    "patch": "Never only on own EC2 guest Deployment"
+  },
+  "guest_initial": {
+    "exit": 0,
+    "output": "{\"bootstrap\": \"REA-bootstrap\\n\", \"bootstrap_metadata\": \"[{\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"status\\\": 200, \\\"body\\\": \\\"i-9f41314c0bb9b9ddc\\\"}]\"}\n",
+    "stderr": ""
+  },
+  "metadata_initial": {
+    "exit": 0,
+    "output": "[{\"path\": \"meta-data/instance-id\", \"status\": 200, \"body\": \"i-9f41314c0bb9b9ddc\"}, {\"path\": \"meta-data/iam/\", \"error\": \"HTTP Error 404: NOT FOUND\", \"body\": \"Endpoint 'latest/meta-data/iam/' not implemented\"}, {\"path\": \"meta-data/iam/info\", \"error\": \"HTTP Error 404: NOT FOUND\", \"body\": \"Endpoint 'latest/meta-data/iam/info' not implemented\"}, {\"path\": \"meta-data/iam/security-credentials/\", \"error\": \"HTTP Error 404: NOT FOUND\", \"body\": \"Endpoint 'latest/meta-data/iam/security-credentials/' not implemented\"}, {\"path\": \"meta-data/iam/security-credentials/rea-ec2-role\", \"error\": \"HTTP Error 404: NOT FOUND\", \"body\": \"Endpoint 'latest/meta-data/iam/security-credentials/rea-ec2-role' not implemented\"}, {\"path\": \"v2-instance-id\", \"status\": 200, \"body\": \"i-9f41314c0bb9b9ddc\"}]\n",
+    "stderr": ""
+  },
+  "explicit_identity": {
+    "exit": 0,
+    "output": "{\"status\": 200, \"body\": \"i-9f41314c0bb9b9ddc\"}\n",
+    "stderr": ""
+  },
+  "guest_pod_owner_references": [
+    [
+      {
+        "apiVersion": "apps/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "ReplicaSet",
+        "name": "localstack-ec2-i-9f41314c0bb9b9ddc-c8cf6cbbf",
+        "uid": "ddc90d23-3b96-4846-b6db-7dc85350b690"
+      }
+    ]
+  ],
+  "guest_proxy_configuration": [
+    {
+      "name": "localstack-ec2-i-9f41314c0bb9b9ddc",
+      "command": [
+        "/bin/sh"
+      ],
+      "args": [
+        "-c",
+        "mkdir -p /var/log && printf \"%s\" \"$LOCALSTACK_EC2_USER_DATA\" > /tmp/user_data.sh && chmod +x /tmp/user_data.sh && /tmp/user_data.sh > /var/log/cloud-init-output.log 2>&1; echo 'User data script completed'; sleep infinity"
+      ]
+    },
+    {
+      "name": "imds-proxy-sidecar",
+      "command": [
+        "sh",
+        "-c",
+        "socat TCP-LISTEN:9001,fork TCP:localstack.ec2-iam-ref-kube-2987e80f.svc.cluster.local:4510"
+      ],
+      "args": null
+    }
+  ],
+  "proxy_logs": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "guest_gateway_health": {
+    "exit": 0,
+    "output": "200\n",
+    "stderr": ""
+  },
+  "metadata_token_enforcement": {
+    "exit": 0,
+    "output": "[{\"case\": \"without-token\", \"status\": 200, \"body\": \"i-9f41314c0bb9b9ddc\"}, {\"case\": \"issue-token\", \"status\": 200}, {\"case\": \"with-token\", \"status\": 200, \"body\": \"i-9f41314c0bb9b9ddc\"}]\n",
+    "stderr": ""
+  },
+  "reference_final_logs": "\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\nDocker not available\n2026-10-26T15:10:04.120  INFO --- [  MainThread] l.licensing.licensingv2    : Successfully requested and activated new license a06a9137-a60c-4fe0-bbac-d0d46cc2654f:student \ud83d\udd11\u2705\n2026-10-26T15:10:05.284  INFO --- [  MainThread] localstack.utils.bootstrap : Execution of \"_resolve_api_provider_specs\" took 1081.13ms\n2026-10-26T15:10:08.280  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: logodev ready at http://logodev.localhost.localstack.cloud:4566 -> 127.0.0.1:4115\n2026-10-26T15:10:08.282  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: posthog ready at http://posthog.localhost.localstack.cloud:4566 -> 127.0.0.1:4113\n2026-10-26T15:10:08.285  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: resend ready at http://resend.localhost.localstack.cloud:4566 -> 127.0.0.1:4114\n2026-10-26T15:10:08.290  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: stripe ready at http://stripe.localhost.localstack.cloud:4566 -> 127.0.0.1:4111\n2026-10-26T15:10:08.296  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: twilio ready at http://twilio.localhost.localstack.cloud:4566 -> 127.0.0.1:4112\n2026-10-26T15:10:08.703  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_STARTUP load strategy\n2026-10-26T15:10:08.703  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST save strategy\n2026-10-26T15:10:08.709  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-26T15:10:09.500  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\n2026-10-26T15:10:15.092  INFO --- [ady_monitor)] l.p.c.p.snapshot.plugins   : restoring state of all services on startup\nReady.\nkube_config_path not provided and default location (~/.kube/config) does not exist. Using inCluster Config. This might not work.\n2026-10-26T15:10:18.049  INFO --- [et.reactor-0] l.p.c.s.e.v.kubernetes     : Initializing Kubernetes client and setting up namespaces.\n2026-10-26T15:10:18.505  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for ec2 took 200 ms\n2026-10-26T15:10:18.506  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RegisterImage => 200\n2026-10-26T15:10:20.645  INFO --- [et.reactor-0] l.p.c.services.iam.plugins : Configured IAM provider to use Advance Policy Simulator\n2026-10-26T15:10:20.685  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for iam took 38 ms\n2026-10-26T15:10:20.685  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.CreateRole => 200\n2026-10-26T15:10:20.710  INFO --- [et.reactor-1] l.persistence.manager      : Saving state for iam took 22 ms\n2026-10-26T15:10:20.710  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.CreateInstanceProfile => 200\n2026-10-26T15:10:20.735  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for iam took 22 ms\n2026-10-26T15:10:20.735  INFO --- [et.reactor-0] localstack.request.aws     : AWS iam.AddRoleToInstanceProfile => 200\n2026-10-26T15:10:20.738  INFO --- [et.reactor-1] localstack.request.aws     : AWS iam.GetInstanceProfile => 200\n2026-10-26T15:10:36.225  WARN --- [-functhread5] l.p.c.s.ec2.vmmanager.base : Failed ssh setup: (0)\nReason: Handshake status 403 Forbidden -+-+- {'audit-id': '20919c9c-a6f6-4a5c-a121-dfacbb987f74', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'date': 'Mon, 26 Oct 2026 15:10:36 GMT', 'content-length': '439'} -+-+- {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"pods \\\"localstack-ec2-i-9f41314c0bb9b9ddc-c8cf6cbbf-4z8rk\\\" is forbidden: User \\\"system:serviceaccount:ec2-iam-ref-kube-2987e80f:reference\\\" cannot get resource \\\"pods/exec\\\" in API group \\\"\\\" in the namespace \\\"ec2-iam-ref-kube-2987e80f\\\"\",\"reason\":\"Forbidden\",\"details\":{\"name\":\"localstack-ec2-i-9f41314c0bb9b9ddc-c8cf6cbbf-4z8rk\",\"kind\":\"pods\"},\"code\":403}\n\n\n2026-10-26T15:10:36.253  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for ec2 took 418 ms\n2026-10-26T15:10:36.253  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RunInstances => 200\n2026-10-26T15:10:44.841  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.DescribeInstances => 200\n2026-10-26T15:10:45.142  WARN --- [et.reactor-1] l.p.c.s.ec2.imds.routes    : Path 'latest/meta-data/iam/' not implemented\n2026-10-26T15:10:45.144  WARN --- [et.reactor-0] l.p.c.s.ec2.imds.routes    : Path 'latest/meta-data/iam/info' not implemented\n2026-10-26T15:10:45.147  WARN --- [et.reactor-1] l.p.c.s.ec2.imds.routes    : Path 'latest/meta-data/iam/security-credentials/' not implemented\n2026-10-26T15:10:45.148  WARN --- [et.reactor-0] l.p.c.s.ec2.imds.routes    : Path 'latest/meta-data/iam/security-credentials/rea-ec2-role' not implemented\n2026-10-26T15:10:45.936  INFO --- [et.reactor-1] l.persistence.manager      : Saving state for ec2 took 146 ms\n2026-10-26T15:10:45.936  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.ModifyInstanceMetadataOptions => 200\n",
+  "namespace_removed": true,
+  "node_tag_removed": true
+}

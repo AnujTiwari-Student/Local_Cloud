@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "namespace": "ec2-iam-kube-5c797b57",
+  "context": "kind-localcloud",
+  "checks": [
+    "kubernetes-user-data-reads-instance-role-credentials-before-app-start",
+    "guest-signed-sts-caller-identity-and-s3-read",
+    "role-policy-denies-signed-write",
+    "profile-replacement-updates-live-imds-without-restarting-pod",
+    "profile-detach-removes-live-imds-credentials",
+    "profile-reattach-restores-live-credentials",
+    "new-pod-bootstrap-and-role-credentials-survive-stop-start",
+    "termination-cleans-workloads-and-revokes-instance-access"
+  ],
+  "credential_redaction": "Credential values remain inside guest/helper memory and private temporary state; no values in this report",
+  "authorization": "caller-authorized kubectl proxy, not a new minimal RBAC test",
+  "initial": {
+    "role": "worker",
+    "read_status": 200,
+    "read_body": "role-read-ok",
+    "write_status": 403,
+    "caller_arn": "arn:aws:sts::000000000000:assumed-role/worker/i-a815866761c742c4a"
+  },
+  "replaced": {
+    "role": "other",
+    "read_status": 200,
+    "read_body": "role-read-ok",
+    "write_status": 403,
+    "caller_arn": "arn:aws:sts::000000000000:assumed-role/other/i-a815866761c742c4a"
+  },
+  "namespace_removed": true,
+  "node_tags_removed": [
+    true,
+    true
+  ],
+  "host_tags_removed": [
+    true,
+    true
+  ]
+}

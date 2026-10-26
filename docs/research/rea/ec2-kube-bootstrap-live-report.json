@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "namespace": "ec2-kube-bootstrap-6aa224b3",
+  "context": "kind-localcloud",
+  "checks": [
+    "real-ready-pod-drives-running-ec2-state",
+    "user-data-init-and-real-pvc-file-bytes",
+    "imdsv2-metadata-identity-region-and-userdata-readable-before-guest-start",
+    "native-metadata-sidecar-startup-probe-gates-user-data",
+    "pod-local-imdsv2-guest-instance-id",
+    "metadata-option-rollout-and-imdsv2-token-enforcement",
+    "cluster-service-and-owned-port-forward-web-reachability",
+    "unsupported-kubernetes-snapshot-fails-explicitly",
+    "instance-console-contains-user-data-log",
+    "stop-start-recreates-pod-and-preserves-pvc-bytes",
+    "metadata-available-again-during-stop-start-user-data",
+    "reboot-replaces-real-pod",
+    "metadata-available-again-during-reboot-user-data",
+    "missing-image-remains-pending-instead-of-false-running",
+    "failed-metadata-helper-blocks-user-data-and-guest-startup",
+    "disabled-metadata-is-reachable-but-returns404-during-user-data",
+    "backend-restart-reconciles-existing-owned-deployment",
+    "terminate-removes-owned-workloads-service-config-and-delete-on-termination-pvc"
+  ],
+  "guest_image": "localcloud-ec2-web:rea-6a1bcb8eda",
+  "helper_base_image_id": "sha256:eac7920363f08a6aac3fe0dcdef13ad2c2c75625cec46eb52a39ce89b2befd19",
+  "helper_build": "cached runtime dependencies plus current localcloud source; no package downloads",
+  "metadata_helper_image": "localcloud-ec2-helper:rea-93a5d0b219",
+  "launched": {
+    "InstanceId": "i-f663ed486f5e4a009",
+    "Backend": "kubernetes",
+    "State": {
+      "Name": "running",
+      "Code": 16
+    },
+    "Endpoints": [
+      "http://lc-ec2-356e8f70-i-f663ed486f5e4a009.ec2-kube-bootstrap-6aa224b3.svc:8080"
+    ]
+  },
+  "bootstrap": {
+    "instance-id": "i-f663ed486f5e4a009",
+    "instance-type": "t3.micro",
+    "placement/region": "us-east-1",
+    "user_data_sha256": "13d087f9922c5f5faf4dc6a79cc9063ed3e2155e1c1f82a3a2a5c0ca8c8b775f",
+    "token_required": true
+  },
+  "bad_image": {
+    "State": {
+      "Name": "pending",
+      "Code": 0
+    },
+    "RuntimeStatusReason": "ErrImageNeverPull",
+    "pod_reason": "ErrImageNeverPull"
+  },
+  "failed_helper": {
+    "ec2_state": "pending",
+    "metadata_reason": "ErrImageNeverPull",
+    "user_data_and_guest_started": false
+  },
+  "namespace_removed": true,
+  "helper_node_tag_removed": true,
+  "helper_host_tag_removed": true,
+  "node_tag_removed": true,
+  "host_tag_removed": true
+}

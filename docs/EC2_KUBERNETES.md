@@ -12,7 +12,7 @@ This is distinct from the existing Kubernetes operator, generic Job executor and
 - LocalCloud's existing management token.
 - A backend with Kubernetes API access: in-cluster service account, or a loopback `kubectl proxy` for a host process.
 
-Use a separate SQLite state file for each EC2 executor/namespace. The state contains runtime ownership and resource UIDs, so preserve it when restarting. It is not a portable fixture for another cluster.
+Use a separate SQLite state file for each EC2 executor/namespace. The state contains runtime ownership and resource UIDs, so preserve it and its `.ec2-kube-journal.sqlite3` sidecar when restarting. It is not a portable fixture for another cluster.
 
 ## Try it with kind
 
@@ -139,20 +139,63 @@ Restart the same backend configuration with:
 --ec2-helper-image localcloud:ec2-kube
 ```
 
-New guests then include an unprivileged metadata sidecar. Their environment contains:
+New guests then include an unprivileged metadata sidecar. This requires Kubernetes native sidecars (`SidecarContainers`, enabled by default from Kubernetes 1.29). The helper is a restartable init container: its startup probe must succeed before user data runs, and it remains available while the application runs. Both user data and the guest receive:
 
 ```
 AWS_EC2_METADATA_SERVICE_ENDPOINT=http://127.0.0.1:1338
 LOCALCLOUD_METADATA_URL=http://127.0.0.1:1338
 ```
 
-The sidecar supports the existing metadata values and IMDSv2 token protocol. It does not rewrite link-local networking or provide IAM/STS role credentials. Configure guest AWS applications' service endpoints and credentials explicitly. The Docker `--ec2-imds` and `--ec2-guest-mode` flags are rejected for this executor.
+The sidecar supports the existing metadata values and IMDSv2 token protocol. It does not rewrite link-local networking. [IAM/STS instance-role credentials](EC2_INSTANCE_ROLES.md) are available when a profile and a guest-reachable backend public endpoint are configured. Configure guest AWS applications' service endpoints and credentials explicitly. The Docker `--ec2-imds` and `--ec2-guest-mode` flags are rejected for this executor.
 
 ```bash
 localcloud --profile kube-ec2 ec2 modify-instance-metadata-options --name web --http-tokens required
 ```
 
-Changing metadata options rolls the Pod so that its sidecar loads the updated payload. Metadata is available after application containers start; the user-data init container runs before the sidecar and cannot rely on it. Adding a helper flag to a backend does not retrofit existing guest templates; configure it before launch.
+Changing metadata options rolls the Pod so that its sidecar loads the updated payload. User data can query metadata immediately using the environment endpoint; it does not need a fixed sleep or a background metadata process. The startup probe checks that the listener is accepting connections even when the HTTP metadata endpoint is intentionally disabled. Disabled metadata returns HTTP 404. Configure the helper before launch.
+
+### Example: configure your app from metadata during startup
+
+Suppose your app needs its local instance ID before it starts. Use an image with Python 3 and `/bin/sh`, configure the helper as above, and save this as `/tmp/ec2-metadata-init.sh`:
+
+```bash
+#!/bin/sh
+set -eu
+python3 - <<'PYTHON'
+import os
+import urllib.request
+
+base = os.environ['AWS_EC2_METADATA_SERVICE_ENDPOINT']
+http = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+request = urllib.request.Request(
+    base + '/latest/api/token', method='PUT', data=b'',
+    headers={'X-aws-ec2-metadata-token-ttl-seconds': '60'})
+token = http.open(request, timeout=3).read().decode()
+request = urllib.request.Request(
+    base + '/latest/meta-data/instance-id',
+    headers={'X-aws-ec2-metadata-token': token})
+instance_id = http.open(request, timeout=3).read().decode()
+with open('/data/instance-id', 'w') as output:
+    output.write(instance_id)
+print('Metadata initialization completed for ' + instance_id)
+PYTHON
+```
+
+Launch it with a data mount shared between initialization and the application:
+
+```bash
+localcloud --profile kube-ec2 ec2 run-instances \
+  --image-id ami-web --name metadata-web --publish 0:8080 \
+  --user-data file:///tmp/ec2-metadata-init.sh \
+  --metadata-options '{"HttpTokens":"required"}' \
+  --block-device-mappings '[{"DeviceName":"/data","Ebs":{"VolumeSize":1,"DeleteOnTermination":false}}]'
+localcloud --profile kube-ec2 ec2 describe-instances --name metadata-web
+localcloud --profile kube-ec2 ec2 get-console-output --name metadata-web
+```
+
+Your application reads `/data/instance-id`. User data reruns on every new Pod, so it should safely update its generated configuration. Invalid helper images or failed startup probes keep the guest pending; Kubernetes does not run user data ahead of metadata. The endpoint is Pod-local loopback rather than AWS's link-local address. IAM role credentials additionally require the [instance-profile setup](EC2_INSTANCE_ROLES.md).
+
+The ordering follows [Kubernetes native sidecar semantics](https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/). See the [bootstrap metadata REA report](REA_EC2_KUBERNETES_BOOTSTRAP.md) for reference observations and live validation.
 
 ## Terminate and clean up
 
@@ -162,7 +205,7 @@ localcloud --profile kube-ec2 ec2 describe-volumes
 localcloud --profile kube-ec2 ec2 delete-volume --volume-id vol-RETAINED
 ```
 
-Terminate removes the owned Deployment, service and ConfigMap, then handles data volumes according to their deletion policy. Use the retained volume ID from the launch/describe result. Preserve the backend state database until cleanup is complete so ownership and resource UIDs remain available.
+Terminate commits deletion intent and reports `shutting-down`. Describe/resources requests settle journal recovery and confirm external deletion; the instance reaches `terminated` once owned workloads, service, ConfigMap and delete-on-termination PVCs are absent. Retained volumes remain available. Use the retained volume ID from the launch/describe result. Preserve the backend state database until cleanup is complete so ownership and resource UIDs remain available.
 
 ## Operator integration
 
@@ -198,4 +241,4 @@ python3 -m unittest discover -s tests -q
 
 The fixture uses its own namespace, temporary backend state, local proxy/port-forward processes and unique image tags. Its metadata helper copies the current source over cached runtime dependencies without downloading packages; an offline build of the production Dockerfile lacked cached APT packages. The proxy uses the caller’s Kubernetes permissions, so the minimal generated service-account Role was inspected/tested as manifests rather than exercised as the live fixture identity. Cleanup preserves preexisting cluster resources and images.
 
-This is an implemented subset. It does not provide EKS, VMs/Windows, SSH/root mode, raw EBS, physical AWS networking, IAM credentials, CSI snapshots or full AWS compatibility. Successful backend restart preserves recorded Kubernetes/PVC identities. Kubernetes mutations and SQLite commits are not one atomic transaction: abrupt process loss during provisioning can leave resources that require reconciliation. The Docker storage journal does not provide Kubernetes provisioning crash recovery.
+This is an implemented subset. It does not provide EKS, VMs/Windows, SSH/root mode, raw EBS, physical AWS networking, complete IAM/STS semantics, CSI snapshots or full AWS compatibility. Successful backend restart preserves recorded Kubernetes/PVC identities. A dedicated Kubernetes intent journal now recovers interrupted provisioning and safe updates/deletes; describe/resources also reconcile missing owned runtime resources. See the [25 October recovery and reconciliation audit](REA_EC2_KUBERNETES_COMPLETION.md) for the current 271-test/25-check follow-up. This remains bounded recovery rather than arbitrary distributed atomicity or host power-loss protection.

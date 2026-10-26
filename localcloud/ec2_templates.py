@@ -22,7 +22,7 @@ PARAMETERS = {
     'ModifyLaunchTemplate': {'LaunchTemplateId', 'LaunchTemplateName', 'DefaultVersion', 'ClientToken'},
     'GetLaunchTemplateData': {'InstanceId'},
 }
-DATA_FIELDS = {'ImageId', 'InstanceType', 'KeyName', 'UserData', 'SecurityGroupIds', 'BlockDeviceMappings', 'MetadataOptions', 'TagSpecifications', 'NetworkInterfaces'}
+DATA_FIELDS = {'ImageId', 'InstanceType', 'KeyName', 'UserData', 'SecurityGroupIds', 'BlockDeviceMappings', 'MetadataOptions', 'TagSpecifications', 'NetworkInterfaces', 'IamInstanceProfile'}
 TEXT_FIELDS = {'ImageId', 'InstanceType', 'KeyName', 'UserData'}
 
 

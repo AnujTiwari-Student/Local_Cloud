@@ -1,0 +1,1299 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "reference_container": "localcloud-rea-iam-8a879c9a60",
+  "scope": "normal licensed Docker executor; isolated fixture roles, profiles and guest; no provider extraction",
+  "credential_redaction": "All API and IMDS credential values replaced with length/prefix metadata before stdout or report persistence",
+  "exit": 0,
+  "records": [
+    {
+      "case": "missing-role",
+      "service": "iam",
+      "operation": "get_role",
+      "parameters": {
+        "RoleName": "missing-role-31e7b9ac"
+      },
+      "status": 404,
+      "error": {
+        "Code": "NoSuchEntity",
+        "Message": "The role with name missing-role-31e7b9ac cannot be found.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "missing-profile",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "missing-profile-31e7b9ac"
+      },
+      "status": 404,
+      "error": {
+        "Code": "NoSuchEntity",
+        "Message": "Instance Profile missing-profile-31e7b9ac cannot be found.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "create-role-rea-ec2-role-31e7b9ac",
+      "service": "iam",
+      "operation": "create_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac",
+        "AssumeRolePolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ec2.amazonaws.com\", \"AWS\": \"arn:aws:iam::000000000000:root\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      },
+      "status": 200,
+      "result": {
+        "Role": {
+          "Path": "/",
+          "RoleName": "rea-ec2-role-31e7b9ac",
+          "RoleId": "AROAQAAAAAAAALAIB3F4E",
+          "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac",
+          "CreateDate": "2026-10-26 15:09:09.573996+00:00",
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ec2.amazonaws.com",
+                  "AWS": "arn:aws:iam::000000000000:root"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "create-role-rea-ec2-role-31e7b9ac-b",
+      "service": "iam",
+      "operation": "create_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac-b",
+        "AssumeRolePolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ec2.amazonaws.com\", \"AWS\": \"arn:aws:iam::000000000000:root\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      },
+      "status": 200,
+      "result": {
+        "Role": {
+          "Path": "/",
+          "RoleName": "rea-ec2-role-31e7b9ac-b",
+          "RoleId": "AROAQAAAAAAADG74VS5FU",
+          "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac-b",
+          "CreateDate": "2026-10-26 15:09:09.577267+00:00",
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ec2.amazonaws.com",
+                  "AWS": "arn:aws:iam::000000000000:root"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "duplicate-role",
+      "service": "iam",
+      "operation": "create_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac",
+        "AssumeRolePolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ec2.amazonaws.com\", \"AWS\": \"arn:aws:iam::000000000000:root\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      },
+      "status": 409,
+      "error": {
+        "Code": "EntityAlreadyExists",
+        "Message": "Role with name rea-ec2-role-31e7b9ac already exists.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "put-role-policy",
+      "service": "iam",
+      "operation": "put_role_policy",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac",
+        "PolicyName": "read-fixture",
+        "PolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": [\"s3:ListAllMyBuckets\", \"sts:GetCallerIdentity\"], \"Resource\": \"*\"}]}"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "get-role-policy",
+      "service": "iam",
+      "operation": "get_role_policy",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac",
+        "PolicyName": "read-fixture"
+      },
+      "status": 200,
+      "result": {
+        "RoleName": "rea-ec2-role-31e7b9ac",
+        "PolicyName": "read-fixture",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListAllMyBuckets",
+                "sts:GetCallerIdentity"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "create-profile-rea-ec2-profile-31e7b9ac",
+      "service": "iam",
+      "operation": "create_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+          "InstanceProfileId": "AIPAQAAAAAAAB6XKHV4O5",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+          "CreateDate": "2026-10-26 15:09:09.588999+00:00",
+          "Roles": []
+        }
+      }
+    },
+    {
+      "case": "create-profile-rea-ec2-profile-31e7b9ac-b",
+      "service": "iam",
+      "operation": "create_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b",
+          "InstanceProfileId": "AIPAQAAAAAAAA6XUC5YFZ",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac-b",
+          "CreateDate": "2026-10-26 15:09:09.591530+00:00",
+          "Roles": []
+        }
+      }
+    },
+    {
+      "case": "duplicate-profile",
+      "service": "iam",
+      "operation": "create_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac"
+      },
+      "status": 409,
+      "error": {
+        "Code": "EntityAlreadyExists",
+        "Message": "Instance Profile rea-ec2-profile-31e7b9ac already exists.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "empty-profile",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+          "InstanceProfileId": "AIPAQAAAAAAAB6XKHV4O5",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+          "CreateDate": "2026-10-26 15:09:09.588999+00:00",
+          "Roles": [],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "add-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+        "RoleName": "rea-ec2-role-31e7b9ac"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "duplicate-add-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+        "RoleName": "rea-ec2-role-31e7b9ac"
+      },
+      "status": 409,
+      "error": {
+        "Code": "LimitExceeded",
+        "Message": "Cannot exceed quota for InstanceSessionsPerInstanceProfile: 1",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "add-second-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+        "RoleName": "rea-ec2-role-31e7b9ac-b"
+      },
+      "status": 409,
+      "error": {
+        "Code": "LimitExceeded",
+        "Message": "Cannot exceed quota for InstanceSessionsPerInstanceProfile: 1",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "add-other-profile-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b",
+        "RoleName": "rea-ec2-role-31e7b9ac-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "populated-profile",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+          "InstanceProfileId": "AIPAQAAAAAAAB6XKHV4O5",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+          "CreateDate": "2026-10-26 15:09:09.588999+00:00",
+          "Roles": [
+            {
+              "Path": "/",
+              "RoleName": "rea-ec2-role-31e7b9ac",
+              "RoleId": "AROAQAAAAAAAALAIB3F4E",
+              "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac",
+              "CreateDate": "2026-10-26 15:09:09.573996+00:00",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "ec2.amazonaws.com",
+                      "AWS": "arn:aws:iam::000000000000:root"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            }
+          ],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "list-profiles",
+      "service": "iam",
+      "operation": "list_instance_profiles",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "InstanceProfiles": [
+          {
+            "Path": "/",
+            "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+            "InstanceProfileId": "AIPAQAAAAAAAB6XKHV4O5",
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+            "CreateDate": "2026-10-26 15:09:09.588999+00:00",
+            "Roles": [
+              {
+                "Path": "/",
+                "RoleName": "rea-ec2-role-31e7b9ac",
+                "RoleId": "AROAQAAAAAAAALAIB3F4E",
+                "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac",
+                "CreateDate": "2026-10-26 15:09:09.573996+00:00",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": "ec2.amazonaws.com",
+                        "AWS": "arn:aws:iam::000000000000:root"
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "Path": "/",
+            "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b",
+            "InstanceProfileId": "AIPAQAAAAAAAA6XUC5YFZ",
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac-b",
+            "CreateDate": "2026-10-26 15:09:09.591530+00:00",
+            "Roles": [
+              {
+                "Path": "/",
+                "RoleName": "rea-ec2-role-31e7b9ac-b",
+                "RoleId": "AROAQAAAAAAADG74VS5FU",
+                "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac-b",
+                "CreateDate": "2026-10-26 15:09:09.577267+00:00",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": "ec2.amazonaws.com",
+                        "AWS": "arn:aws:iam::000000000000:root"
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "IsTruncated": false
+      }
+    },
+    {
+      "case": "list-profiles-for-role",
+      "service": "iam",
+      "operation": "list_instance_profiles_for_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfiles": [
+          {
+            "Path": "/",
+            "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+            "InstanceProfileId": "AIPAQAAAAAAAB6XKHV4O5",
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+            "CreateDate": "2026-10-26 15:09:09.588999+00:00",
+            "Roles": [
+              {
+                "Path": "/",
+                "RoleName": "rea-ec2-role-31e7b9ac",
+                "RoleId": "AROAQAAAAAAAALAIB3F4E",
+                "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac",
+                "CreateDate": "2026-10-26 15:09:09.573996+00:00",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": "ec2.amazonaws.com",
+                        "AWS": "arn:aws:iam::000000000000:root"
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "IsTruncated": false
+      }
+    },
+    {
+      "case": "assume-role",
+      "service": "sts",
+      "operation": "assume_role",
+      "parameters": {
+        "RoleArn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac",
+        "RoleSessionName": "rea-session",
+        "DurationSeconds": 900
+      },
+      "status": 200,
+      "result": {
+        "Credentials": {
+          "AccessKeyId": {
+            "redacted": true,
+            "length": 20,
+            "prefix": "LSIA"
+          },
+          "SecretAccessKey": {
+            "redacted": true,
+            "length": 40,
+            "prefix": null
+          },
+          "SessionToken": {
+            "redacted": true,
+            "length": 356,
+            "prefix": null
+          },
+          "Expiration": "2026-10-26 15:24:09.663279+00:00"
+        },
+        "AssumedRoleUser": {
+          "AssumedRoleId": "AROAQAAAAAAAALAIB3F4E:rea-session",
+          "Arn": "arn:aws:sts::000000000000:assumed-role/rea-ec2-role-31e7b9ac/rea-session"
+        }
+      }
+    },
+    {
+      "case": "assumed-get-caller-identity",
+      "service": "assumed",
+      "operation": "get_caller_identity",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "UserId": "AROAQAAAAAAAALAIB3F4E:rea-session",
+        "Account": "000000000000",
+        "Arn": "arn:aws:sts::000000000000:assumed-role/rea-ec2-role-31e7b9ac/rea-session"
+      }
+    },
+    {
+      "case": "assume-missing-role",
+      "service": "sts",
+      "operation": "assume_role",
+      "parameters": {
+        "RoleArn": "arn:aws:iam::000000000000:role/no-such-role-31e7b9ac",
+        "RoleSessionName": "rea-missing"
+      },
+      "status": 200,
+      "result": {
+        "Credentials": {
+          "AccessKeyId": {
+            "redacted": true,
+            "length": 20,
+            "prefix": "LSIA"
+          },
+          "SecretAccessKey": {
+            "redacted": true,
+            "length": 40,
+            "prefix": null
+          },
+          "SessionToken": {
+            "redacted": true,
+            "length": 356,
+            "prefix": null
+          },
+          "Expiration": "2026-10-26 16:09:09.670605+00:00"
+        },
+        "AssumedRoleUser": {
+          "AssumedRoleId": "AROAQAAAAAAAIUSEI3WX4:rea-missing",
+          "Arn": "arn:aws:sts::000000000000:assumed-role/no-such-role-31e7b9ac/rea-missing"
+        }
+      }
+    },
+    {
+      "case": "root-get-caller-identity",
+      "service": "sts",
+      "operation": "get_caller_identity",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "UserId": "000000000000",
+        "Account": "000000000000",
+        "Arn": "arn:aws:iam::000000000000:root"
+      }
+    },
+    {
+      "case": "run-invalid-profile",
+      "service": "ec2",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "InstanceType": "t3.micro",
+        "IamInstanceProfile": {
+          "Name": "missing-profile-31e7b9ac"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidParameterValue",
+        "Message": "Value (missing-profile-31e7b9ac) for parameter iamInstanceProfile.name is invalid. Invalid IAM Instance Profile name"
+      }
+    },
+    {
+      "case": "run-with-profile",
+      "service": "ec2",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "InstanceType": "t3.micro",
+        "IamInstanceProfile": {
+          "Name": "rea-ec2-profile-31e7b9ac"
+        }
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-bea517a41d7390531",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-26 15:09:11+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-fde5c799cbd703301"
+                }
+              }
+            ],
+            "ClientToken": "f843788b-6688-4117-a7ba-13f5c98bc7d1",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "IamInstanceProfile": {
+              "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+              "Id": "iip-assoc-b9277edb94f3e57ec"
+            },
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-218-55.ec2.internal",
+                  "PublicIp": "54.214.218.55"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-26 15:09:11+00:00",
+                  "AttachmentId": "eni-attach-60509bdf8f905261e",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-66a4a433adf950bd8",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:9302x:5902x:2102x",
+                "NetworkInterfaceId": "eni-078f114f5ce8d69ca",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-81-68-168.ec2.internal",
+                "PrivateIpAddress": "10.81.68.168",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-218-55.ec2.internal",
+                      "PublicIp": "54.214.218.55"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.81.68.168"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-a8bea550c671de0de",
+                "VpcId": "vpc-49bcd58bd1cd1fe32",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-66a4a433adf950bd8",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-664678c78836d95b6",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-81-68-168.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-26 15:09:11+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-a8bea550c671de0de",
+            "VpcId": "vpc-49bcd58bd1cd1fe32",
+            "PrivateIpAddress": "10.81.68.168",
+            "PublicIpAddress": "172.17.0.3"
+          }
+        ]
+      }
+    },
+    {
+      "case": "describe-launch-profile",
+      "service": "ec2",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-664678c78836d95b6"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-bea517a41d7390531",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "Architecture": "amd64",
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-26 15:09:11+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-fde5c799cbd703301"
+                    }
+                  }
+                ],
+                "ClientToken": "f843788b-6688-4117-a7ba-13f5c98bc7d1",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "IamInstanceProfile": {
+                  "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+                  "Id": "iip-assoc-b9277edb94f3e57ec"
+                },
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                      "PublicIp": "172.17.0.3"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-26 15:09:11+00:00",
+                      "AttachmentId": "eni-attach-60509bdf8f905261e",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-66a4a433adf950bd8",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:9302x:5902x:2102x",
+                    "NetworkInterfaceId": "eni-078f114f5ce8d69ca",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-81-68-168.ec2.internal",
+                    "PrivateIpAddress": "10.81.68.168",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-172-17-0-3.ec2.internal",
+                          "PublicIp": "172.17.0.3"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.81.68.168"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-a8bea550c671de0de",
+                    "VpcId": "vpc-49bcd58bd1cd1fe32",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-66a4a433adf950bd8",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "VirtualizationType": "hvm",
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-664678c78836d95b6",
+                "ImageId": "ami-61ad6e59d7b0",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-81-68-168.ec2.internal",
+                "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-26 15:09:11+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-a8bea550c671de0de",
+                "VpcId": "vpc-49bcd58bd1cd1fe32",
+                "PrivateIpAddress": "10.81.68.168",
+                "PublicIpAddress": "172.17.0.3"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "describe-associations",
+      "service": "ec2",
+      "operation": "describe_iam_instance_profile_associations",
+      "parameters": {
+        "Filters": [
+          {
+            "Name": "instance-id",
+            "Values": [
+              "i-664678c78836d95b6"
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "IamInstanceProfileAssociations": [
+          {
+            "AssociationId": "iip-assoc-b9277edb94f3e57ec",
+            "InstanceId": "i-664678c78836d95b6",
+            "IamInstanceProfile": {
+              "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+              "Id": "AIPAQAAAAAAAB6XKHV4O5"
+            },
+            "State": "associated"
+          }
+        ]
+      }
+    },
+    {
+      "case": "launch-profile-metadata",
+      "transport": "reference-localhost4510 with explicit owninstanceidentityheaders",
+      "instance_id": "i-664678c78836d95b6",
+      "observations": [
+        {
+          "path": "meta-data/instance-id",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/info",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/security-credentials/",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "case": "token-issuance",
+          "status": null,
+          "length": 0
+        }
+      ]
+    },
+    {
+      "case": "duplicate-association",
+      "service": "ec2",
+      "operation": "associate_iam_instance_profile",
+      "parameters": {
+        "InstanceId": "i-664678c78836d95b6",
+        "IamInstanceProfile": {
+          "Name": "rea-ec2-profile-31e7b9ac"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "IncorrectState",
+        "Message": "There is an existing association for instance i-664678c78836d95b6"
+      }
+    },
+    {
+      "case": "replace-profile",
+      "service": "ec2",
+      "operation": "replace_iam_instance_profile_association",
+      "parameters": {
+        "AssociationId": "iip-assoc-b9277edb94f3e57ec",
+        "IamInstanceProfile": {
+          "Name": "rea-ec2-profile-31e7b9ac-b"
+        }
+      },
+      "status": 200,
+      "result": {
+        "IamInstanceProfileAssociation": {
+          "AssociationId": "iip-assoc-b9277edb94f3e57ec",
+          "InstanceId": "i-664678c78836d95b6",
+          "IamInstanceProfile": {
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac-b",
+            "Id": "AIPAQAAAAAAAA6XUC5YFZ"
+          },
+          "State": "associating"
+        }
+      }
+    },
+    {
+      "case": "describe-replaced",
+      "service": "ec2",
+      "operation": "describe_iam_instance_profile_associations",
+      "parameters": {
+        "AssociationIds": [
+          "iip-assoc-b9277edb94f3e57ec"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "IamInstanceProfileAssociations": [
+          {
+            "AssociationId": "iip-assoc-b9277edb94f3e57ec",
+            "InstanceId": "i-664678c78836d95b6",
+            "IamInstanceProfile": {
+              "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac-b",
+              "Id": "AIPAQAAAAAAAA6XUC5YFZ"
+            },
+            "State": "associated"
+          }
+        ]
+      }
+    },
+    {
+      "case": "replaced-profile-metadata",
+      "transport": "reference-localhost4510 with explicit owninstanceidentityheaders",
+      "instance_id": "i-664678c78836d95b6",
+      "observations": [
+        {
+          "path": "meta-data/instance-id",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/info",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/security-credentials/",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "case": "token-issuance",
+          "status": null,
+          "length": 0
+        }
+      ]
+    },
+    {
+      "case": "disassociate-profile",
+      "service": "ec2",
+      "operation": "disassociate_iam_instance_profile",
+      "parameters": {
+        "AssociationId": "iip-assoc-b9277edb94f3e57ec"
+      },
+      "status": 200,
+      "result": {
+        "IamInstanceProfileAssociation": {
+          "AssociationId": "iip-assoc-b9277edb94f3e57ec",
+          "InstanceId": "i-664678c78836d95b6",
+          "IamInstanceProfile": {
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac-b",
+            "Id": "AIPAQAAAAAAAA6XUC5YFZ"
+          },
+          "State": "disassociating"
+        }
+      }
+    },
+    {
+      "case": "describe-disassociated",
+      "service": "ec2",
+      "operation": "describe_iam_instance_profile_associations",
+      "parameters": {
+        "AssociationIds": [
+          "iip-assoc-b9277edb94f3e57ec"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "IamInstanceProfileAssociations": []
+      }
+    },
+    {
+      "case": "disassociated-profile-metadata",
+      "transport": "reference-localhost4510 with explicit owninstanceidentityheaders",
+      "instance_id": "i-664678c78836d95b6",
+      "observations": [
+        {
+          "path": "meta-data/instance-id",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/info",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "path": "meta-data/iam/security-credentials/",
+          "status": null,
+          "body": "<urlopen error [Errno 111] Connection refused>"
+        },
+        {
+          "case": "token-issuance",
+          "status": null,
+          "length": 0
+        }
+      ]
+    },
+    {
+      "case": "associate-existing",
+      "service": "ec2",
+      "operation": "associate_iam_instance_profile",
+      "parameters": {
+        "InstanceId": "i-664678c78836d95b6",
+        "IamInstanceProfile": {
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac"
+        }
+      },
+      "status": 200,
+      "result": {
+        "IamInstanceProfileAssociation": {
+          "AssociationId": "iip-assoc-bd83e8d41eece1eba",
+          "InstanceId": "i-664678c78836d95b6",
+          "IamInstanceProfile": {
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+            "Id": "AIPAQAAAAAAAB6XKHV4O5"
+          },
+          "State": "associating"
+        }
+      }
+    },
+    {
+      "case": "missing-instance-associate",
+      "service": "ec2",
+      "operation": "associate_iam_instance_profile",
+      "parameters": {
+        "InstanceId": "i-00000000000000000",
+        "IamInstanceProfile": {
+          "Name": "rea-ec2-profile-31e7b9ac"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidInstanceID.NotFound",
+        "Message": "The instance ID 'i-00000000000000000' does not exist"
+      }
+    },
+    {
+      "case": "missing-association-replace",
+      "service": "ec2",
+      "operation": "replace_iam_instance_profile_association",
+      "parameters": {
+        "AssociationId": "iip-assoc-00000000000000000",
+        "IamInstanceProfile": {
+          "Name": "rea-ec2-profile-31e7b9ac"
+        }
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidAssociationID.NotFound",
+        "Message": "An invalid association-id of 'iip-assoc-00000000000000000' was given"
+      }
+    },
+    {
+      "case": "missing-association-disassociate",
+      "service": "ec2",
+      "operation": "disassociate_iam_instance_profile",
+      "parameters": {
+        "AssociationId": "iip-assoc-00000000000000000"
+      },
+      "status": 400,
+      "error": {
+        "Code": "InvalidAssociationID.NotFound",
+        "Message": "An invalid association-id of 'iip-assoc-00000000000000000' was given"
+      }
+    },
+    {
+      "case": "cleanup-terminate",
+      "service": "ec2",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-664678c78836d95b6"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-664678c78836d95b6",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-profile-read",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+          "InstanceProfileId": "AIPAQAAAAAAAB6XKHV4O5",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac",
+          "CreateDate": "2026-10-26 15:09:09.588999+00:00",
+          "Roles": [
+            {
+              "Path": "/",
+              "RoleName": "rea-ec2-role-31e7b9ac",
+              "RoleId": "AROAQAAAAAAAALAIB3F4E",
+              "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac",
+              "CreateDate": "2026-10-26 15:09:09.573996+00:00",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "ec2.amazonaws.com",
+                      "AWS": "arn:aws:iam::000000000000:root"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            }
+          ],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "cleanup-remove-role",
+      "service": "iam",
+      "operation": "remove_role_from_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac",
+        "RoleName": "rea-ec2-role-31e7b9ac"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-profile",
+      "service": "iam",
+      "operation": "delete_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-profile-read",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b",
+          "InstanceProfileId": "AIPAQAAAAAAAA6XUC5YFZ",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-31e7b9ac-b",
+          "CreateDate": "2026-10-26 15:09:09.591530+00:00",
+          "Roles": [
+            {
+              "Path": "/",
+              "RoleName": "rea-ec2-role-31e7b9ac-b",
+              "RoleId": "AROAQAAAAAAADG74VS5FU",
+              "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-31e7b9ac-b",
+              "CreateDate": "2026-10-26 15:09:09.577267+00:00",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "ec2.amazonaws.com",
+                      "AWS": "arn:aws:iam::000000000000:root"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            }
+          ],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "cleanup-remove-role",
+      "service": "iam",
+      "operation": "remove_role_from_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b",
+        "RoleName": "rea-ec2-role-31e7b9ac-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-profile",
+      "service": "iam",
+      "operation": "delete_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-31e7b9ac-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-role-policy",
+      "service": "iam",
+      "operation": "delete_role_policy",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac",
+        "PolicyName": "read-fixture"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-role",
+      "service": "iam",
+      "operation": "delete_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-role",
+      "service": "iam",
+      "operation": "delete_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-31e7b9ac-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-guests",
+      "captured_ids": [],
+      "remaining": []
+    }
+  ],
+  "stderr": "",
+  "reference_container_removed": true
+}

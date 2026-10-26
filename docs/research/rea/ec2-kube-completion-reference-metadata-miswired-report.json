@@ -1,0 +1,394 @@
+{
+  "namespace": "ec2-kube-ref-completion-f47ef62b",
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "context": "kind-localcloud",
+  "records": [
+    {
+      "case": "register-image",
+      "operation": "register_image",
+      "parameters": {
+        "Name": "rea-completion-ec2-kube-ref-completion-f47ef62b",
+        "Architecture": "x86_64",
+        "RootDeviceName": "/dev/sda1",
+        "VirtualizationType": "hvm"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-57424cd251da41f31"
+      }
+    },
+    {
+      "case": "run-instance",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-57424cd251da41f31",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "UserData": "#!/bin/sh\necho REA-bootstrap >/tmp/rea-bootstrap\necho REA-console\npython3 - <<'PYIMDS'\nimport urllib.request,json,time\nr=[]\nfor _ in range(10):\n try:\n  op=urllib.request.build_opener(urllib.request.ProxyHandler({}))\n  with op.open(\"http://169.254.169.254/latest/meta-data/instance-id\",timeout=1) as x:r.append({\"status\":x.status,\"body\":x.read(100).decode()})\n  break\n except Exception as e:r.append({\"error\":str(e)});time.sleep(.2)\nopen(\"/tmp/rea-bootstrap-metadata.json\",\"w\").write(json.dumps(r))\nPYIMDS\n"
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-fd48e406f12430ca0",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-25 15:40:20+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-961535b2f8056d4be"
+                }
+              }
+            ],
+            "ClientToken": "81c6a9f1-54a8-4fe2-b480-f98fb294594f",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-220-177.ec2.internal",
+                  "PublicIp": "54.214.220.177"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-25 15:40:20+00:00",
+                  "AttachmentId": "eni-attach-9a606f24f288233d6",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-814da1486d4d554fe",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:1002x:9002x:3902x",
+                "NetworkInterfaceId": "eni-e07825dcfebf7402d",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-76-212-136.ec2.internal",
+                "PrivateIpAddress": "10.76.212.136",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-220-177.ec2.internal",
+                      "PublicIp": "54.214.220.177"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.76.212.136"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-b4c99502f991a3961",
+                "VpcId": "vpc-d02be8b3d1bf64df4",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-814da1486d4d554fe",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-0cd1c08f2e584051d",
+            "ImageId": "ami-57424cd251da41f31",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-76-212-136.ec2.internal",
+            "PublicDnsName": "54-214-220-177.ec2-kube-ref-completion-f47ef62b.pod",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-25 15:40:20+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-b4c99502f991a3961",
+            "VpcId": "vpc-d02be8b3d1bf64df4",
+            "PrivateIpAddress": "10.76.212.136",
+            "PublicIpAddress": "54.214.220.177"
+          }
+        ]
+      }
+    },
+    {
+      "case": "stock-created-workloads",
+      "objects": [
+        {
+          "kind": "Deployment",
+          "name": "localstack-ec2-i-0cd1c08f2e584051d",
+          "uid": "0d18c81d-1925-40b9-8e8f-3681d46d97d4",
+          "phase": null,
+          "replicas": 1,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Deployment",
+          "name": "reference",
+          "uid": "2b249b25-cd57-4842-b94e-37cc5c50abbe",
+          "phase": null,
+          "replicas": 1,
+          "readyReplicas": 1,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Pod",
+          "name": "localstack-ec2-i-0cd1c08f2e584051d-6b6b89c648-t2bfn",
+          "uid": "dddb78a8-eb88-49cd-8af0-7c52a904c622",
+          "phase": "Pending",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [
+            {
+              "name": "localstack-ec2-i-0cd1c08f2e584051d",
+              "image": "ami-57424cd251da41f31",
+              "imagePullPolicy": "Always"
+            },
+            {
+              "name": "imds-proxy-sidecar",
+              "image": "alpine/socat:latest",
+              "imagePullPolicy": "Always"
+            }
+          ],
+          "volumes": [
+            {
+              "name": "kube-api-access-gjsqg",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Pod",
+          "name": "reference-8466c66758-pc86d",
+          "uid": "e7d13759-f472-4427-af9b-78243e22cb22",
+          "phase": "Running",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [
+            {
+              "name": "reference",
+              "image": "localstack/localstack:latest",
+              "imagePullPolicy": "Never"
+            }
+          ],
+          "volumes": [
+            {
+              "name": "state",
+              "persistentVolumeClaim": {
+                "claimName": "reference-state"
+              }
+            },
+            {
+              "name": "kube-api-access-thwkw",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Service",
+          "name": "localstack-main",
+          "uid": "f0a796a2-52fe-43a2-8bf3-72d6ff123a77",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "ConfigMap",
+          "name": "kube-root-ca.crt",
+          "uid": "08c65c92-22bc-4acd-9043-0671bc36e806",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "PersistentVolumeClaim",
+          "name": "reference-state",
+          "uid": "21bc0095-f5cf-45ab-84d1-d055886a301e",
+          "phase": "Bound",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        }
+      ]
+    }
+  ],
+  "reference_gateway_service": "localstack-main:4566 selects own reference Deployment",
+  "reference_node_images": [
+    {
+      "image": "docker.io/localstack/localstack:latest",
+      "imageID": "docker.io/library/import-2026-10-20@sha256:1e0da331934569a86390059ffca6fd41762e48caa0e6189cd1558eee0383b535"
+    }
+  ],
+  "reference_startup_logs": "2026-10-25T15:40:09.821  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_STARTUP load strategy\n2026-10-25T15:40:09.821  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST save strategy\n2026-10-25T15:40:09.827  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-25T15:40:10.623  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\n2026-10-25T15:40:15.469  INFO --- [ady_monitor)] l.p.c.p.snapshot.plugins   : restoring state of all services on startup\nReady.\n",
+  "controlled_intervention": {
+    "reason": "Stock Always policy bypasses node cache and attempts unavailable AMI-name registry pull",
+    "patch": "Never only on own EC2 guest Deployment"
+  },
+  "guest_initial": {
+    "exit": 0,
+    "output": "{\"bootstrap\": \"REA-bootstrap\\n\", \"bootstrap_metadata\": \"[{\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}]\"}\n",
+    "stderr": ""
+  },
+  "metadata_initial": {
+    "exit": 0,
+    "output": "[{\"path\": \"meta-data/instance-id\", \"error\": \"Remote end closed connection without response\"}, {\"path\": \"user-data\", \"error\": \"Remote end closed connection without response\"}, {\"path\": \"meta-data/iam/security-credentials/\", \"error\": \"Remote end closed connection without response\"}, {\"path\": \"v2-instance-id\", \"error\": \"Remote end closed connection without response\"}]\n",
+    "stderr": ""
+  },
+  "guest_pod_owner_references": [
+    [
+      {
+        "apiVersion": "apps/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "ReplicaSet",
+        "name": "localstack-ec2-i-0cd1c08f2e584051d-8565469cf",
+        "uid": "5c95a196-48f1-4a8a-a800-e087058f0a4e"
+      }
+    ]
+  ],
+  "guest_proxy_configuration": [
+    {
+      "name": "localstack-ec2-i-0cd1c08f2e584051d",
+      "command": [
+        "/bin/sh"
+      ],
+      "args": [
+        "-c",
+        "mkdir -p /var/log && printf \"%s\" \"$LOCALSTACK_EC2_USER_DATA\" > /tmp/user_data.sh && chmod +x /tmp/user_data.sh && /tmp/user_data.sh > /var/log/cloud-init-output.log 2>&1; echo 'User data script completed'; sleep infinity"
+      ]
+    },
+    {
+      "name": "imds-proxy-sidecar",
+      "command": [
+        "sh",
+        "-c",
+        "socat TCP-LISTEN:9001,fork TCP:localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local:4510"
+      ],
+      "args": null
+    }
+  ],
+  "proxy_logs": {
+    "exit": 0,
+    "stdout": "2026/10/25 15:41:50 socat[14] W getaddrinfo(\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", \"4510\", {0x20,0,1,6}, {}): Name does not resolve\n2026/10/25 15:41:50 socat[14] E _xioopen_ipapp_prepare(node=\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", service=\"4510\", pf=0, ...): Name does not resolve\n2026/10/25 15:41:50 socat[15] W getaddrinfo(\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", \"4510\", {0x20,0,1,6}, {}): Name does not resolve\n2026/10/25 15:41:50 socat[15] E _xioopen_ipapp_prepare(node=\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", service=\"4510\", pf=0, ...): Name does not resolve\n2026/10/25 15:41:50 socat[16] W getaddrinfo(\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", \"4510\", {0x20,0,1,6}, {}): Name does not resolve\n2026/10/25 15:41:50 socat[16] E _xioopen_ipapp_prepare(node=\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", service=\"4510\", pf=0, ...): Name does not resolve\n2026/10/25 15:41:50 socat[17] W getaddrinfo(\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", \"4510\", {0x20,0,1,6}, {}): Name does not resolve\n2026/10/25 15:41:50 socat[17] E _xioopen_ipapp_prepare(node=\"localstack.ec2-kube-ref-completion-f47ef62b.svc.cluster.local\", service=\"4510\", pf=0, ...): Name does not resolve\n",
+    "stderr": "Found 2 pods, using pod/localstack-ec2-i-0cd1c08f2e584051d-8565469cf-h59rl\n"
+  },
+  "guest_gateway_health": {
+    "exit": 0,
+    "output": "200\n",
+    "stderr": ""
+  },
+  "reference_final_logs": "\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\nDocker not available\n2026-10-25T15:40:05.223  INFO --- [  MainThread] l.licensing.licensingv2    : Successfully requested and activated new license a06a9137-a60c-4fe0-bbac-d0d46cc2654f:student \ud83d\udd11\u2705\n2026-10-25T15:40:06.284  INFO --- [  MainThread] localstack.utils.bootstrap : Execution of \"_resolve_api_provider_specs\" took 1014.92ms\n2026-10-25T15:40:09.437  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: logodev ready at http://logodev.localhost.localstack.cloud:4566 -> 127.0.0.1:4115\n2026-10-25T15:40:09.439  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: posthog ready at http://posthog.localhost.localstack.cloud:4566 -> 127.0.0.1:4113\n2026-10-25T15:40:09.442  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: resend ready at http://resend.localhost.localstack.cloud:4566 -> 127.0.0.1:4114\n2026-10-25T15:40:09.446  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: stripe ready at http://stripe.localhost.localstack.cloud:4566 -> 127.0.0.1:4111\n2026-10-25T15:40:09.450  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: twilio ready at http://twilio.localhost.localstack.cloud:4566 -> 127.0.0.1:4112\n2026-10-25T15:40:09.821  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_STARTUP load strategy\n2026-10-25T15:40:09.821  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST save strategy\n2026-10-25T15:40:09.827  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-25T15:40:10.623  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-25T15:40:10.624  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\n2026-10-25T15:40:15.469  INFO --- [ady_monitor)] l.p.c.p.snapshot.plugins   : restoring state of all services on startup\nReady.\nkube_config_path not provided and default location (~/.kube/config) does not exist. Using inCluster Config. This might not work.\n2026-10-25T15:40:17.579  INFO --- [et.reactor-0] l.p.c.s.e.v.kubernetes     : Initializing Kubernetes client and setting up namespaces.\n2026-10-25T15:40:18.048  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for ec2 took 202 ms\n2026-10-25T15:40:18.048  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RegisterImage => 200\n2026-10-25T15:40:50.240  WARN --- [et.reactor-0] l.p.c.s.e.v.kubernetes     : Error launching instance i-0cd1c08f2e584051d: Deployment localstack-ec2-i-0cd1c08f2e584051d not ready after 30 seconds\n2026-10-25T15:40:50.399  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for ec2 took 158 ms\n2026-10-25T15:40:50.399  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RunInstances => 200\n",
+  "namespace_removed": true,
+  "node_tag_removed": true
+}

@@ -1,0 +1,51 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "reference_version": "2026.10.0",
+  "reference_build": "738d58ee",
+  "evidence": {
+    "docker_role_profile_associations": "ev_cd8d3e5c85c1fb962849d27cf7cd6aa1a98756e621ad580d9972e7d7eca59011",
+    "iam_sts_focused": "ev_d20c90ac0ab665f1cd76531142cc6f5eb1a97912d680b5bff51273f6aac5edf2",
+    "public_botocore_model": "ev_02c125a339dc6bbe7b4779fa9b2869ccce64e80d01db5c8fb90ed74feae4d8be",
+    "docker_direct_metadata_transport": "ev_7717a205b419c49e8e8e719cd394f8659ed9b94368c94eb2146e33e137d3ccbb",
+    "kubernetes_profile_metadata_preliminary": "ev_7c4b154acc2bb35e2e8d11982bf1778e1f55c9d8083e1063b6d79dd495de2a5e",
+    "kubernetes_profile_metadata_corrected_rbac": "ev_2183ccf3eb14b5cc3839a4a5191ca7bc065e58ad333046b512529fcf6b94ab9c",
+    "cleanup_and_hashes": "ev_7a8394b7a8b976a69adf3d2d0c9a18c087d083ea43c4dbe537d700c32fc605ea"
+  },
+  "records": 13,
+  "session_unknowns": 4,
+  "canonical_sha256": "0f9816c565d4acb67583f2ff07964130578cf0ca74f926aabcac53769d6cd68a",
+  "source_sha256": {
+    "docs/research/rea/ec2-iam-api-reference-report.json": "9fe652e5369e890588c49ba88b474477e2266dac666ade2a6feff8c0bf0ae94a",
+    "docs/research/rea/ec2-iam-association-public-model.json": "efc5ef22923e62a9c472eb23b188609bac2e2ba5f7e4efea4754c27895ca2a9f",
+    "docs/research/rea/ec2-iam-direct-metadata-reference-report.json": "f1994166e90cb7bf27a32a62ed1d56e239f71c0bb73658f25e55e0fc9440cb51",
+    "docs/research/rea/ec2-iam-kube-reference-preliminary-report.json": "9327c6e877d249f77e63f906a1abcaecc5a8c6b3e450d2250fc8e517718aa8aa",
+    "docs/research/rea/ec2-iam-kube-reference-report.json": "6823c420b942c74609f06d232a4f5fb17d6b324ad72e7118722d4d7cd0f3a6c3",
+    "docs/research/rea/ec2-iam-reference-report.json": "78904ef3be0b44d2406bd4fad1429ab07ac53512e75d1cdb43779c4c0ba8f16b",
+    "scripts/ec2-iam-kube-reference.py": "168a1bfad91ed37783ffb1de14e99d4702adfb51a3abf8993f6423b43e883ba7",
+    "scripts/ec2-iam-reference.py": "e3588ac146f7438865713681b60db0d5f2564da1182ae1e5b80985c91ce45ccd"
+  },
+  "findings": {
+    "iam": "Missing role/profile NoSuchEntity404; duplicate create EntityAlreadyExists409; duplicate/addsecondrole LimitExceeded409; one role per profile. Inline role policy roundtrip and lists work.",
+    "sts": "AssumeRole returns credentials and assumedrole user; GetCallerIdentity recognizes session. LSIA prefix20chars, secret40chars, sessiontoken356chars in this run. Defaultunenforcedreference also allows assuming missing role.",
+    "ec2_associations": "Launch profilevalidated. Association create/replace returns associating then describe associated. Replace keepsID. Disassociate returnsdisassociating then describeoldIDempty. Duplicateassociate IncorrectState400; missinginstance InvalidInstanceID.NotFound400; missingassociation InvalidAssociationID.NotFound400.",
+    "ec2_profile_ids": "RunInstances/DescribeInstances IamInstanceProfile.Id contains associationID in testedreference; DescribeAssociations nestedprofileId is realAIPA ID.",
+    "docker_metadata": "Guest linklocal timedout/no route. Backendlocalhost4510 refused. No DockerIMDS credentialdelivery established; transportfailure not evidence of unsupportedcredentials.",
+    "kubernetes_metadata": "With validprofileattached and correctednamespacepods/execRBAC, normalguestinstanceid200/IMDSv2token200. iam/,iam/info,iam/security-credentials/,namedrole path all404explicitnotimplemented. Guest AWS credential environmentempty and /root/.aws/credentials absent.",
+    "cleanup": "All owned reference containers, namespaces and PVC PV claims removed. Preexisting shared linklocal network/images preserved."
+  },
+  "limitations": [
+    "Normal licensed runtime API observations only; no encrypted provider extraction or entitlement bypass.",
+    "Kubernetes guest requires declared cachedimageNever/Recreate intervention and bootstrapdiagnosticidentityheaders. Stock registry/imagepath not proven.",
+    "PreliminaryKubernetesrolelackedpods/exec; finalrepeat corrects it and noForbiddenlogs remain.",
+    "IAM metadata delivery is not established for Docker due transportfailure; Kubernetes observations scoped to pinnedimagebackend and fixture.",
+    "Do not claim fullLocalStackparity from shape/errors subset. Stricter roleexistence/trust/signature/expiry enforcement in LocalCloud are explicitdesign choices if implemented.",
+    "FirstDockerfullcapture used10guestmetadataattempts; finalscript bounds2attempts and has cleanup of unexpectedlyacceptedinvalidprofile launch. API behaviorunchanged.",
+    "All credential values redacted before output; only temporarycredential lengths/prefix and identity shapes retained."
+  ],
+  "reproduce": [
+    "python3 scripts/ec2-iam-reference.py --api-only",
+    "python3 scripts/ec2-iam-reference.py",
+    "python3 scripts/ec2-iam-reference.py --direct-metadata",
+    "python3 scripts/ec2-iam-kube-reference.py"
+  ]
+}

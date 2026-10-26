@@ -1,0 +1,24 @@
+{
+  "evidence": {
+    "initial17checks": "ev_6bd2e4553703bfff68ec0a82e2c3fdf9763bb6abda4b66763d8b8c73d2c5e830",
+    "final18checks": "ev_a9c84e1078e06ba230cc7df58fa5aa0dc7e91e25372a228986333554c7cac14b",
+    "cluster_version": "ev_26b82b69705c27374f96717891bbc443aa7b665e924dd705302ad3cf2ebacf6c",
+    "cleanup": "ev_ba8f54d32ebe8ffb6ee1842581418aaf2d21425b6dc8b67c48d31e7b718f9d37"
+  },
+  "live_checks_passed": 18,
+  "cluster_version": "v1.37.0",
+  "canonical_sha256": "a90e4b62d850a4b1f68e7a6fc144d9811ca065f61a70135f83dc5f32d6f5c3b9",
+  "source_sha256": {
+    "scripts/ec2-kube-bootstrap-live.py": "52114531e6a7eecd6e4e01ab11e5b0ac71dc069611619d5cae23fe7b6ee6f9f1",
+    "docs/research/rea/ec2-kube-bootstrap-live-report.json": "075acc868fddd49b819ec62cba4dab4033b732c0a64f6bae56e74f94d77d3f7c"
+  },
+  "records": 8,
+  "session_unknowns": 4,
+  "limits": [
+    "This fixture uses loopback kubectl proxy with existing administrator context for provider API access; namespace-only RBAC was separately tested by the earlier recovery fixture.",
+    "Helper image reuses cached localcloud:ec2-runtime dependencies and copies current project code; production Dockerfile dependency acquisition is not tested.",
+    "Metadata endpoint is Pod-local localhost:1338 configured using environment variables, not transparent link-local IP routing.",
+    "No IAM profile credentials, STS, CSI snapshots or general LocalStack EC2 parity is established.",
+    "User-data probe records token enforcement and response values but does not persist the temporary IMDS token."
+  ]
+}

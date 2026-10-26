@@ -363,3 +363,21 @@ These manage emulated records; published ports provide actual app access.
 The [latest EC2 checkpoint](EC2_RELEASE.md) adds image lifecycle, snapshot copying
 and launch-template/version commands. `run-instances --launch-template JSON`
 can supply image/type defaults; explicit flags override them.
+
+## IAM roles, instance profiles and STS
+
+The [instance-role guide](EC2_INSTANCE_ROLES.md) walks through backend setup, IAM policy/trust files, instance profiles and automatic SDK credential discovery. The [REA report](REA_EC2_INSTANCE_ROLES.md) describes the tested subset.
+
+```bash
+localcloud iam create-role --role-name app-reader --assume-role-policy-document file://trust.json
+localcloud iam put-role-policy --role-name app-reader --policy-name read --policy-document file://read.json
+localcloud iam create-instance-profile --instance-profile-name app-profile
+localcloud iam add-role-to-instance-profile --instance-profile-name app-profile --role-name app-reader
+localcloud ec2 run-instances --image-id ami-web --name web --iam-instance-profile '{"Name":"app-profile"}'
+localcloud ec2 describe-iam-instance-profile-associations
+localcloud iam list-roles
+localcloud iam list-instance-profiles
+localcloud sts get-caller-identity
+```
+
+Runtime profiles require a metadata helper and a backend `--public-endpoint` reachable from guests. `localcloud sts assume-role --role-arn ARN --role-session-name SESSION` returns temporary credentials for a role whose trust allows the caller; treat its output as a credential document. CLI calls use the management login. Applications use SDK-discovered temporary credentials against AWS-compatible LocalCloud endpoints.

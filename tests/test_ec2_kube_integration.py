@@ -15,9 +15,9 @@ class KubernetesRoutingTests(unittest.TestCase):
         def launch(item,script):
             item['State']={'Code':0,'Name':'pending'}
             item['Endpoints']=['http://guest.test.svc:8080']
-        def refresh(item):item['State']={'Code':{'pending':0,'running':16,'stopped':80}[self.phase],'Name':self.phase}
+        def refresh(item):item['State']={'Code':{'pending':0,'running':16,'stopped':80,'terminated':48}[self.phase],'Name':self.phase}
         def lifecycle(item,action):
-            self.phase={'stop':'stopped','start':'pending','reboot':'pending','terminate':'stopped'}[action]
+            self.phase={'stop':'stopped','start':'pending','reboot':'pending','terminate':'terminated'}[action]
             refresh(item)
         self.adapter.launch.side_effect=launch
         self.adapter.refresh.side_effect=refresh

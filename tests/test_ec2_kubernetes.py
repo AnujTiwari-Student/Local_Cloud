@@ -1,5 +1,6 @@
 """Owned EC2 Kubernetes manifests, readiness, lifecycle and PVC boundaries."""
 import copy
+import base64
 import json
 from pathlib import Path
 import tempfile
@@ -48,8 +49,11 @@ class KubernetesEC2Tests(unittest.TestCase):
         self.item={'InstanceId':'i-0123456789abcdef0','ImageId':'ami-web','InstanceType':'t3.micro','Backend':'kubernetes','Owner':'a'*32,
                    'State':{'Name':'pending','Code':0},'PortMappings':[{'HostPort':0,'ContainerPort':8080}], 'MetadataOptions':{'HttpTokens':'required'}}
         self.name=self.kube.name(self.item);self.dep=self.kube.apps+'/deployments/'+self.name
-    def tearDown(self):self.engine.close();self.tmp.cleanup()
-    def launch(self):self.kube.launch(self.item,b'echo user-data output; echo marker >/tmp/marker')
+    def tearDown(self):self.kube.journal.close();self.engine.close();self.tmp.cleanup()
+    def launch(self):
+        script=b'echo user-data output; echo marker >/tmp/marker'
+        self.item['UserData']=base64.b64encode(script).decode()
+        self.kube.launch(self.item,script)
     def ready(self):
         dep=self.api.objects[self.dep];labels=self.kube.labels(self.item)
         dep['status']={'observedGeneration':dep['metadata']['generation'],'readyReplicas':1}
@@ -64,11 +68,31 @@ class KubernetesEC2Tests(unittest.TestCase):
         self.assertEqual(pod['containers'][0]['image'],'web:dev');self.assertEqual(pod['containers'][0]['imagePullPolicy'],'IfNotPresent')
         self.assertTrue(pod['containers'][0]['securityContext']['readOnlyRootFilesystem'])
         self.assertEqual(pod['containers'][0]['securityContext']['capabilities']['drop'],['ALL'])
-        self.assertEqual(pod['initContainers'][0]['name'],'user-data')
-        self.assertEqual(pod['containers'][1]['name'],'metadata')
+        self.assertEqual([c['name'] for c in pod['initContainers']],['metadata','user-data'])
+        self.assertEqual([c['name'] for c in pod['containers']],['guest'])
         raw=json.dumps(pod);self.assertNotIn('LOCALCLOUD_MANAGEMENT_TOKEN',raw);self.assertNotIn('hostNetwork',raw)
         self.assertEqual(self.item['State']['Name'],'pending')
         self.assertEqual(self.item['Endpoints'],['http://'+self.name+'.test.svc:8080'])
+    def test_metadata_starts_before_user_data_and_shares_endpoint_with_guest(self):
+        self.launch();pod=self.api.objects[self.dep]['spec']['template']['spec']
+        helper,bootstrap=pod['initContainers']
+        self.assertEqual(helper['restartPolicy'],'Always')
+        self.assertIn('startupProbe',helper)
+        self.assertIn('1338',helper['startupProbe']['exec']['command'][-1])
+        self.assertEqual(bootstrap['env'],pod['containers'][0]['env'])
+        self.assertEqual({v['name']:v['value'] for v in bootstrap['env']},
+                         {'AWS_EC2_METADATA_SERVICE_ENDPOINT':'http://127.0.0.1:1338','LOCALCLOUD_METADATA_URL':'http://127.0.0.1:1338'})
+        self.assertNotIn('volumeMounts',helper)
+        self.assertEqual(helper['securityContext']['capabilities']['drop'],['ALL'])
+    def test_metadata_without_user_data_stays_a_restartable_init_sidecar(self):
+        self.kube.launch(self.item,b'');pod=self.api.objects[self.dep]['spec']['template']['spec']
+        self.assertEqual([c['name'] for c in pod['initContainers']],['metadata'])
+        self.assertEqual(pod['initContainers'][0]['restartPolicy'],'Always')
+        self.assertNotIn('bootstrap',[v['name'] for v in pod['volumes']])
+    def test_no_helper_leaves_user_data_without_metadata_configuration(self):
+        self.kube.helper_image=None;self.launch();pod=self.api.objects[self.dep]['spec']['template']['spec']
+        self.assertEqual([c['name'] for c in pod['initContainers']],['user-data'])
+        self.assertNotIn('env',pod['initContainers'][0]);self.assertNotIn('env',pod['containers'][0])
     def test_running_requires_ready_pod_and_current_deployment_generation(self):
         self.launch();self.kube.refresh(self.item);self.assertEqual(self.item['State']['Name'],'pending')
         pod=self.ready();pod['status']['conditions'][0]['status']='False'
@@ -87,7 +111,7 @@ class KubernetesEC2Tests(unittest.TestCase):
         self.kube.lifecycle(self.item,'start');self.assertEqual(self.api.objects[self.dep]['spec']['replicas'],1)
         self.ready();self.kube.refresh(self.item);self.assertEqual(self.item['State']['Name'],'running')
         self.assertIn('user-data output',self.kube.console(self.item))
-        self.kube.lifecycle(self.item,'terminate');self.assertEqual(self.item['State']['Name'],'terminated');self.assertNotIn(self.dep,self.api.objects)
+        self.kube.lifecycle(self.item,'terminate');self.assertEqual(self.item['State']['Name'],'shutting-down');self.kube.refresh(self.item);self.assertEqual(self.item['State']['Name'],'terminated');self.assertNotIn(self.dep,self.api.objects)
         self.assertNotIn(self.kube.base+'/services/'+self.name,self.api.objects)
     def test_pod_owner_chain_and_replaced_deployment_never_adopted(self):
         self.launch();pod=self.ready();pod['metadata']['ownerReferences'][0]['uid']='unrelated-replica'
@@ -115,6 +139,7 @@ class KubernetesEC2Tests(unittest.TestCase):
         self.kube.lifecycle(self.item,'stop');self.kube.refresh(self.item)
         self.kube.reconfigure(self.item,[])
         self.assertEqual(len(self.api.objects[self.dep]['spec']['template']['spec']['containers'][0]['volumeMounts']),1)
+        self.assertNotIn('volumeMounts',self.api.objects[self.dep]['spec']['template']['spec']['initContainers'][0])
         self.api.objects[path]['metadata']['uid']='replacement'
         with self.assertRaises(Error):self.kube.delete_volume(key)
         self.assertIn(path,self.api.objects)
@@ -132,6 +157,10 @@ class KubernetesEC2Tests(unittest.TestCase):
         self.assertEqual(self.api.objects[self.dep]['spec']['template']['spec']['containers'][0]['resources']['limits']['memory'],'256Mi')
         cm=self.api.objects[self.kube.base+'/configmaps/'+self.name]
         self.assertEqual(json.loads(cm['data']['metadata.json'])['InstanceType'],'t3.small')
+        self.item['InstanceType']='t3.small'
+        generation=self.api.objects[self.dep]['metadata']['generation']
+        self.kube.refresh(self.item)
+        self.assertEqual(self.api.objects[self.dep]['metadata']['generation'],generation)
     def test_failed_metadata_rollout_restores_the_previous_configuration(self):
         self.launch();self.ready()
         cm_path=self.kube.base+'/configmaps/'+self.name

@@ -47,6 +47,13 @@ def s3_provider(engine):
                          request.get('Key', ''), request.get('Body', b''), context.principal)
     return OperationProvider('s3', {name: dispatch for name in S3_METHODS})
 
+def identity_provider(engine, service):
+    from .identity import IAM_OPERATIONS, STS_OPERATIONS
+    operations = IAM_OPERATIONS if service == 'iam' else STS_OPERATIONS
+    return OperationProvider(service, {name: lambda context: engine.tools.call(
+        service, context.operation, context.principal, '*', lambda: engine.identity.call(
+            service, context.operation, context.service_request, context.principal)) for name in operations})
+
 
 @dataclass
 class ProviderEntry:

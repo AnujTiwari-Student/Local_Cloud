@@ -5,7 +5,8 @@ import re
 from pathlib import Path
 from .ec2_infrastructure import PARAMETERS as INFRA_PARAMETERS
 from .ec2_templates import PARAMETERS as TEMPLATE_PARAMETERS
-PARAMETERS = {**INFRA_PARAMETERS, **TEMPLATE_PARAMETERS}
+from .ec2_profiles import PARAMETERS as PROFILE_PARAMETERS
+PARAMETERS = {**INFRA_PARAMETERS, **TEMPLATE_PARAMETERS, **PROFILE_PARAMETERS}
 from .ec2_protocol import MODEL
 
 
@@ -25,9 +26,11 @@ def register(group, operation):
         for field in sorted(fields):
             link = shape['members'].get(field)
             if not link:
+                if field == 'InstanceName':
+                    command.add_argument('--name', dest='ec2_InstanceName', default=None)
                 continue
             field_shape = MODEL['shapes'][link['shape']]
-            options = {'dest': 'ec2_' + field, 'required': field in shape['required'], 'default': None}
+            options = {'dest': 'ec2_' + field, 'required': field in shape['required'] and not (name == 'AssociateIamInstanceProfile' and field == 'InstanceId'), 'default': None}
             kind = field_shape['type']
             if kind in ('integer', 'long'):
                 options['type'] = int
@@ -49,6 +52,9 @@ def payload(args, json_value):
     for field in PARAMETERS[operation]:
         value = getattr(args, 'ec2_' + field, None)
         if value is None:
+            continue
+        if field == 'InstanceName':
+            result[field] = value
             continue
         link = shape['members'][field]
         kind = MODEL['shapes'][link['shape']]['type']

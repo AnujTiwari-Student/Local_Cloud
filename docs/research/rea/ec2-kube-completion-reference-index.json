@@ -1,0 +1,53 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "reference_version": "2026.10.0",
+  "reference_build": "738d58ee",
+  "evidence": {
+    "preliminary_without_gateway": "ev_466f022b4aff67af02da791af713f535f35704077e177511c251b2c1e6b8f5aa",
+    "full_lifecycle_drift_persistence": "ev_81f3af12f5d39ec31d0320241666d3815dfda6c7e2b09fab4e5dc9021c3de5dc",
+    "metadata_dns_diagnostic": "ev_506d2681f2708af3c6932a1571b9de91a0c70e284f5cd002857a2926d7e176db",
+    "metadata_correct_4510_service": "ev_be71fe5f243febb13c97359bee796edae7b4fdc000aa2c60a0343079b6df7f7a",
+    "host_node_rootfs_identity": "ev_90cef0345a7930757193ad4bfc0a55d70e927a15e3fecc7ada4b1c479d33274e",
+    "focused_result_hashes_and_cleanup": "ev_a4527b9b7e1bf3e150b04efaf6fae476462679297f9d2991223fe32dea7141d2"
+  },
+  "records": 11,
+  "session_unknowns": 4,
+  "canonical_sha256": "759e8a470a406c5dea66be4562a009df181b1ef76dcd43839cc913bda30dbba9",
+  "source_sha256": {
+    "scripts/ec2-kube-completion-reference.py": "0be971db8a0dde3c54b9d475db5e8c72b7e8774c3325b9469f1cd94b415f7292",
+    "docs/research/rea/ec2-kube-completion-reference-report.json": "7ed7533ffbcd5cb6d029d3c76d36d2de777b5573e78dcc8d1fea03ecaa469df2",
+    "docs/research/rea/ec2-kube-completion-reference-preliminary-report.json": "52f4a40a31145c0b07e574a95ddecb6c05ccad292d4f1fc8a35ddb85c5e0f18d",
+    "docs/research/rea/ec2-kube-completion-reference-metadata-miswired-report.json": "f491fe448a4efe9f1e96ae4f7a613ce77573453ff7df6a03797a7707a2f95779",
+    "docs/research/rea/ec2-kube-completion-reference-metadata-diagnostic-report.json": "8f59ce1990d21732011e1d55cfb295226e9f50292696324f549e7225e1deef1a"
+  },
+  "findings": {
+    "lifecycle": "Stop and start returned running->running while Deployment remained replicas1. Reboot200 did not replace the executing controlled-image guest Pod within the observed3swindow.",
+    "persistence": "PERSISTENCE1 plus ownstatePVC preserved taggedEC2record andsameguestPod across normalreferencecontrollerrolloutrestart.",
+    "drift": "After externallydeletingownguestDeployment, Describe200stillreportedrunning. Start400InvalidInstanceID.NotFound; Reboot200didnotrecreateDeployment. GuestPodremainedduringboundedobservationsuntilnamespacecleanup.",
+    "metadata_routing": "Generatedsocat proxylistens9001 andforwards localstack.<namespace>.svc.cluster.local:4510. Supplying localstack-main:4566doesnotwirethispath. Supplyingnormal localstack Service4510resolvedtransport.",
+    "metadata_corrected": "TokenPUT200; instance-idGET400with/withouttoken; user-data andIAMcredentialspaths404 withreferenceWARNnotimplemented. BootstrapfilewasnotyetwrittenatReadyobservation.",
+    "identity": "Nodecachedlatestalias hasidentical23rootfslayersandimageconfigtopinnedhostimage, despitecontainerdimportdigestformatdifferences."
+  },
+  "checklist": {
+    "lifecycle": "answered for this controlled image fixture and observation window",
+    "controller_restart": "answered graceful restart with persistent state",
+    "missing_deployment_reconciliation": "answered bounded API behavior",
+    "metadata_transport": "answered normal Service4510 wiring",
+    "metadata_identity_and_token_enforcement": "partial; HTTP400 in cached-image-intervention fixture, not intrinsic feature absence",
+    "bootstrap_metadata_availability": "unresolved; request attempts asynchronous at Ready observation",
+    "snapshot_CSI": "not newly probed; retain earlier storage evidence boundaries"
+  },
+  "limitations": [
+    "Normal auth token and Student entitlements only; no encrypted provider code or license bypass.",
+    "Every successful guest required explicit post-launch cached-image pull-policy Never intervention; original Always guest pod may affect provider cachedPod/IPidentity.",
+    "Full lifecycle capture terminal was truncated; complete JSON report is retained and SHA256-bound by a separate untruncated focused capture.",
+    "Final script adds correct localstackService4510 and metadata diagnostic branch after the earlier lifecycle captures; common lifecycle API logic unchanged.",
+    "No second full lifecycle replay after correcting metadata Service; corrected metadata diagnostic is separate.",
+    "Reboot and orphan Pod observations are bounded, not proof of indefinite behavior.",
+    "All owned namespaces/PVs and imported AMI node tags cleaned; preexisting cluster resources/images preserved."
+  ],
+  "reproduce": [
+    "python3 scripts/ec2-kube-completion-reference.py",
+    "python3 scripts/ec2-kube-completion-reference.py --metadata-diagnostic"
+  ]
+}

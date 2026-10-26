@@ -115,6 +115,7 @@ def parser():
     launch.add_argument('--security-group-ids', nargs='+')
     launch.add_argument('--private-ip-address')
     launch.add_argument('--key-name')
+    launch.add_argument('--iam-instance-profile', help='JSON profile reference, e.g. {"Name":"web-profile"}')
     launch.add_argument('--metadata-options', help='JSON metadata options')
     launch.add_argument('--block-device-mappings', help='JSON EBS filesystem mappings')
     launch.add_argument('--publish', action='append', default=[], metavar='HOST_PORT:CONTAINER_PORT', help='Docker localhost port; use 0:CONTAINER_PORT for a Kubernetes service; repeatable')
@@ -219,6 +220,8 @@ def parser():
     generate = operation(iam, 'generate-policy')
     generate.add_argument('--user-name', required=True)
     generate.add_argument('--source', choices=['successful', 'violations'], default='successful')
+    from .identity_cli import configure as identity_cli
+    identity_cli(iam, group, operation)
     traces = group('traces', 'Inspect request metadata')
     operation(traces, 'list').add_argument('--user-name')
     operation(traces, 'clear')
@@ -330,7 +333,7 @@ def execute(args, client):
                 value = getattr(args, attribute, None)
                 if value is not None:
                     payload[key] = value
-            for attribute, key in [('metadata_options', 'MetadataOptions'), ('block_device_mappings', 'BlockDeviceMappings')]:
+            for attribute, key in [('metadata_options', 'MetadataOptions'), ('block_device_mappings', 'BlockDeviceMappings'), ('iam_instance_profile', 'IamInstanceProfile')]:
                 value = getattr(args, attribute, None)
                 if value is not None:
                     payload[key] = json_value(value)
@@ -423,6 +426,9 @@ def execute(args, client):
             private_write(args.filename, json.dumps(bundle, indent=2) + '\n')
             return {'exported': str(Path(args.filename).expanduser())}
         return client.request('POST', '/_local/state/import', json.loads(Path(args.filename).expanduser().read_text()))
+    if group in ('iam', 'sts') and op not in ('put-policy', 'list-principals', 'generate-policy'):
+        from .identity_cli import payload as identity_payload
+        return client.request('POST', '/_local/' + group, identity_payload(args, json_value))
     if group == 'iam':
         if op == 'list-principals':
             return client.request('GET', '/_local/resources')['principals']

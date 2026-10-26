@@ -1,0 +1,35 @@
+{
+  "evidence": {
+    "live": "ev_002b50cf637ace988d2211b3b526fd849d67cd278cea4d4cdf5d8d8bcd0d4fcf",
+    "first_fixture_failure": "ev_69b5a019d033b3484622f3f44b20adba2826fef0c9a7568e05ef7ddc35636779",
+    "diagnosed_fixture_failure": "ev_ef15498472430909001900c407fd09e2c324d8e6d726b562bf047fae7ad7e9f1",
+    "metadata_startup_diagnostic": "ev_ba5857e05aa2ff12ee3016210aee985417b1cdfe4ca2e67151ce1ed9228cbf88",
+    "origin_diagnostic": "ev_d880ccfa19c43ee12fc56272e92ba92c4bc433b8880963cad3e72dd7e87c624c",
+    "profile_unit": "ev_3082c3c57788c823788bb5455ed50e688ae2ea14971c1dbbdd5add488acb1461"
+  },
+  "checks": 8,
+  "canonical_sha256": "757573fc6ad40e940e2aa445d5c6c82c1b5b293ec37eca0b1ce65d020ed6d4da",
+  "source_sha256": {
+    "scripts/ec2-iam-kube-live.py": "31064ee5047a426a5a3e12b69fc8ba71d6a5220520a197d5be323763e821ddbe",
+    "localcloud/ec2_profiles.py": "d15bf7ad2c68d939059d89d7c64e30a516545d120150802e912b6727d486a3e7",
+    "localcloud/ec2.py": "bdf6a9bf3748b4c4dcead424be4b1f4a22238001e818a11a3a7403998be5b9ee",
+    "localcloud/ec2_metadata.py": "b8a3eb5638827dad2e881bf80786d93a2525572cb2a6330e6d7bcc49c22bbbb0",
+    "localcloud/ec2_runtime.py": "d5d6f57d4448b48b2fb9f9c71d6f35104db11d198c3d0b755cee7301383048c5",
+    "localcloud/ec2_kubernetes.py": "e3d2b19c7310417f134770ddf67cb10762eab788909d6ae76f9d63bb50384f71",
+    "localcloud/ec2_cli.py": "44d1c7e2ec89c3d1078ee069b1deb36cb773cfb898e22950701830b68aba8569",
+    "localcloud/ec2_templates.py": "75ffd7b3b04f30a0125682f66ff7255357db2ea62686112e661b990985e4b913",
+    "localcloud/ec2-model.json": "20d194e6762ec061f691338c51d9baac7ccf3c4cf8437748c1b48093715e48a8",
+    "tests/test_ec2_profiles.py": "8b9642e45188d73e1154ad1add8cd754658e30f1bdf2bf87880fb7152fab261a",
+    "docs/research/rea/ec2-iam-kube-live-report.json": "73072fbdb2e821788bfaaa5d1cea1228123ffdf975d858f3d3db34b82287d4d0"
+  },
+  "limits": [
+    "Kubernetes guest signs AWS calls with stdlib SigV4, not SDK auto-discovery; separate Docker SDK fixture covers that.",
+    "Caller-authorized administrative proxy used; no new minimal service-account RBAC claim.",
+    "Two initial fixtures selected unbracketed IPv6 gateway and could not reach backend; corrected fixture explicitly selects IPv4 and all checks pass.",
+    "Normal per-instance credentials remain inside helper/guest, broker capabilities never enter portable mainstate or management overview.",
+    "Helper current source uses cached runtime dependencies; no package downloads."
+  ],
+  "records": 10,
+  "session_unknowns": 4,
+  "profile_unit_tests": 12
+}

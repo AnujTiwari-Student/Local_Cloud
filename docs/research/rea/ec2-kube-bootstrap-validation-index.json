@@ -1,0 +1,9 @@
+{
+  "unit_evidence": "ev_86710ab143b36f8d2f9783ab5c6728130391ea644055ab233db359d4f0d76b3a",
+  "tests": 274,
+  "canonical_sha256": "de8f5b43eed0f39f49d8dda54c05c6f69de26072e263ebb43036f5ca18db28bb",
+  "source_sha256": {
+    "localcloud/ec2_kubernetes.py": "1ed290c1c2ee213b0226fa59a90c277007f462e02836fe79054eabc919607143",
+    "tests/test_ec2_kubernetes.py": "772523b2e19f1b33e3ab62870421d50462148c0c8f30526c647ea75dcb1ee279"
+  }
+}

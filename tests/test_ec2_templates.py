@@ -77,7 +77,7 @@ class LaunchTemplateTests(unittest.TestCase):
         self.assertEqual(resolved['SubnetId'], 'subnet-placeholder')
         self.assertEqual(resolved['SecurityGroupIds'], ['sg-placeholder'])
         self.assertNotIn('NetworkInterfaces', resolved)
-        for settings in [{'ImageId': 'ami-local', 'IamInstanceProfile': {'Name': 'admin'}}, {'NetworkInterfaces': [{'DeviceIndex': 1}]}, {'UserData': 'not base64'}, {'BlockDeviceMappings': [{'DeviceName': '/etc', 'Ebs': {'VolumeSize': 1}}]}]:
+        for settings in [ {'NetworkInterfaces': [{'DeviceIndex': 1}]}, {'UserData': 'not base64'}, {'BlockDeviceMappings': [{'DeviceName': '/etc', 'Ebs': {'VolumeSize': 1}}]}]:
             with self.subTest(settings=settings), self.assertRaises(Error):
                 self.call('CreateLaunchTemplate', LaunchTemplateName='bad-template', LaunchTemplateData=settings)
 

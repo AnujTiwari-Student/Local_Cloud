@@ -307,7 +307,7 @@ class Runtime:
         if self.owned('container', name, absent=True):
             self.ec2.docker(*({'rm': ['rm', '-f', name], 'stop': ['stop', '-t', '2', name]}[action]))
 
-    def start_imds(self, instance):
+    def start_imds(self, instance, seed=None):
         if not instance.get('ImdsEnabled'):
             return
         self.require_helper()
@@ -317,10 +317,13 @@ class Runtime:
             self.wait_imds(name)
             return
         payload = {k: copy.deepcopy(instance.get(k)) for k in ('InstanceId', 'ImageId', 'InstanceType', 'PrivateIpAddress', 'PrivateDnsName', 'PublicIpAddress', 'Placement', 'UserData', 'MetadataOptions', 'ReservationId', 'AmiLaunchIndex')}
+        from .ec2_profiles import broker_environment
+        environment = broker_environment(self.ec2, instance, seed)
+        private_env = [part for key in environment for part in ('-e', key)]
         self.ec2.docker('run', '-d', '--name', name, '--label', self.label(), '--label', 'localcloud.instance=' + instance['InstanceId'],
                         '--network', 'container:localcloud-' + instance['InstanceId'], '--read-only', '--user', '0:0', '--cap-drop', 'ALL', '--cap-add', 'NET_ADMIN',
                         '--security-opt', 'no-new-privileges', '--pids-limit', '32', '--memory', '64m', '--cpus', '0.25',
-                        '-e', 'LOCALCLOUD_IMDS_DATA=' + json.dumps(payload), '--entrypoint', 'python3', self.helper_image, '-m', 'localcloud.ec2_metadata')
+                        '-e', 'LOCALCLOUD_IMDS_DATA=' + json.dumps(payload), *private_env, '--entrypoint', 'python3', self.helper_image, '-m', 'localcloud.ec2_metadata', environment=environment)
         self.wait_imds(name)
 
     def wait_imds(self, name):

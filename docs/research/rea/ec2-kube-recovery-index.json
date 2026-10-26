@@ -1,0 +1,24 @@
+{
+  "evidence": {
+    "cluster_preflight": "ev_b593dfaa1cafafaea5756bdaddb9f8c78d4ec5237253e9894cb4e3c592550da5",
+    "rbac_preflight": "ev_dd3f83e3b3de605e3938929f1d906a934973b480571cdd877e62c4f6752c0760",
+    "live_recovery_and_drift": "ev_ab2accb704e5bb5c9f165b4bf604eaa8b01e5aa1e7fc1c1d168612130620734e",
+    "cleanup": "ev_37af186db7a4b14b5b00c7878e29c490ddd5790d305ee0c048b50d627afb8286"
+  },
+  "live_checks_passed": 13,
+  "canonical_sha256": "46e7b6384d8fabcaa23a6a616d395fbcea4810fbce091647e47a396e8c787436",
+  "source_sha256": {
+    "scripts/ec2-kube-recovery-live.py": "addcc8ad7a98defc69683ff13fbebf4fb469e54d1f65490ed805c550efda2a9a",
+    "docs/research/rea/ec2-kube-recovery-report.json": "1068d5a18a84449a6ad35fd7a025f0d7e6bff84c3d8a2fd4c89e20ce4ea7cd85",
+    "docs/research/rea/ec2-kube-recovery-rbac-preflight.json": "d4ab69d1e926f88fe90ae420602e245aca506a18cd8801860d6aa7276d4de6be"
+  },
+  "limits": [
+    "Fixture uses direct API TLS and a short-lived service-account token with the generated namespace-only executor Role.",
+    "Admin kubectl is used for fixture namespace/RBAC setup and file-byte verification, not provider operations.",
+    "Fault points terminate the backend after successful PVC or Deployment POST before the adapter receives its UID.",
+    "Crash/recovery proves tested process-loss windows, not arbitrary host power loss or distributed atomicity.",
+    "No CSI snapshot, encryption, EKS or raw-disk functionality is claimed."
+  ],
+  "records": 8,
+  "session_unknowns": 4
+}

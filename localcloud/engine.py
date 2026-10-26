@@ -55,13 +55,21 @@ class Engine:
         self.tools = Tooling(self)
         from .ec2 import EC2
         self.ec2 = EC2(self, ec2_images, kubernetes=ec2_kubernetes)
+        from .identity import Identity
+        self.identity = Identity(self)
         from .gateway import Gateway
         self.gateway = Gateway(self)
         self.ec2.runtime.storage_journal.recover()
+        if self.ec2.kubernetes is not None:
+            self.ec2.kubernetes.journal.recover()
 
     @contextmanager
     def transaction(self):
         with self.lock:
+            depth = getattr(self.request_context, 'state_transaction_depth', 0)
+            self.request_context.state_transaction_depth = depth + 1
+            journal = self.ec2.kubernetes.journal if self.ec2.kubernetes is not None else None
+            txid = journal.begin() if journal is not None else None
             try:
                 with self.db:
                     state = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
@@ -73,18 +81,29 @@ class Engine:
                             self.db.commit()
                         raise
                     self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
+                    if journal is not None:
+                        journal.mark_committed(txid)
             finally:
+                self.request_context.state_transaction_depth = depth
                 # SQLite has settled before recovery inspects committed resource
                 # references or writes through its independent durable journal.
                 self.ec2.runtime.storage_journal.recover()
+                if journal is not None:
+                    journal.end(txid)
+                    journal.recover()
 
     def close(self):
+        if self.ec2.kubernetes is not None:
+            self.ec2.kubernetes.journal.close()
         self.ec2.runtime.storage_journal.close()
         self.db.close()
 
     def authorize(self, state, principal, action, resource):
         allowed, denied = False, False
-        for statement in state['policies'].get(principal, []):
+        statements = list(state['policies'].get(principal, []))
+        if hasattr(self, 'identity'):
+            statements.extend(self.identity.statements(state, principal))
+        for statement in statements:
             if any(wildcard(action.lower(), p.lower()) for p in statement['Action']) and any(wildcard(resource, p) for p in statement['Resource']):
                 allowed |= statement['Effect'] == 'Allow'
                 denied |= statement['Effect'] == 'Deny'
@@ -127,6 +146,9 @@ class Engine:
         if self.ec2.images:
             raise Error('UnsupportedOperation', 'Snapshots are disabled in container EC2 mode', 409)
         with self.lock, self.db:
+            current = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+            if current.get('identity') or current.get('ec2_iam_associations'):
+                raise Error('UnsupportedOperation', 'IAM roles and instance profiles require the persistent database; portable snapshots are unsupported', 409)
             if restore:
                 row = self.db.execute('SELECT body FROM snapshots WHERE name=?', (name,)).fetchone()
                 if not row:
@@ -146,15 +168,32 @@ class Engine:
         return {'name': name, 'restored': restore}
 
     def overview(self):
+        recovery_errors = {}
+        if self.ec2.kubernetes is not None:
+            with self.lock:
+                records = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0]).get('instances', {})
+                ids = [key for key, item in records.items() if item['Backend'] == 'kubernetes' and item['State']['Name'] != 'terminated']
+            for key in ids:
+                try:
+                    with self.transaction() as data:
+                        self.ec2.kubernetes.refresh(data['instances'][key])
+                except Error as error:
+                    recovery_errors[key] = error.code + ': ' + str(error)
         with self.lock:
             s = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+            instances = [self.ec2.public(i) for i in s.get('instances', {}).values()]
+            for item in instances:
+                if item['InstanceId'] in recovery_errors:
+                    item['State'] = {'Name': 'pending', 'Code': 0}
+                    item['RuntimeStatusReason'] = recovery_errors[item['InstanceId']]
             return {'endpoint': self.endpoint, 'iamMode': self.iam_mode,
                     'queues': [{'name': n, 'messages': len(q['messages'])} for n, q in s['queues'].items()],
                     'buckets': [{'name': n, 'objects': len(b)} for n, b in s['buckets'].items()],
                     'snapshots': [{'name': n, 'created': t} for n, t in self.db.execute('SELECT name,created FROM snapshots ORDER BY created DESC')],
-                    'instances': [self.ec2.public(i) for i in s.get('instances', {}).values()],
+                    'instances': instances,
                     'principals': list(s['policies']), 'audit': s['audit'],
-                    'storageRecovery': copy.deepcopy(self.ec2.runtime.storage_journal.last_recovery)}
+                    'storageRecovery': copy.deepcopy(self.ec2.runtime.storage_journal.last_recovery),
+                    **({'kubernetesRecovery': copy.deepcopy(self.ec2.kubernetes.journal.last_recovery)} if self.ec2.kubernetes is not None else {})}
 
     def sqs(self, operation, args, principal='test'):
         name = args.get('QueueName', '')

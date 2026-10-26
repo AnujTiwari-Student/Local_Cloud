@@ -1,0 +1,580 @@
+{
+  "namespace": "ec2-kube-ref-bootstrap-eea1e87e",
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "context": "kind-localcloud",
+  "records": [
+    {
+      "case": "register-image",
+      "operation": "register_image",
+      "parameters": {
+        "Name": "rea-completion-ec2-kube-ref-bootstrap-eea1e87e",
+        "Architecture": "x86_64",
+        "RootDeviceName": "/dev/sda1",
+        "VirtualizationType": "hvm"
+      },
+      "status": 200,
+      "result": {
+        "ImageId": "ami-1545007743d6e3414"
+      }
+    },
+    {
+      "case": "run-instance",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-1545007743d6e3414",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "UserData": "#!/bin/sh\necho REA-bootstrap >/tmp/rea-bootstrap\necho REA-console\npython3 - <<'PYIMDS'\nimport urllib.request,json,time,socket,re\nr=[]\niid=re.search(r\"i-[0-9a-f]{17}\",socket.gethostname()).group()\nheaders={\"x-localstack-imds-account-id\":\"000000000000\",\"x-localstack-imds-region-name\":\"us-east-1\",\"x-localstack-imds-instance-id\":iid}\nfor _ in range(50):\n try:\n  op=urllib.request.build_opener(urllib.request.ProxyHandler({}))\n  with op.open(urllib.request.Request(\"http://169.254.169.254/latest/meta-data/instance-id\",headers=headers),timeout=1) as x:r.append({\"status\":x.status,\"body\":x.read(100).decode()})\n  break\n except Exception as e:r.append({\"error\":str(e)});time.sleep(.2)\nopen(\"/tmp/rea-bootstrap-metadata.json\",\"w\").write(json.dumps(r))\nPYIMDS\n"
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-4474791183ac747ee",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-26 14:56:53+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-32e25efe0adf3a921"
+                }
+              }
+            ],
+            "ClientToken": "4331c857-733d-48b6-a06f-cca5a5f13ee2",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {
+                  "IpOwnerId": "000000000000",
+                  "PublicDnsName": "ip-54-214-195-12.ec2.internal",
+                  "PublicIp": "54.214.195.12"
+                },
+                "Attachment": {
+                  "AttachTime": "2026-10-26 14:56:53+00:00",
+                  "AttachmentId": "eni-attach-0a77b8b72b019767f",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-e0a84db3d6cc31bcc",
+                    "GroupName": "default"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:10002x:24702x:4702x",
+                "NetworkInterfaceId": "eni-c8ef829a8678e997a",
+                "OwnerId": "000000000000",
+                "PrivateDnsName": "ip-10-150-151-108.ec2.internal",
+                "PrivateIpAddress": "10.150.151.108",
+                "PrivateIpAddresses": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-54-214-195-12.ec2.internal",
+                      "PublicIp": "54.214.195.12"
+                    },
+                    "Primary": true,
+                    "PrivateIpAddress": "10.150.151.108"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-7a2d38b2ed4e7b209",
+                "VpcId": "vpc-7cc3b8634931a2f41",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-e0a84db3d6cc31bcc",
+                "GroupName": "default"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-e03cee0c6853388ec",
+            "ImageId": "ami-1545007743d6e3414",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-150-151-108.ec2.internal",
+            "PublicDnsName": "10-244-0-99.ec2-kube-ref-bootstrap-eea1e87e.pod",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-26 14:56:53+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-7a2d38b2ed4e7b209",
+            "VpcId": "vpc-7cc3b8634931a2f41",
+            "PrivateIpAddress": "10.150.151.108",
+            "PublicIpAddress": "10.244.0.99"
+          }
+        ]
+      }
+    },
+    {
+      "case": "stock-created-workloads",
+      "objects": [
+        {
+          "kind": "Deployment",
+          "name": "localstack-ec2-i-e03cee0c6853388ec",
+          "uid": "aaa7630e-758f-422e-9faf-d1807239c963",
+          "phase": null,
+          "replicas": 1,
+          "readyReplicas": 1,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Deployment",
+          "name": "reference",
+          "uid": "3454d21b-8464-49e7-8ce2-4ed636f58dd9",
+          "phase": null,
+          "replicas": 1,
+          "readyReplicas": 1,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Pod",
+          "name": "localstack-ec2-i-e03cee0c6853388ec-6db7d7bc78-dnc2h",
+          "uid": "804f08af-5a57-4f04-8c5f-52362fd18867",
+          "phase": "Running",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [
+            {
+              "name": "localstack-ec2-i-e03cee0c6853388ec",
+              "image": "ami-1545007743d6e3414",
+              "imagePullPolicy": "Never"
+            },
+            {
+              "name": "imds-proxy-sidecar",
+              "image": "alpine/socat:latest",
+              "imagePullPolicy": "Always"
+            }
+          ],
+          "volumes": [
+            {
+              "name": "kube-api-access-p98mv",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Pod",
+          "name": "reference-555685c449-rmbj4",
+          "uid": "446cf920-a6a6-4b0b-aad3-2f0aedfcfcd6",
+          "phase": "Running",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [
+            {
+              "name": "reference",
+              "image": "localstack/localstack:latest",
+              "imagePullPolicy": "Never"
+            }
+          ],
+          "volumes": [
+            {
+              "name": "state",
+              "persistentVolumeClaim": {
+                "claimName": "reference-state"
+              }
+            },
+            {
+              "name": "kube-api-access-rl9q9",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Service",
+          "name": "localstack",
+          "uid": "7958c87f-41a0-4bf8-afc2-bb7e615972a1",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Service",
+          "name": "localstack-ec2-i-e03cee0c6853388ec",
+          "uid": "e76320e6-f390-4782-9890-50cb56f96b8e",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "Service",
+          "name": "localstack-main",
+          "uid": "c3220cf4-24ea-4b03-9d0d-0fe104e7640b",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "ConfigMap",
+          "name": "kube-root-ca.crt",
+          "uid": "67b2ef5a-c0da-413d-8fbf-7a90bd7b7de7",
+          "phase": null,
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        },
+        {
+          "kind": "PersistentVolumeClaim",
+          "name": "reference-state",
+          "uid": "9f2eda6a-9eb8-426f-bfab-bf78d691e629",
+          "phase": "Bound",
+          "replicas": null,
+          "readyReplicas": null,
+          "containers": [],
+          "volumes": null
+        }
+      ]
+    },
+    {
+      "case": "post-ready-describe",
+      "operation": "describe_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-e03cee0c6853388ec"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Reservations": [
+          {
+            "ReservationId": "r-4474791183ac747ee",
+            "OwnerId": "000000000000",
+            "Groups": [],
+            "Instances": [
+              {
+                "BlockDeviceMappings": [
+                  {
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                      "AttachTime": "2026-10-26 14:56:53+00:00",
+                      "DeleteOnTermination": true,
+                      "Status": "attached",
+                      "VolumeId": "vol-32e25efe0adf3a921"
+                    }
+                  }
+                ],
+                "ClientToken": "4331c857-733d-48b6-a06f-cca5a5f13ee2",
+                "EbsOptimized": false,
+                "Hypervisor": "xen",
+                "NetworkInterfaces": [
+                  {
+                    "Association": {
+                      "IpOwnerId": "000000000000",
+                      "PublicDnsName": "ip-10-244-0-99.ec2.internal",
+                      "PublicIp": "10.244.0.99"
+                    },
+                    "Attachment": {
+                      "AttachTime": "2026-10-26 14:56:53+00:00",
+                      "AttachmentId": "eni-attach-0a77b8b72b019767f",
+                      "DeleteOnTermination": false,
+                      "DeviceIndex": 0,
+                      "Status": "attached",
+                      "NetworkCardIndex": 0
+                    },
+                    "Description": "Primary network interface",
+                    "Groups": [
+                      {
+                        "GroupId": "sg-e0a84db3d6cc31bcc",
+                        "GroupName": "default"
+                      }
+                    ],
+                    "Ipv6Addresses": [],
+                    "MacAddress": "02:00:00:10002x:24702x:4702x",
+                    "NetworkInterfaceId": "eni-c8ef829a8678e997a",
+                    "OwnerId": "000000000000",
+                    "PrivateDnsName": "ip-10-150-151-108.ec2.internal",
+                    "PrivateIpAddress": "10.150.151.108",
+                    "PrivateIpAddresses": [
+                      {
+                        "Association": {
+                          "IpOwnerId": "000000000000",
+                          "PublicDnsName": "ip-10-244-0-99.ec2.internal",
+                          "PublicIp": "10.244.0.99"
+                        },
+                        "Primary": true,
+                        "PrivateIpAddress": "10.150.151.108"
+                      }
+                    ],
+                    "SourceDestCheck": true,
+                    "Status": "in-use",
+                    "SubnetId": "subnet-7a2d38b2ed4e7b209",
+                    "VpcId": "vpc-7cc3b8634931a2f41",
+                    "InterfaceType": "interface"
+                  }
+                ],
+                "RootDeviceName": "/dev/sda1",
+                "RootDeviceType": "ebs",
+                "SecurityGroups": [
+                  {
+                    "GroupId": "sg-e0a84db3d6cc31bcc",
+                    "GroupName": "default"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "SriovNetSupport": "simple",
+                "StateReason": {
+                  "Code": "",
+                  "Message": ""
+                },
+                "HibernationOptions": {},
+                "MetadataOptions": {
+                  "State": "applied",
+                  "HttpTokens": "optional",
+                  "HttpPutResponseHopLimit": 1,
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "InstanceMetadataTags": "disabled"
+                },
+                "InstanceId": "i-e03cee0c6853388ec",
+                "ImageId": "ami-1545007743d6e3414",
+                "State": {
+                  "Code": 16,
+                  "Name": "running"
+                },
+                "PrivateDnsName": "ip-10-150-151-108.ec2.internal",
+                "PublicDnsName": "10-244-0-99.ec2-kube-ref-bootstrap-eea1e87e.pod",
+                "StateTransitionReason": "",
+                "AmiLaunchIndex": 0,
+                "ProductCodes": [],
+                "InstanceType": "t3.micro",
+                "LaunchTime": "2026-10-26 14:56:53+00:00",
+                "Placement": {
+                  "GroupName": "",
+                  "Tenancy": "default",
+                  "AvailabilityZone": "us-east-1a"
+                },
+                "Monitoring": {
+                  "State": "disabled"
+                },
+                "SubnetId": "subnet-7a2d38b2ed4e7b209",
+                "VpcId": "vpc-7cc3b8634931a2f41",
+                "PrivateIpAddress": "10.150.151.108",
+                "PublicIpAddress": "10.244.0.99"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "diagnostic-require-imdsv2",
+      "operation": "modify_instance_metadata_options",
+      "parameters": {
+        "InstanceId": "i-e03cee0c6853388ec",
+        "HttpTokens": "required"
+      },
+      "status": 200,
+      "result": {
+        "InstanceId": "i-e03cee0c6853388ec",
+        "InstanceMetadataOptions": {
+          "State": "pending",
+          "HttpTokens": "required",
+          "HttpPutResponseHopLimit": 1,
+          "HttpEndpoint": "enabled",
+          "HttpProtocolIpv6": "disabled",
+          "InstanceMetadataTags": "disabled"
+        }
+      }
+    }
+  ],
+  "reference_gateway_service": "localstack-main:4566 selects own reference Deployment",
+  "reference_metadata_service": "localstack.ec2-kube-ref-bootstrap-eea1e87e.svc.cluster.local:4510 selects own reference Deployment metadata server",
+  "reference_node_images": [
+    {
+      "image": "docker.io/localstack/localstack:latest",
+      "imageID": "docker.io/library/import-2026-10-20@sha256:1e0da331934569a86390059ffca6fd41762e48caa0e6189cd1558eee0383b535"
+    }
+  ],
+  "reference_startup_logs": "2026-10-26T14:56:43.484  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_STARTUP load strategy\n2026-10-26T14:56:43.484  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST save strategy\n2026-10-26T14:56:43.489  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\n2026-10-26T14:56:48.710  INFO --- [ady_monitor)] l.p.c.p.snapshot.plugins   : restoring state of all services on startup\nReady.\n",
+  "early_pull_policy_intervention": [
+    "localstack-ec2-i-e03cee0c6853388ec"
+  ],
+  "controlled_identity_intervention": "UserData derives own instance ID from Kubernetes hostname and explicitly adds the three missing LocalStack identity headers; not stock guest behavior",
+  "controlled_intervention": {
+    "reason": "Stock Always policy bypasses node cache and attempts unavailable AMI-name registry pull",
+    "patch": "Never only on own EC2 guest Deployment"
+  },
+  "guest_initial": {
+    "exit": 0,
+    "output": "{\"bootstrap\": \"REA-bootstrap\\n\", \"bootstrap_metadata\": \"[{\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"error\\\": \\\"<urlopen error [Errno 111] Connection refused>\\\"}, {\\\"status\\\": 200, \\\"body\\\": \\\"i-e03cee0c6853388ec\\\"}]\"}\n",
+    "stderr": ""
+  },
+  "metadata_initial": {
+    "exit": 0,
+    "output": "[{\"path\": \"meta-data/instance-id\", \"status\": 200, \"body\": \"i-e03cee0c6853388ec\"}, {\"path\": \"user-data\", \"error\": \"HTTP Error 404: NOT FOUND\", \"body\": \"Endpoint 'latest/user-data' not implemented\"}, {\"path\": \"meta-data/iam/security-credentials/\", \"error\": \"HTTP Error 404: NOT FOUND\", \"body\": \"Endpoint 'latest/meta-data/iam/security-credentials/' not implemented\"}, {\"path\": \"v2-instance-id\", \"status\": 200, \"body\": \"i-e03cee0c6853388ec\"}]\n",
+    "stderr": ""
+  },
+  "explicit_identity": {
+    "exit": 0,
+    "output": "{\"status\": 200, \"body\": \"i-e03cee0c6853388ec\"}\n",
+    "stderr": ""
+  },
+  "guest_pod_owner_references": [
+    [
+      {
+        "apiVersion": "apps/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "ReplicaSet",
+        "name": "localstack-ec2-i-e03cee0c6853388ec-6db7d7bc78",
+        "uid": "133be453-b2a3-45ee-ba1f-0502b1b3fd23"
+      }
+    ]
+  ],
+  "guest_proxy_configuration": [
+    {
+      "name": "localstack-ec2-i-e03cee0c6853388ec",
+      "command": [
+        "/bin/sh"
+      ],
+      "args": [
+        "-c",
+        "mkdir -p /var/log && printf \"%s\" \"$LOCALSTACK_EC2_USER_DATA\" > /tmp/user_data.sh && chmod +x /tmp/user_data.sh && /tmp/user_data.sh > /var/log/cloud-init-output.log 2>&1; echo 'User data script completed'; sleep infinity"
+      ]
+    },
+    {
+      "name": "imds-proxy-sidecar",
+      "command": [
+        "sh",
+        "-c",
+        "socat TCP-LISTEN:9001,fork TCP:localstack.ec2-kube-ref-bootstrap-eea1e87e.svc.cluster.local:4510"
+      ],
+      "args": null
+    }
+  ],
+  "proxy_logs": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "guest_gateway_health": {
+    "exit": 0,
+    "output": "200\n",
+    "stderr": ""
+  },
+  "metadata_token_enforcement": {
+    "exit": 0,
+    "output": "[{\"case\": \"without-token\", \"status\": 200, \"body\": \"i-e03cee0c6853388ec\"}, {\"case\": \"issue-token\", \"status\": 200}, {\"case\": \"with-token\", \"status\": 200, \"body\": \"i-e03cee0c6853388ec\"}]\n",
+    "stderr": ""
+  },
+  "reference_final_logs": "\nLocalStack version: 2026.10.0\nLocalStack build date: 2026-10-13\nLocalStack build git hash: 738d58ee\n\nDocker not available\n2026-10-26T14:56:40.199  INFO --- [  MainThread] l.licensing.licensingv2    : Successfully requested and activated new license a06a9137-a60c-4fe0-bbac-d0d46cc2654f:student \ud83d\udd11\u2705\n2026-10-26T14:56:41.244  INFO --- [  MainThread] localstack.utils.bootstrap : Execution of \"_resolve_api_provider_specs\" took 995.18ms\n2026-10-26T14:56:43.116  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: logodev ready at http://logodev.localhost.localstack.cloud:4566 -> 127.0.0.1:4115\n2026-10-26T14:56:43.118  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: posthog ready at http://posthog.localhost.localstack.cloud:4566 -> 127.0.0.1:4113\n2026-10-26T14:56:43.121  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: resend ready at http://resend.localhost.localstack.cloud:4566 -> 127.0.0.1:4114\n2026-10-26T14:56:43.125  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: stripe ready at http://stripe.localhost.localstack.cloud:4566 -> 127.0.0.1:4111\n2026-10-26T14:56:43.130  INFO --- [  MainThread] l.pro.apps.twin_plugin     : Apps: twilio ready at http://twilio.localhost.localstack.cloud:4566 -> 127.0.0.1:4112\n2026-10-26T14:56:43.484  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_STARTUP load strategy\n2026-10-26T14:56:43.484  INFO --- [  MainThread] l.p.c.p.snapshot.plugins   : registering ON_REQUEST save strategy\n2026-10-26T14:56:43.489  INFO --- [  MainThread] l.extensions.plugins       : loaded 0 extensions\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.schemas\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.tables\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.types\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.constraints\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.defaults\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.autogenerate.comments\n2026-10-26T14:56:44.278  INFO --- [  MainThread] alembic.runtime.plugins    : setup plugin alembic.ext.checkconstraint_byname\n2026-10-26T14:56:48.710  INFO --- [ady_monitor)] l.p.c.p.snapshot.plugins   : restoring state of all services on startup\nReady.\nkube_config_path not provided and default location (~/.kube/config) does not exist. Using inCluster Config. This might not work.\n2026-10-26T14:56:50.711  INFO --- [et.reactor-0] l.p.c.s.e.v.kubernetes     : Initializing Kubernetes client and setting up namespaces.\n2026-10-26T14:56:51.133  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for ec2 took 199 ms\n2026-10-26T14:56:51.133  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RegisterImage => 200\n2026-10-26T14:57:12.824  WARN --- [-functhread5] l.p.c.s.ec2.vmmanager.base : Failed ssh setup: (0)\nReason: Handshake status 403 Forbidden -+-+- {'audit-id': 'ecba144a-e8e4-4e00-b314-ee68816f8a48', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'date': 'Mon, 26 Oct 2026 14:57:12 GMT', 'content-length': '453'} -+-+- {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"pods \\\"localstack-ec2-i-e03cee0c6853388ec-6db7d7bc78-dnc2h\\\" is forbidden: User \\\"system:serviceaccount:ec2-kube-ref-bootstrap-eea1e87e:reference\\\" cannot get resource \\\"pods/exec\\\" in API group \\\"\\\" in the namespace \\\"ec2-kube-ref-bootstrap-eea1e87e\\\"\",\"reason\":\"Forbidden\",\"details\":{\"name\":\"localstack-ec2-i-e03cee0c6853388ec-6db7d7bc78-dnc2h\",\"kind\":\"pods\"},\"code\":403}\n\n\n2026-10-26T14:57:12.825  INFO --- [et.reactor-0] l.persistence.manager      : Saving state for ec2 took 166 ms\n2026-10-26T14:57:12.825  INFO --- [et.reactor-0] localstack.request.aws     : AWS ec2.RunInstances => 200\n2026-10-26T14:57:21.294  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.DescribeInstances => 200\n2026-10-26T14:57:21.559  WARN --- [et.reactor-0] l.p.c.s.ec2.imds.routes    : Path 'latest/user-data' not implemented\n2026-10-26T14:57:21.561  WARN --- [et.reactor-1] l.p.c.s.ec2.imds.routes    : Path 'latest/meta-data/iam/security-credentials/' not implemented\n2026-10-26T14:57:22.391  INFO --- [et.reactor-1] l.persistence.manager      : Saving state for ec2 took 160 ms\n2026-10-26T14:57:22.391  INFO --- [et.reactor-1] localstack.request.aws     : AWS ec2.ModifyInstanceMetadataOptions => 200\n",
+  "namespace_removed": true,
+  "node_tag_removed": true
+}

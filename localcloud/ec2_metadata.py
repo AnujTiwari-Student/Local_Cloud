@@ -14,8 +14,9 @@ from urllib.parse import urlsplit
 
 
 class Metadata:
-    def __init__(self, instance):
+    def __init__(self, instance, credentials=None):
         self.instance, self.tokens = instance, {}
+        self.credentials = credentials
         self.lock = threading.Lock()
 
     def request(self, method, path, headers):
@@ -46,6 +47,29 @@ class Metadata:
             with self.lock:
                 if self.tokens.get(supplied, 0) <= time.monotonic():
                     return 401, ''
+        # Credentials are fetched only after IMDS endpoint/token checks. The
+        # callback uses an instance-scoped capability, never management auth.
+        if path.startswith('/latest/meta-data/iam'):
+            if path not in ('/latest/meta-data/iam', '/latest/meta-data/iam/', '/latest/meta-data/iam/info', '/latest/meta-data/iam/security-credentials', '/latest/meta-data/iam/security-credentials/') and not path.startswith('/latest/meta-data/iam/security-credentials/'):
+                return 404, ''
+            if not self.credentials:
+                return 404, ''
+            try:
+                bundle = self.credentials()
+            except Exception as error:
+                from .engine import Error
+                if isinstance(error, Error):
+                    return error.status, ''
+                return 503, ''
+            if path in ('/latest/meta-data/iam', '/latest/meta-data/iam/'):
+                return 200, 'info\nsecurity-credentials/'
+            if path == '/latest/meta-data/iam/info':
+                return 200, json.dumps(bundle['Info'])
+            if path in ('/latest/meta-data/iam/security-credentials', '/latest/meta-data/iam/security-credentials/'):
+                return 200, bundle['RoleName']
+            if path == '/latest/meta-data/iam/security-credentials/' + bundle['RoleName']:
+                return 200, json.dumps(bundle['Credentials'])
+            return 404, ''
         placement = instance.get('Placement') or {}
         values = {'instance-id': instance['InstanceId'], 'ami-id': instance['ImageId'], 'instance-type': instance['InstanceType'],
                   'local-ipv4': instance.get('PrivateIpAddress', ''), 'hostname': instance.get('PrivateDnsName', ''),
@@ -68,13 +92,60 @@ class Metadata:
             if not key or key.endswith('/'):
                 names = sorted({name[len(key):].split('/')[0] + ('/' if '/' in name[len(key):] else '') for name in values if name.startswith(key) and values[name]})
                 if names:
-                    return 200, '\n'.join(names)
+                    if not key and self.credentials:
+                        try:
+                            self.credentials()
+                            names.append('iam/')
+                        except Exception:
+                            pass
+                    return 200, '\n'.join(sorted(names))
         return 404, ''
+
+
+def broker_provider(environment=None):
+    """Return a dynamic provider with a bounded initial-transaction fallback."""
+    from urllib.request import Request, build_opener, ProxyHandler
+    from urllib.error import HTTPError, URLError
+    from datetime import datetime, timezone
+    from .engine import Error
+    environment = os.environ if environment is None else environment
+    url, token = environment.get('LOCALCLOUD_IMDS_BROKER_URL'), environment.get('LOCALCLOUD_IMDS_BROKER_TOKEN')
+    if not url or not token:
+        return None
+    opener = build_opener(ProxyHandler({}))
+    initial = json.loads(environment.get('LOCALCLOUD_IMDS_INITIAL_CREDENTIALS', 'null'))
+    started = time.monotonic()
+    def startup_fallback():
+        if initial and time.monotonic() - started <= 30:
+            try:
+                expiry = datetime.fromisoformat(initial['Credentials']['Expiration'].replace('Z', '+00:00'))
+                if expiry > datetime.now(timezone.utc):
+                    return initial
+            except (KeyError, ValueError, TypeError):
+                pass
+        raise Error('MetadataCredentialsUnavailable', 'Instance credential broker unavailable', 503)
+    def fetch():
+        try:
+            with opener.open(Request(url, headers={'Authorization': 'Bearer ' + token}), timeout=.5) as response:
+                return json.loads(response.read(65536))
+        except HTTPError as error:
+            code = error.code
+            error.close()
+            if code == 503:
+                # The synchronous Docker launch transaction has not committed
+                # yet. Broker returns immediately rather than deadlocking it.
+                return startup_fallback()
+            # Explicit detach, expired capability and trust denial never use
+            # stale fallback credentials.
+            raise Error('MetadataCredentialsUnavailable', 'Instance credentials unavailable', code) from None
+        except (URLError, TimeoutError, OSError, ValueError):
+            return startup_fallback()
+    return fetch
 
 
 def main():
     instance = json.loads(os.environ['LOCALCLOUD_IMDS_DATA'])
-    metadata = Metadata(instance)
+    metadata = Metadata(instance, broker_provider())
     # NET_ADMIN is restricted to the guest's network namespace, never the host.
     # Add a loopback alias so guest requests use the standard link-local IP.
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:

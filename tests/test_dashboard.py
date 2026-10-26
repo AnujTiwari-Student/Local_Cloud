@@ -35,7 +35,7 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(details['instanceName'], 'dev')
         self.assertEqual(details['ec2Backend'], 'mock')
-        self.assertEqual(details['services'], ['ec2', 's3', 'sqs'])
+        self.assertEqual(details['services'], ['ec2', 's3', 'sqs', 'iam', 'sts'])
         self.assertNotIn('private', payload.decode())
         self.assertEqual(self.request('/_local/../engine.py')[0], 401)
 

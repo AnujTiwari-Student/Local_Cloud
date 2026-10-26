@@ -1,0 +1,40 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "unit_tests_passed": 271,
+  "live_checks_passed": 25,
+  "evidence": {
+    "unit_suite": "ev_771cf4921343f9267ed29ede66378e465e6ca9fca2fbf45277395bd375fb0398",
+    "basic_lifecycle_metadata": "ev_ab7e87522947fbd81630912e6dbb850f45cd51f7be7cc85b90873cf476ab0cf5",
+    "direct_role_crash_reconciliation": "ev_964c550cb54972367ec96cfa3604f443906ad26396f2bfab931c22a4f5257f6a",
+    "cleanup_and_token_scan": "ev_c198b4b47154a2f1d186f811f5fc3c9652d551b52a972e12781244d120edff9f",
+    "reference_lifecycle": "ev_81f3af12f5d39ec31d0320241666d3815dfda6c7e2b09fab4e5dc9021c3de5dc",
+    "reference_corrected_metadata": "ev_be71fe5f243febb13c97359bee796edae7b4fdc000aa2c60a0343079b6df7f7a"
+  },
+  "canonical_sha256": "c18c45ffe7a7499b9df511438f46da7fe34440642f222322240bb011b99d21f3",
+  "records": 10,
+  "session_unknowns": 4,
+  "source_sha256": {
+    "localcloud/engine.py": "4f797e93db05466c4c81fb021a9505ca77661f7348ef529f5b904801d340e35d",
+    "localcloud/ec2.py": "73b7b24b0880b48a50b1aa886228929168bfa5d90c9a1712d6dd26c4218ce506",
+    "localcloud/ec2_kubernetes.py": "22c92d714d9fe2773d61a2023e20ff0220212c5a50ff20a1e6ba97de5c125a6d",
+    "localcloud/ec2_kube_journal.py": "4dc85029b85b9e65bf99723d43c0a6e0c4a0543cb4de8ccdf85ba7ef9936955b",
+    "tests/test_ec2_kube_journal.py": "9ed24b2c3c9cb13eb36a4f4426288351d4f6efe0bc8d7c812d12da9b013e997e",
+    "tests/test_ec2_kube_reconciliation.py": "fc4c59b0c1c8a6d9f6a1efb2a88011ea9c55ab43429499aa3cc0095d57799305",
+    "tests/test_ec2_kubernetes.py": "146156e386bdb3073fbae798e6b865a64952dbde5dd4e77a5e9031efed19b23d",
+    "tests/test_ec2_kube_integration.py": "44a383df4be6d29c3f63a290400b22b97d14bdf45ccd50e3901aa53dbc37bd25",
+    "scripts/ec2-kubernetes-live.py": "92272d85eeb0875f97c59d29cd3e78fe0eb5563d8d77961d63c6c7237accd8b7",
+    "scripts/ec2-kube-recovery-live.py": "addcc8ad7a98defc69683ff13fbebf4fb469e54d1f65490ed805c550efda2a9a",
+    "scripts/ec2-kube-completion-reference.py": "0be971db8a0dde3c54b9d475db5e8c72b7e8774c3325b9469f1cd94b415f7292",
+    "docs/REA_EC2_KUBERNETES_COMPLETION.md": "0eaae5d8290835cd67626dce82a4d18a71e012bc36d4160795c42a89e4f98704",
+    "docs/EC2_KUBERNETES.md": "fd1b7d1e590230870d164a455c3daa80ec5d476effb92384af471de75a218018",
+    "docs/research/rea/ec2-kube-completion-basic-report.json": "3eabcf044bbabda9c467e5fcabe284c9d9d27d12f8d19410b84c5ed30ba7a1de",
+    "docs/research/rea/ec2-kube-completion-recovery-report.json": "3f5de745f8a43dd55d6260124ab0702bd5782a0d020f2b602a9ece6b4b06067c"
+  },
+  "limits": [
+    "Reference corrected4510transport issuedtoken200; identity400 andbootstrap/tokenenforcement remainpartiallyunresolvedinthecontrolledimagefixture.",
+    "Kubernetesjournalispersistentprocesscrashrecoverywithownershipsafeguards,notarbitrarydistributedatomicityorhostpowerlossprotection.",
+    "ReconciliationrunsatDescribe/resourcesaccess,notacontinuousbackgroundoperator.",
+    "CSI snapshots, rawdisks, physicalAWSnetworking,IAM/STScredentials andbootstraptimemetadata remainoutsidecurrentcontract.",
+    "Preliminarytestfixturefailure(waitingforterminatedafterstop)retainedinevidence; finalcorrected12-checksuitepassed."
+  ]
+}

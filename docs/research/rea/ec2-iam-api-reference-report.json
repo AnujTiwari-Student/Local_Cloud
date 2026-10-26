@@ -1,0 +1,688 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "reference_container": "localcloud-rea-iam-f169bf2cdb",
+  "scope": "normal licensed Docker executor; isolated fixture roles, profiles and guest; no provider extraction",
+  "credential_redaction": "All API and IMDS credential values replaced with length/prefix metadata before stdout or report persistence",
+  "exit": 0,
+  "records": [
+    {
+      "case": "missing-role",
+      "service": "iam",
+      "operation": "get_role",
+      "parameters": {
+        "RoleName": "missing-role-af2a43bd"
+      },
+      "status": 404,
+      "error": {
+        "Code": "NoSuchEntity",
+        "Message": "The role with name missing-role-af2a43bd cannot be found.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "missing-profile",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "missing-profile-af2a43bd"
+      },
+      "status": 404,
+      "error": {
+        "Code": "NoSuchEntity",
+        "Message": "Instance Profile missing-profile-af2a43bd cannot be found.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "create-role-rea-ec2-role-af2a43bd",
+      "service": "iam",
+      "operation": "create_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd",
+        "AssumeRolePolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ec2.amazonaws.com\", \"AWS\": \"arn:aws:iam::000000000000:root\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      },
+      "status": 200,
+      "result": {
+        "Role": {
+          "Path": "/",
+          "RoleName": "rea-ec2-role-af2a43bd",
+          "RoleId": "AROAQAAAAAAACDNMCYCMR",
+          "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd",
+          "CreateDate": "2026-10-26 15:07:35.219144+00:00",
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ec2.amazonaws.com",
+                  "AWS": "arn:aws:iam::000000000000:root"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "create-role-rea-ec2-role-af2a43bd-b",
+      "service": "iam",
+      "operation": "create_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd-b",
+        "AssumeRolePolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ec2.amazonaws.com\", \"AWS\": \"arn:aws:iam::000000000000:root\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      },
+      "status": 200,
+      "result": {
+        "Role": {
+          "Path": "/",
+          "RoleName": "rea-ec2-role-af2a43bd-b",
+          "RoleId": "AROAQAAAAAAANGT46WUO6",
+          "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd-b",
+          "CreateDate": "2026-10-26 15:07:35.221558+00:00",
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ec2.amazonaws.com",
+                  "AWS": "arn:aws:iam::000000000000:root"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "case": "duplicate-role",
+      "service": "iam",
+      "operation": "create_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd",
+        "AssumeRolePolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Principal\": {\"Service\": \"ec2.amazonaws.com\", \"AWS\": \"arn:aws:iam::000000000000:root\"}, \"Action\": \"sts:AssumeRole\"}]}"
+      },
+      "status": 409,
+      "error": {
+        "Code": "EntityAlreadyExists",
+        "Message": "Role with name rea-ec2-role-af2a43bd already exists.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "put-role-policy",
+      "service": "iam",
+      "operation": "put_role_policy",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd",
+        "PolicyName": "read-fixture",
+        "PolicyDocument": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Effect\": \"Allow\", \"Action\": [\"s3:ListAllMyBuckets\", \"sts:GetCallerIdentity\"], \"Resource\": \"*\"}]}"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "get-role-policy",
+      "service": "iam",
+      "operation": "get_role_policy",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd",
+        "PolicyName": "read-fixture"
+      },
+      "status": 200,
+      "result": {
+        "RoleName": "rea-ec2-role-af2a43bd",
+        "PolicyName": "read-fixture",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:ListAllMyBuckets",
+                "sts:GetCallerIdentity"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "create-profile-rea-ec2-profile-af2a43bd",
+      "service": "iam",
+      "operation": "create_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+          "InstanceProfileId": "AIPAQAAAAAAAFZ7WKUUC4",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd",
+          "CreateDate": "2026-10-26 15:07:35.229627+00:00",
+          "Roles": []
+        }
+      }
+    },
+    {
+      "case": "create-profile-rea-ec2-profile-af2a43bd-b",
+      "service": "iam",
+      "operation": "create_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd-b"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-af2a43bd-b",
+          "InstanceProfileId": "AIPAQAAAAAAAFVBGBK7OM",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd-b",
+          "CreateDate": "2026-10-26 15:07:35.231652+00:00",
+          "Roles": []
+        }
+      }
+    },
+    {
+      "case": "duplicate-profile",
+      "service": "iam",
+      "operation": "create_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd"
+      },
+      "status": 409,
+      "error": {
+        "Code": "EntityAlreadyExists",
+        "Message": "Instance Profile rea-ec2-profile-af2a43bd already exists.",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "empty-profile",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+          "InstanceProfileId": "AIPAQAAAAAAAFZ7WKUUC4",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd",
+          "CreateDate": "2026-10-26 15:07:35.229627+00:00",
+          "Roles": [],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "add-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+        "RoleName": "rea-ec2-role-af2a43bd"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "duplicate-add-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+        "RoleName": "rea-ec2-role-af2a43bd"
+      },
+      "status": 409,
+      "error": {
+        "Code": "LimitExceeded",
+        "Message": "Cannot exceed quota for InstanceSessionsPerInstanceProfile: 1",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "add-second-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+        "RoleName": "rea-ec2-role-af2a43bd-b"
+      },
+      "status": 409,
+      "error": {
+        "Code": "LimitExceeded",
+        "Message": "Cannot exceed quota for InstanceSessionsPerInstanceProfile: 1",
+        "Type": "Sender"
+      }
+    },
+    {
+      "case": "add-other-profile-role",
+      "service": "iam",
+      "operation": "add_role_to_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd-b",
+        "RoleName": "rea-ec2-role-af2a43bd-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "populated-profile",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+          "InstanceProfileId": "AIPAQAAAAAAAFZ7WKUUC4",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd",
+          "CreateDate": "2026-10-26 15:07:35.229627+00:00",
+          "Roles": [
+            {
+              "Path": "/",
+              "RoleName": "rea-ec2-role-af2a43bd",
+              "RoleId": "AROAQAAAAAAACDNMCYCMR",
+              "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd",
+              "CreateDate": "2026-10-26 15:07:35.219144+00:00",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "ec2.amazonaws.com",
+                      "AWS": "arn:aws:iam::000000000000:root"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            }
+          ],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "list-profiles",
+      "service": "iam",
+      "operation": "list_instance_profiles",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "InstanceProfiles": [
+          {
+            "Path": "/",
+            "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+            "InstanceProfileId": "AIPAQAAAAAAAFZ7WKUUC4",
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd",
+            "CreateDate": "2026-10-26 15:07:35.229627+00:00",
+            "Roles": [
+              {
+                "Path": "/",
+                "RoleName": "rea-ec2-role-af2a43bd",
+                "RoleId": "AROAQAAAAAAACDNMCYCMR",
+                "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd",
+                "CreateDate": "2026-10-26 15:07:35.219144+00:00",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": "ec2.amazonaws.com",
+                        "AWS": "arn:aws:iam::000000000000:root"
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "Path": "/",
+            "InstanceProfileName": "rea-ec2-profile-af2a43bd-b",
+            "InstanceProfileId": "AIPAQAAAAAAAFVBGBK7OM",
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd-b",
+            "CreateDate": "2026-10-26 15:07:35.231652+00:00",
+            "Roles": [
+              {
+                "Path": "/",
+                "RoleName": "rea-ec2-role-af2a43bd-b",
+                "RoleId": "AROAQAAAAAAANGT46WUO6",
+                "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd-b",
+                "CreateDate": "2026-10-26 15:07:35.221558+00:00",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": "ec2.amazonaws.com",
+                        "AWS": "arn:aws:iam::000000000000:root"
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "IsTruncated": false
+      }
+    },
+    {
+      "case": "list-profiles-for-role",
+      "service": "iam",
+      "operation": "list_instance_profiles_for_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfiles": [
+          {
+            "Path": "/",
+            "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+            "InstanceProfileId": "AIPAQAAAAAAAFZ7WKUUC4",
+            "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd",
+            "CreateDate": "2026-10-26 15:07:35.229627+00:00",
+            "Roles": [
+              {
+                "Path": "/",
+                "RoleName": "rea-ec2-role-af2a43bd",
+                "RoleId": "AROAQAAAAAAACDNMCYCMR",
+                "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd",
+                "CreateDate": "2026-10-26 15:07:35.219144+00:00",
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": "ec2.amazonaws.com",
+                        "AWS": "arn:aws:iam::000000000000:root"
+                      },
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "IsTruncated": false
+      }
+    },
+    {
+      "case": "assume-role",
+      "service": "sts",
+      "operation": "assume_role",
+      "parameters": {
+        "RoleArn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd",
+        "RoleSessionName": "rea-session",
+        "DurationSeconds": 900
+      },
+      "status": 200,
+      "result": {
+        "Credentials": {
+          "AccessKeyId": {
+            "redacted": true,
+            "length": 20,
+            "prefix": "LSIA"
+          },
+          "SecretAccessKey": {
+            "redacted": true,
+            "length": 40,
+            "prefix": null
+          },
+          "SessionToken": {
+            "redacted": true,
+            "length": 356,
+            "prefix": null
+          },
+          "Expiration": "2026-10-26 15:22:35.307104+00:00"
+        },
+        "AssumedRoleUser": {
+          "AssumedRoleId": "AROAQAAAAAAACDNMCYCMR:rea-session",
+          "Arn": "arn:aws:sts::000000000000:assumed-role/rea-ec2-role-af2a43bd/rea-session"
+        }
+      }
+    },
+    {
+      "case": "assumed-get-caller-identity",
+      "service": "assumed",
+      "operation": "get_caller_identity",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "UserId": "AROAQAAAAAAACDNMCYCMR:rea-session",
+        "Account": "000000000000",
+        "Arn": "arn:aws:sts::000000000000:assumed-role/rea-ec2-role-af2a43bd/rea-session"
+      }
+    },
+    {
+      "case": "assume-missing-role",
+      "service": "sts",
+      "operation": "assume_role",
+      "parameters": {
+        "RoleArn": "arn:aws:iam::000000000000:role/no-such-role-af2a43bd",
+        "RoleSessionName": "rea-missing"
+      },
+      "status": 200,
+      "result": {
+        "Credentials": {
+          "AccessKeyId": {
+            "redacted": true,
+            "length": 20,
+            "prefix": "LSIA"
+          },
+          "SecretAccessKey": {
+            "redacted": true,
+            "length": 40,
+            "prefix": null
+          },
+          "SessionToken": {
+            "redacted": true,
+            "length": 356,
+            "prefix": null
+          },
+          "Expiration": "2026-10-26 16:07:35.313744+00:00"
+        },
+        "AssumedRoleUser": {
+          "AssumedRoleId": "AROAQAAAAAAANYSTPL7U2:rea-missing",
+          "Arn": "arn:aws:sts::000000000000:assumed-role/no-such-role-af2a43bd/rea-missing"
+        }
+      }
+    },
+    {
+      "case": "root-get-caller-identity",
+      "service": "sts",
+      "operation": "get_caller_identity",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "UserId": "000000000000",
+        "Account": "000000000000",
+        "Arn": "arn:aws:iam::000000000000:root"
+      }
+    },
+    {
+      "case": "cleanup-profile-read",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+          "InstanceProfileId": "AIPAQAAAAAAAFZ7WKUUC4",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd",
+          "CreateDate": "2026-10-26 15:07:35.229627+00:00",
+          "Roles": [
+            {
+              "Path": "/",
+              "RoleName": "rea-ec2-role-af2a43bd",
+              "RoleId": "AROAQAAAAAAACDNMCYCMR",
+              "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd",
+              "CreateDate": "2026-10-26 15:07:35.219144+00:00",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "ec2.amazonaws.com",
+                      "AWS": "arn:aws:iam::000000000000:root"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            }
+          ],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "cleanup-remove-role",
+      "service": "iam",
+      "operation": "remove_role_from_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd",
+        "RoleName": "rea-ec2-role-af2a43bd"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-profile",
+      "service": "iam",
+      "operation": "delete_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-profile-read",
+      "service": "iam",
+      "operation": "get_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd-b"
+      },
+      "status": 200,
+      "result": {
+        "InstanceProfile": {
+          "Path": "/",
+          "InstanceProfileName": "rea-ec2-profile-af2a43bd-b",
+          "InstanceProfileId": "AIPAQAAAAAAAFVBGBK7OM",
+          "Arn": "arn:aws:iam::000000000000:instance-profile/rea-ec2-profile-af2a43bd-b",
+          "CreateDate": "2026-10-26 15:07:35.231652+00:00",
+          "Roles": [
+            {
+              "Path": "/",
+              "RoleName": "rea-ec2-role-af2a43bd-b",
+              "RoleId": "AROAQAAAAAAANGT46WUO6",
+              "Arn": "arn:aws:iam::000000000000:role/rea-ec2-role-af2a43bd-b",
+              "CreateDate": "2026-10-26 15:07:35.221558+00:00",
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "ec2.amazonaws.com",
+                      "AWS": "arn:aws:iam::000000000000:root"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              }
+            }
+          ],
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "cleanup-remove-role",
+      "service": "iam",
+      "operation": "remove_role_from_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd-b",
+        "RoleName": "rea-ec2-role-af2a43bd-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-profile",
+      "service": "iam",
+      "operation": "delete_instance_profile",
+      "parameters": {
+        "InstanceProfileName": "rea-ec2-profile-af2a43bd-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-role-policy",
+      "service": "iam",
+      "operation": "delete_role_policy",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd",
+        "PolicyName": "read-fixture"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-role",
+      "service": "iam",
+      "operation": "delete_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete-role",
+      "service": "iam",
+      "operation": "delete_role",
+      "parameters": {
+        "RoleName": "rea-ec2-role-af2a43bd-b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-guests",
+      "captured_ids": [],
+      "remaining": []
+    }
+  ],
+  "stderr": "",
+  "reference_container_removed": true
+}

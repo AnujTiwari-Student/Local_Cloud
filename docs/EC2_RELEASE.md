@@ -1,7 +1,7 @@
 # EC2 release checkpoint — 20 October 2026
 
 This is the current release checkpoint for local EC2 workflows. **Full LocalStack
-EC2 equivalence is not complete.** LocalCloud dispatches 100 selected AWS operations
+EC2 equivalence is not complete.** LocalCloud dispatches 104 selected AWS operations
 plus the local NameInstance operation. The public SDK catalogue has 807 EC2
 operation names; that catalogue does not establish what LocalStack implements.
 The [inventory](research/rea/ec2-release-inventory.json) distinguishes these counts.
@@ -61,8 +61,7 @@ localcloud ec2 describe-instances --name from-template
 
 The CLI no longer requires --image-id when --launch-template supplies it.
 Explicit launch flags override template defaults. Docker templates must name an
-allowlisted or owned captured AMI. Template support does not implement IAM
-instance profiles, arbitrary network-interface layouts or AWS VM boot.
+allowlisted or owned captured AMI. Templates support the documented IAM instance-profile reference. Arbitrary network-interface layouts and AWS VM boot remain outside this subset.
 
 ## Create a reusable image
 
@@ -147,7 +146,7 @@ also differ. These are deliberate behavior differences, not a claim of exact par
 
 The earlier [networking report](EC2_NETWORKING.md) records three stricter validation
 checks and actual packet-level observations. Live firewalls, extra guest NICs,
-EIP NAT, actual VM/Windows execution, IAM role credentials, full multi-region/account
+EIP NAT, actual VM/Windows execution, complete IAM/STS semantics, full multi-region/account
 isolation remain outside the implemented scope. Kubernetes-backed EC2 now has
 a [working subset](EC2_KUBERNETES.md) with Deployment readiness, lifecycle and PVC mounts.
 
@@ -162,3 +161,7 @@ A registered operation means a bounded handler exists. It does not mean all AWS
 parameters, error conditions, executor modes or response fields have been reproduced.
 
 The [24 October storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md) adds three EBS encryption-default flag operations, modification history and journaled batch-copy quiescing. Earlier evidence counts remain historical checkpoints.
+
+## Instance-role follow-up
+
+The [instance-role guide](EC2_INSTANCE_ROLES.md) adds IAM roles/profiles, inline policies, EC2 profile associations, STS sessions and automatic IMDS credential delivery for Docker and Kubernetes guests. See the [REA report](REA_EC2_INSTANCE_ROLES.md) for observed LocalStack behavior and deliberate differences. Earlier exclusions of IAM instance profiles in this release checkpoint are superseded for the documented subset.

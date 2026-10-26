@@ -1,0 +1,33 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "reference_version": "2026.10.0",
+  "reference_build": "738d58ee",
+  "evidence": {
+    "preliminary_bootstrap_and_missing_identity_headers": "ev_fa96add8f8a7249bda33e920ac29ffa76d85cd16070b29e73809a10791d14774",
+    "completed_launch_bootstrap_and_metadata": "ev_c480cec58a84a49ac1a6e9be8b81b65396e227e54c2d81c6f5594dd293c59957",
+    "no_owned_pods": "ev_d75916246ee02b3ef21669f0e23ea067be6ee3247644eab5a4fa59f2395606c9"
+  },
+  "canonical_sha256": "c2ccd111cce6f2f40ae5d92d2352356f6e257c05c4f36abfad8c0ce2633f5586",
+  "source_sha256": {
+    "scripts/ec2-kube-bootstrap-reference.py": "02e107ee73181ebe3672e48f3a470115ecfb4a2c4f41e4c5ab55133384075bd3",
+    "docs/research/rea/ec2-kube-bootstrap-reference-report.json": "2d01ae57148ac0778210bb86151ecba2b5965d5145a7b89804fad22a4f2285d7",
+    "docs/research/rea/ec2-kube-bootstrap-reference-preliminary-report.json": "cde35335b6e76be7ef45665e0060c15b6bc9f3011ac799b6869560fa11478d03"
+  },
+  "findings": {
+    "bootstrap": "Completed script recorded16 connection-refused attempts thenHTTP200 owninstanceID; bootstrap explicitly supplied identityheaders derivedfromownhostname.",
+    "identity": "EarlyNever+Recreate produced exactlyonePod duringlaunch; normalAPIcompleted withoutpriorExpectedExactlyOnePoderror and advertisedPodIP. LaternormalmetadataGET withoutidentityheaders returned200. Prior400 missingheaders arosein incomplete-launchfixture.",
+    "imdsv2": "TokenPUT200 andtokenGET200. ImmediateGETwithouttokenstill200afterModifyInstanceMetadataOptions HttpTokensrequired; boundedobservation, noassertionofeventualenforcement.",
+    "remaining_paths": "latest/user-data andIAMsecuritycredentials404 explicitlynotimplemented inthisreference.",
+    "ordering": "Guestcommand executesuserdatainmaincontainer concurrentlywithregularsocatmetadata sidecar; metadata notguaranteedreadyatbootstrapfirstinstruction.",
+    "cleanup": "Both namespaces removed andnewAMI nodeimporttagsremoved. NoLocalCloudcodechanged."
+  },
+  "limitations": [
+    "Normallicensedreference only; noencryptedcodeextractionorentitlementbypass.",
+    "OwncachedguestDeploymentpatchedtoNeverandRecreate beforelaunchwaitcompleted; notstockpullpolicy.",
+    "Bootstrapidentityheaders areexplicitcontrolledworkaround; notproofthatstockbootstrapalwayssucceeds. LaterplainGET200showssuccessfulregistration.",
+    "ReferenceService4510 suppliedexplicitly, existingkindclusterused.",
+    "NamespaceRBACexcludedpods/exec; referenceSSHsetuplogged403, unrelatedmetadata200worked.",
+    "NofullLocalStackparityclaim; onlyboundedstartupmetadatafixture.",
+    "Preliminaryscriptchangedforfinalrun; preliminaryreportpreservespriorbehavior, finalsourceshahashescurrentreproducer."
+  ]
+}

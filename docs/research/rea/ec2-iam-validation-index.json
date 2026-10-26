@@ -1,0 +1,43 @@
+{
+  "reference": "ec2-iam-reference-index.json",
+  "evidence": {
+    "docker_sdk": "ev_c3f8c29a3c4e306f732d20e2349b1523dab974bee74dfcfe3377f889d4cf2d0f",
+    "units": "ev_1ed7881176de25137d3fe2e7086ed1b22039c7a393780b734d179cec6c51ca1a",
+    "kubernetes": "ev_002b50cf637ace988d2211b3b526fd849d67cd278cea4d4cdf5d8d8bcd0d4fcf"
+  },
+  "unit_tests": 303,
+  "docker_sdk_checks": 12,
+  "kubernetes_checks": 8,
+  "canonical_sha256": "e19affc69d7cf20e9361f7ac5d5756112b2b9b84d5499b20fc23a969c4c2fb65",
+  "source_sha256": {
+    "localcloud/identity.py": "fa539d784e05500b1663111e00e745b049498e0b95db5b76265c76d6d1f589a8",
+    "localcloud/identity_wire.py": "28d8d06f4d7597817ed1ae72ec36d78e705994a1509562f19bd60a99d895fefd",
+    "localcloud/identity_cli.py": "3037d32118c618a674be8244b6d4bca8e534797814066b12f31d25d213730f78",
+    "localcloud/ec2_profiles.py": "d15bf7ad2c68d939059d89d7c64e30a516545d120150802e912b6727d486a3e7",
+    "localcloud/ec2.py": "bdf6a9bf3748b4c4dcead424be4b1f4a22238001e818a11a3a7403998be5b9ee",
+    "localcloud/ec2_metadata.py": "b8a3eb5638827dad2e881bf80786d93a2525572cb2a6330e6d7bcc49c22bbbb0",
+    "localcloud/ec2_kubernetes.py": "e3d2b19c7310417f134770ddf67cb10762eab788909d6ae76f9d63bb50384f71",
+    "localcloud/ec2_runtime.py": "d5d6f57d4448b48b2fb9f9c71d6f35104db11d198c3d0b755cee7301383048c5",
+    "localcloud/ec2_templates.py": "75ffd7b3b04f30a0125682f66ff7255357db2ea62686112e661b990985e4b913",
+    "localcloud/ec2-model.json": "20d194e6762ec061f691338c51d9baac7ccf3c4cf8437748c1b48093715e48a8",
+    "localcloud/ec2_cli.py": "44d1c7e2ec89c3d1078ee069b1deb36cb773cfb898e22950701830b68aba8569",
+    "localcloud/engine.py": "2fa974512ec6a09bf783b5ec2c75c55cbcf1b8a177e891e9319771379ba11641",
+    "localcloud/gateway.py": "f4ef6a13930d19a23bdfaa7dbc68344af80c5aa052f85c85d0881c5e69495ed6",
+    "localcloud/providers.py": "fb4b7b1e424bd686c6b78510d13b0908c4a147e0f98a3c301f8360e2d1d4343d",
+    "localcloud/__main__.py": "8f01c2e632daedde9f1891b95221e8f939c45dc5e16803e4ba7c3daa5f441c1d",
+    "localcloud/cli.py": "adb9a497fda5477321afde7f0e355c472f5af92c20e4b9c642715968358148f3",
+    "localcloud/tooling.py": "634cd5d6117dba602bb92f9c3f827d84cd4c0c51cd43f844efb1ac7d2481d956",
+    "tests/test_identity.py": "c1fec1010d1e85026c49717230f9b6db441a0fc09e43bce2b620d30f87904054",
+    "tests/test_identity_http.py": "134ee7e3bfc5e09f9868fdf05f8fd1ca3f1df90babffe6dcefe04ca7085d47ca",
+    "tests/test_ec2_profiles.py": "8b9642e45188d73e1154ad1add8cd754658e30f1bdf2bf87880fb7152fab261a",
+    "scripts/ec2-iam-live.py": "65b7f4f46175535953c7ea087af49febce229d9f6dad0061d87c3c1dc4225795",
+    "docs/research/rea/ec2-iam-live-report.json": "0e0ae5ff6f30f027b993781b96d34e1c7ddec472f7a5305bcacdae545d38ab86"
+  },
+  "limitations": [
+    "Pinned licensed reference2026.10.0; no fullparity claim",
+    "Kubernetes ownledger bundle separate",
+    "Preliminary pre-environmentfix Dockercapture notpublished; finalcapture usesnamesonlyenvflags",
+    "Legacydummytest credentials retained; trusteddevelopmentservice, notproduction IAMsecurity",
+    "HeaderSigV4 localtemporarysessions only; policyconditions/managedpolicies/federation excluded"
+  ]
+}

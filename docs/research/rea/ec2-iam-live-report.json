@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "checks": [
+    "actual-docker-user-data-discovers-role-credentials-before-state-commit",
+    "actual-guest-sdk-automatic-imdsv2-role-discovery",
+    "signed-sts-getcalleridentity-reflects-instance-role-session",
+    "signed-s3-read-allowed-and-write-explicitly-denied",
+    "iam-query-sdk-profile-shape-and-sts-assumerole-session",
+    "broker-capability-bound-to-instance-and-not-management-token",
+    "invalid-signature-and-session-token-rejected-over-http",
+    "expired-session-rejected-over-http",
+    "credential-rotation-issues-new-session",
+    "live-profile-replacement-refreshes-sdk-metadata-role",
+    "disassociation-revokes-credentials-and-broker-role-delivery",
+    "termination-revokes-instance-broker-capability"
+  ],
+  "sdk_base_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "guest_image": "localcloud-iam-sdk:rea-6917e123e8",
+  "helper_image": "localcloud-iam-helper:rea-6917e123e8",
+  "sdk_version": "1.43.112",
+  "guest_result": {
+    "method": "iam-role",
+    "identity_arn": "arn:aws:sts::000000000000:assumed-role/guest-reader/i-9f8100eacd5f475da",
+    "read": true,
+    "write_denied": true
+  },
+  "assume_role_result": {
+    "profile_sdk": true,
+    "assume_role_identity": "arn:aws:sts::000000000000:assumed-role/cli-reader/sdk-session"
+  },
+  "negative_signatures": [
+    {
+      "case": "signature",
+      "code": "SignatureDoesNotMatch",
+      "status": 403
+    },
+    {
+      "case": "token",
+      "code": "InvalidClientTokenId",
+      "status": 403
+    }
+  ],
+  "owned_runtime_containers_remaining": [],
+  "guest_containers_remaining": [],
+  "image_tags_removed": true
+}

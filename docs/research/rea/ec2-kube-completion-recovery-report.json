@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "namespace": "ec2-kube-recovery-2536b8e6",
+  "context": "kind-localcloud",
+  "authorization": "direct TLS service-account token, generated executor Role",
+  "checks": [
+    "direct-service-account-tls-and-secret-access-denied",
+    "restart-cleans-uncommitted-pvc-response-loss-and-preserves-foreign-object",
+    "restart-cleans-uncommitted-deployment-response-loss-and-preserves-foreign-object",
+    "minimal-role-runs-ready-guest-pvc-and-console",
+    "committed-guest-identities-survive-backend-restart",
+    "journaled-stop-start-recreates-pod-with-original-pvc-bytes",
+    "describe-reconciles-deleted-owned-service",
+    "describe-rebuilds-deleted-userdata-configmap-from-committed-state",
+    "describe-rebuilds-deleted-deployment-with-original-pvc-data",
+    "describe-restores-manual-scale-drift-to-committed-running-intent",
+    "foreign-service-replacement-is-preserved-and-rejected",
+    "missing-persistent-data-is-reported-without-empty-replacement",
+    "journaled-termination-finishes-only-after-owned-resources-disappear"
+  ],
+  "namespace_removed": true,
+  "node_tag_removed": true,
+  "host_tag_removed": true
+}

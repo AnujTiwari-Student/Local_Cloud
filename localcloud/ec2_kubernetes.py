@@ -4,6 +4,8 @@ This reconstructs observed Deployment/Pod behavior independently. It provides
 real lifecycle and filesystem PVC mounts, not VMs, EKS or raw EBS devices.
 """
 import copy
+import base64
+import hashlib
 import json
 import uuid
 from urllib.parse import quote
@@ -15,7 +17,7 @@ MANAGED = 'localcloud-ec2'
 
 
 def state(name):
-    return {'Name': name, 'Code': {'pending': 0, 'running': 16, 'stopping': 64, 'stopped': 80, 'terminated': 48}[name]}
+    return {'Name': name, 'Code': {'pending': 0, 'running': 16, 'shutting-down': 32, 'stopping': 64, 'stopped': 80, 'terminated': 48}[name]}
 
 
 class EC2Kubernetes:
@@ -30,6 +32,8 @@ class EC2Kubernetes:
         self.owner = ec2.runtime.owner
         ec2.engine.db.execute('CREATE TABLE IF NOT EXISTS ec2_kubernetes_pvcs (path TEXT PRIMARY KEY, uid TEXT NOT NULL, owner TEXT NOT NULL)')
         ec2.engine.db.commit()
+        from .ec2_kube_journal import KubernetesJournal
+        self.journal = KubernetesJournal(self)
 
     def name(self, item):
         return dns_name('lc-ec2-' + self.owner[:8] + '-' + item['InstanceId'])
@@ -62,17 +66,20 @@ class EC2Kubernetes:
     def delete(self, path, item=None, key=None, uid=None):
         obj = self.owned(path, item, key, uid, absent=True)
         if obj is not None:
-            self.client.request('DELETE', path, {'apiVersion': 'v1', 'kind': 'DeleteOptions',
-                                'propagationPolicy': 'Foreground', 'preconditions': {'uid': obj['metadata']['uid']}})
+            self.journal.delete(path, obj, self.labels(item, key))
 
     def create(self, collection, body, item=None, key=None):
         # POST conflict never turns into an update of an existing object.
         try:
-            return self.client.request('POST', collection, body)
+            return self.journal.create(collection, body, self.labels(item, key))
         except KubeError as error:
             if error.status == 409:
                 raise Error('RuntimeFailure', 'Kubernetes resource name already exists; no existing resource was changed', 409) from error
             raise
+
+    def update(self, path, desired, item):
+        before = self.owned(path, item, uid=desired['metadata'].get('uid'))
+        return self.journal.update(path, before, desired, self.labels(item))
 
     def volume_name(self, key):
         return dns_name('lc-ebs-' + self.owner[:8] + '-' + key)
@@ -153,13 +160,26 @@ class EC2Kubernetes:
                     'securityContext': self._container_security(), 'resources': copy.deepcopy(container['resources']),
                     'volumeMounts': [*copy.deepcopy(mounts), {'name': 'bootstrap', 'mountPath': '/localcloud-init', 'readOnly': True}]}]
         if self.helper_image:
-            container['env'] = [{'name': 'AWS_EC2_METADATA_SERVICE_ENDPOINT', 'value': 'http://127.0.0.1:1338'},
-                                {'name': 'LOCALCLOUD_METADATA_URL', 'value': 'http://127.0.0.1:1338'}]
-            pod['containers'].append({'name': 'metadata', 'image': self.helper_image, 'imagePullPolicy': self.image_pull_policy,
+            endpoint_env = [{'name': 'AWS_EC2_METADATA_SERVICE_ENDPOINT', 'value': 'http://127.0.0.1:1338'},
+                            {'name': 'LOCALCLOUD_METADATA_URL', 'value': 'http://127.0.0.1:1338'}]
+            container['env'] = copy.deepcopy(endpoint_env)
+            for init in pod.get('initContainers', []):
+                init['env'] = copy.deepcopy(endpoint_env)
+            probe = {'exec': {'command': ['python3', '-c', "import socket;s=socket.create_connection(('127.0.0.1',1338),1);s.close()"]},
+                     'periodSeconds': 1, 'timeoutSeconds': 2}
+            # A native sidecar starts before later init containers. Its startup
+            # probe gates user-data without making IMDS HTTP authorization or
+            # HttpEndpoint=disabled prevent the Pod itself from starting.
+            metadata = {'name': 'metadata', 'image': self.helper_image, 'imagePullPolicy': self.image_pull_policy,
+                    'restartPolicy': 'Always',
                     'command': ['python3', '-m', 'localcloud.ec2_kubernetes', '--metadata'],
                     'env': [{'name': 'LOCALCLOUD_IMDS_DATA', 'valueFrom': {'configMapKeyRef': {'name': self.name(item), 'key': 'metadata.json'}}}],
                     'securityContext': self._container_security(), 'resources': {'requests': {'cpu': '10m', 'memory': '16Mi'}, 'limits': {'cpu': '100m', 'memory': '64Mi'}},
-                    'readinessProbe': {'exec': {'command': ['python3', '-c', "import socket;s=socket.create_connection(('127.0.0.1',1338),1);s.close()"]}, 'periodSeconds': 2}})
+                    'startupProbe': {**copy.deepcopy(probe), 'failureThreshold': 60},
+                    'readinessProbe': copy.deepcopy(probe)}
+            from .ec2_profiles import broker_environment
+            metadata['env'].extend({'name': key, 'value': value} for key, value in broker_environment(self.ec2, item).items())
+            pod['initContainers'] = [metadata, *pod.get('initContainers', [])]
         return pod
 
     def launch(self, item, decoded_userdata):
@@ -169,11 +189,9 @@ class EC2Kubernetes:
             script = decoded_userdata.decode('utf-8')
         except UnicodeDecodeError:
             raise Error('InvalidParameterValue', 'Kubernetes UserData must be UTF-8') from None
-        pod = self._pod(item, script)
         name = self.name(item)
-        deployment = {'apiVersion': 'apps/v1', 'kind': 'Deployment', 'metadata': self.metadata(name, item),
-                      'spec': {'replicas': 1, 'strategy': {'type': 'Recreate'}, 'selector': {'matchLabels': self.labels(item)},
-                               'template': {'metadata': {'labels': self.labels(item)}, 'spec': pod}}}
+        item['KubernetesDesiredState'] = 'running'
+        deployment = self.desired_deployment(item, script)
         created = []
         try:
             cm = self.create(self.base + '/configmaps', self._config(item, script), item)
@@ -206,6 +224,85 @@ class EC2Kubernetes:
         name = self.name(item)
         return [f'http://{name}.{self.namespace}.svc:{p["ContainerPort"]}' for p in item.get('PortMappings', [])]
 
+    def desired_deployment(self, item, script):
+        config = self._config(item, script)['data']
+        digest = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
+        return {'apiVersion': 'apps/v1', 'kind': 'Deployment', 'metadata': self.metadata(self.name(item), item),
+                'spec': {'replicas': 0 if item.get('KubernetesDesiredState') == 'stopped' else 1,
+                         'strategy': {'type': 'Recreate'}, 'selector': {'matchLabels': self.labels(item)},
+                         'template': {'metadata': {'labels': self.labels(item),
+                                      'annotations': {'localcloud.dev/config-sha': digest}}, 'spec': self._pod(item, script)}}}
+
+    @staticmethod
+    def includes(actual, desired):
+        if isinstance(desired, dict):
+            return isinstance(actual, dict) and all(k in actual and EC2Kubernetes.includes(actual[k], v) for k, v in desired.items())
+        if isinstance(desired, list):
+            return isinstance(actual, list) and len(actual) == len(desired) and all(EC2Kubernetes.includes(a, b) for a, b in zip(actual, desired))
+        return actual == desired
+
+    def reconcile(self, item):
+        """Repair only absent owned runtime objects, preserving recorded PVC data."""
+        desired_state = item.setdefault('KubernetesDesiredState', 'stopped' if item['State']['Name'] in ('stopped', 'stopping') else 'running')
+        if desired_state == 'terminated':
+            remaining = False
+            for group, collection, field in ((self.apps, 'deployments', 'KubernetesUid'),
+                                             (self.base, 'services', 'KubernetesServiceUid'),
+                                             (self.base, 'configmaps', 'KubernetesConfigUid')):
+                if self.owned(group + '/' + collection + '/' + self.name(item), item, uid=item.get(field), absent=True) is not None:
+                    remaining = True
+            for mapping in item.get('BlockDeviceMappings', []):
+                if mapping['Ebs'].get('DeleteOnTermination'):
+                    key = mapping['Ebs']['VolumeId']
+                    if self.owned(self.base + '/persistentvolumeclaims/' + self.volume_name(key), key=key, absent=True) is not None:
+                        remaining = True
+            item['State'] = state('shutting-down' if remaining or self.journal.pending_for(item) else 'terminated')
+            return None
+        if self.journal.pending_for(item):
+            item['State'] = state('pending')
+            item['RuntimeStatusReason'] = 'Kubernetes recovery is pending; inspect kubernetesRecovery'
+            return None
+        for mapping in item.get('BlockDeviceMappings', []):
+            key = mapping['Ebs']['VolumeId']
+            pvc = self.owned(self.base + '/persistentvolumeclaims/' + self.volume_name(key), key=key, uid=self._volume_uid(key), absent=True)
+            if pvc is None or pvc['metadata'].get('deletionTimestamp'):
+                item['State'] = state('pending')
+                item['RuntimeStatusReason'] = 'Persistent volume is missing or deleting; empty replacement is not created'
+                return None
+        script = base64.b64decode(item.get('UserData', '')).decode('utf-8')
+        name = self.name(item)
+        cm_path = self.base + '/configmaps/' + name
+        cm = self.owned(cm_path, item, uid=item.get('KubernetesConfigUid'), absent=True)
+        desired_cm = self._config(item, script)
+        if cm is None:
+            cm = self.create(self.base + '/configmaps', desired_cm, item)
+            item['KubernetesConfigUid'] = cm['metadata']['uid']
+        elif cm.get('data') != desired_cm['data']:
+            cm['data'] = desired_cm['data']
+            self.update(cm_path, cm, item)
+        deployment = self._deployment(item, absent=True)
+        desired = self.desired_deployment(item, script)
+        if deployment is None:
+            deployment = self.create(self.apps + '/deployments', desired, item)
+            item['KubernetesUid'] = deployment['metadata']['uid']
+            item.pop('PodName', None); item.pop('PodUid', None)
+        elif not self.includes(deployment['spec'], desired['spec']):
+            deployment['spec']['replicas'] = desired['spec']['replicas']
+            deployment['spec']['template'] = desired['spec']['template']
+            deployment = self.update(self.apps + '/deployments/' + name, deployment, item)
+        if item.get('PortMappings'):
+            path = self.base + '/services/' + name
+            service = self.owned(path, item, uid=item.get('KubernetesServiceUid'), absent=True)
+            desired_ports = [{'name': 'tcp-' + str(p['ContainerPort']), 'port': p['ContainerPort'], 'targetPort': p['ContainerPort']} for p in item['PortMappings']]
+            if service is None:
+                service = self.create(self.base + '/services', {'apiVersion': 'v1', 'kind': 'Service',
+                        'metadata': self.metadata(name, item), 'spec': {'type': 'ClusterIP', 'selector': self.labels(item), 'ports': desired_ports}}, item)
+                item['KubernetesServiceUid'] = service['metadata']['uid']
+            elif not self.includes(service['spec'], {'selector': self.labels(item), 'ports': desired_ports}):
+                service['spec']['selector'] = self.labels(item); service['spec']['ports'] = desired_ports
+                self.update(path, service, item)
+        return deployment
+
     def _deployment(self, item, absent=False):
         if item.get('KubernetesNamespace', self.namespace) != self.namespace:
             raise Error('RuntimeFailure', 'Instance belongs to a different Kubernetes namespace', 409)
@@ -235,8 +332,10 @@ class EC2Kubernetes:
     def refresh(self, item):
         if item['State']['Name'] == 'terminated':
             return item
-        deployment = self._deployment(item, absent=True)
         item.pop('RuntimeStatusReason', None)
+        deployment = self.reconcile(item)
+        if item.get('KubernetesDesiredState') == 'terminated' or item.get('RuntimeStatusReason'):
+            return item
         if deployment is None:
             item['State'] = state('pending')
             item['RuntimeStatusReason'] = 'Kubernetes Deployment is missing'
@@ -272,22 +371,24 @@ class EC2Kubernetes:
 
     def lifecycle(self, item, action):
         if action == 'terminate':
+            item['KubernetesDesiredState'] = 'terminated'
             dep = self._deployment(item, absent=True)
             if dep is not None:
                 self.delete(self.apps + '/deployments/' + self.name(item), item, uid=item.get('KubernetesUid'))
             for collection in ('services', 'configmaps'):
                 uid = item.get('KubernetesServiceUid' if collection == 'services' else 'KubernetesConfigUid')
                 self.delete(self.base + '/' + collection + '/' + self.name(item), item, uid=uid)
-            item['State'] = state('terminated')
+            item['State'] = state('shutting-down')
             return
         deployment = self._deployment(item)
         if action in ('start', 'stop'):
+            item['KubernetesDesiredState'] = 'running' if action == 'start' else 'stopped'
             deployment['spec']['replicas'] = 1 if action == 'start' else 0
         elif action == 'reboot':
             deployment['spec']['template']['metadata'].setdefault('annotations', {})['localcloud.dev/reboot'] = uuid.uuid4().hex
         else:
             raise Error('UnsupportedOperation', 'Unknown Kubernetes lifecycle action', 501)
-        self.client.request('PUT', self.apps + '/deployments/' + self.name(item), deployment)
+        self.update(self.apps + '/deployments/' + self.name(item), deployment, item)
         item['State'] = state('pending' if action != 'stop' else 'stopping')
 
     def console(self, item):
@@ -320,8 +421,9 @@ class EC2Kubernetes:
         template['volumes'] = [*volumes, *config]
         template['containers'][0]['volumeMounts'] = mounts
         for init in template.get('initContainers', []):
-            init['volumeMounts'] = [*copy.deepcopy(mounts), {'name': 'bootstrap', 'mountPath': '/localcloud-init', 'readOnly': True}]
-        self.client.request('PUT', self.apps + '/deployments/' + self.name(item), deployment)
+            if init['name'] == 'user-data':
+                init['volumeMounts'] = [*copy.deepcopy(mounts), {'name': 'bootstrap', 'mountPath': '/localcloud-init', 'readOnly': True}]
+        self.update(self.apps + '/deployments/' + self.name(item), deployment, item)
 
     def modify_type(self, item, kind):
         self.check_reconfigure(item)
@@ -329,19 +431,23 @@ class EC2Kubernetes:
         if kind not in ('t3.micro', 't3.small', 't3.medium'):
             raise Error('InvalidParameterValue', 'Unsupported Kubernetes instance type')
         deployment['spec']['template']['spec']['containers'][0]['resources']['limits']['memory'] = {'t3.micro': '128Mi', 't3.small': '256Mi', 't3.medium': '512Mi'}[kind]
+        for init in deployment['spec']['template']['spec'].get('initContainers', []):
+            if init['name'] == 'user-data':
+                init['resources']['limits']['memory'] = {'t3.micro': '128Mi', 't3.small': '256Mi', 't3.medium': '512Mi'}[kind]
         cm_path = self.base + '/configmaps/' + self.name(item)
         cm = self.owned(cm_path, item, uid=item.get('KubernetesConfigUid'))
         previous = copy.deepcopy(cm)
         payload = json.loads(cm['data']['metadata.json'])
         payload['InstanceType'] = kind
         cm['data']['metadata.json'] = json.dumps(payload)
-        updated = self.client.request('PUT', cm_path, cm)
+        deployment['spec']['template']['metadata'].setdefault('annotations', {})['localcloud.dev/config-sha'] = hashlib.sha256(json.dumps(cm['data'], sort_keys=True).encode()).hexdigest()
+        updated = self.update(cm_path, cm, item)
         try:
-            self.client.request('PUT', self.apps + '/deployments/' + self.name(item), deployment)
+            self.update(self.apps + '/deployments/' + self.name(item), deployment, item)
         except Error as failure:
             try:
                 previous['metadata']['resourceVersion'] = updated['metadata']['resourceVersion']
-                self.client.request('PUT', cm_path, previous)
+                self.update(cm_path, previous, item)
             except Error as cleanup_error:
                 failure.add_note('Kubernetes metadata rollback failed: ' + str(cleanup_error))
             raise
@@ -355,14 +461,15 @@ class EC2Kubernetes:
         payload = self._metadata_payload(item); payload['MetadataOptions'] = copy.deepcopy(options)
         cm['data']['metadata.json'] = json.dumps(payload)
         deployment = self._deployment(item)
-        updated = self.client.request('PUT', path, cm)
+        deployment['spec']['template']['metadata'].setdefault('annotations', {})['localcloud.dev/config-sha'] = hashlib.sha256(json.dumps(cm['data'], sort_keys=True).encode()).hexdigest()
+        updated = self.update(path, cm, item)
         deployment['spec']['template']['metadata'].setdefault('annotations', {})['localcloud.dev/metadata'] = uuid.uuid4().hex
         try:
-            self.client.request('PUT', self.apps + '/deployments/' + self.name(item), deployment)
+            self.update(self.apps + '/deployments/' + self.name(item), deployment, item)
         except Error as failure:
             try:
                 previous['metadata']['resourceVersion'] = updated['metadata']['resourceVersion']
-                self.client.request('PUT', path, previous)
+                self.update(path, previous, item)
             except Error as cleanup_error:
                 failure.add_note('Kubernetes metadata rollback failed: ' + str(cleanup_error))
             raise
@@ -373,8 +480,8 @@ def metadata_server():
     import os
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
     from urllib.parse import urlsplit
-    from .ec2_metadata import Metadata
-    metadata = Metadata(json.loads(os.environ['LOCALCLOUD_IMDS_DATA']))
+    from .ec2_metadata import Metadata, broker_provider
+    metadata = Metadata(json.loads(os.environ['LOCALCLOUD_IMDS_DATA']), broker_provider())
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args): pass
         def dispatch(self):

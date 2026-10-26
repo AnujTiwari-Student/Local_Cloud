@@ -1,0 +1,5 @@
+{
+  "pods_list_status": "PodList",
+  "secrets_denied_status": 403,
+  "namespace_removed": true
+}

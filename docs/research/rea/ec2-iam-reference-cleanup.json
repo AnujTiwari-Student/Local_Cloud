@@ -1,0 +1,15 @@
+{
+  "remaining_owned_containers": [],
+  "remaining_owned_namespaces": [],
+  "remaining_owned_pvs": [],
+  "source_sha256": {
+    "docs/research/rea/ec2-iam-api-reference-report.json": "9fe652e5369e890588c49ba88b474477e2266dac666ade2a6feff8c0bf0ae94a",
+    "docs/research/rea/ec2-iam-association-public-model.json": "efc5ef22923e62a9c472eb23b188609bac2e2ba5f7e4efea4754c27895ca2a9f",
+    "docs/research/rea/ec2-iam-direct-metadata-reference-report.json": "f1994166e90cb7bf27a32a62ed1d56e239f71c0bb73658f25e55e0fc9440cb51",
+    "docs/research/rea/ec2-iam-kube-reference-preliminary-report.json": "9327c6e877d249f77e63f906a1abcaecc5a8c6b3e450d2250fc8e517718aa8aa",
+    "docs/research/rea/ec2-iam-kube-reference-report.json": "6823c420b942c74609f06d232a4f5fb17d6b324ad72e7118722d4d7cd0f3a6c3",
+    "docs/research/rea/ec2-iam-reference-report.json": "78904ef3be0b44d2406bd4fad1429ab07ac53512e75d1cdb43779c4c0ba8f16b",
+    "scripts/ec2-iam-kube-reference.py": "168a1bfad91ed37783ffb1de14e99d4702adfb51a3abf8993f6423b43e883ba7",
+    "scripts/ec2-iam-reference.py": "e3588ac146f7438865713681b60db0d5f2564da1182ae1e5b80985c91ce45ccd"
+  }
+}

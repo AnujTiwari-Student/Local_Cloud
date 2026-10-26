@@ -3,6 +3,7 @@ import copy
 import base64
 import hashlib
 import json
+import os
 import re
 import subprocess
 import uuid
@@ -14,6 +15,8 @@ from .ec2_images import ImageLifecycle
 
 CODES = {'pending': 0, 'running': 16, 'shutting-down': 32, 'terminated': 48, 'stopping': 64, 'stopped': 80}
 OPERATIONS = {'RunInstances', 'DescribeInstances', 'StartInstances', 'StopInstances', 'TerminateInstances', 'NameInstance', 'ModifyInstanceAttribute', 'DescribeImages', 'CreateTags', 'DeleteTags', 'DescribeTags', 'DescribeInstanceAttribute'}
+from .ec2_profiles import OPERATIONS as PROFILE_OPERATIONS, Profiles
+OPERATIONS |= PROFILE_OPERATIONS
 OPERATIONS |= set(PARAMETERS) | set(TEMPLATE_PARAMETERS) | {'RebootInstances', 'GetConsoleOutput', 'DescribeInstanceStatus', 'ModifyInstanceMetadataOptions'}
 
 
@@ -98,6 +101,7 @@ class EC2:
         self.infrastructure = Infrastructure(self)
         self.templates = TemplateManager(self)
         self.image_lifecycle = ImageLifecycle(self.infrastructure)
+        self.profiles = Profiles(self)
         if kubernetes is not None:
             if not self.images:
                 raise ValueError('Kubernetes EC2 requires configured AMI image mappings')
@@ -116,7 +120,14 @@ class EC2:
     def container_args(self, item, mappings=None):
         ports = item.get('PortMappings', [])
         publish = [part for p in ports for part in ('--publish', f"127.0.0.1:{p['HostPort']}:{p['ContainerPort']}/tcp")]
-        network = self.runtime.network(item['VpcId']) if item.get('DockerVpcNetwork') else 'bridge' if ports else 'none'
+        network = self.runtime.network(item['VpcId']) if item.get('DockerVpcNetwork') else 'bridge' if ports or item.get('IamInstanceProfile') else 'none'
+        if network == 'none' and self.runtime.imds:
+            from .ec2_profiles import transport_origin
+            try:
+                transport_origin(self.engine)
+                network = 'bridge'
+            except Error:
+                pass
         profile = ['--user', '0:0', *[v for capability in ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID', 'NET_BIND_SERVICE', 'SYS_CHROOT', 'AUDIT_WRITE', 'KILL') for v in ('--cap-add', capability)]] if item.get('GuestMode') else ['--read-only', '--user', '65534:65534']
         image = item.get('RootImage') or self.images[item['ImageId']]
         if item.get('RootImage'):
@@ -128,9 +139,10 @@ class EC2:
                 *profile, '--tmpfs', '/tmp:rw,nosuid,nodev,size=16m,mode=1777',
                 '--network', network, *publish, *self.runtime.mount_args(mappings if mappings is not None else item.get('BlockDeviceMappings', [])), *command]
 
-    def docker(self, *args):
+    def docker(self, *args, environment=None):
         try:
-            result = subprocess.run(['docker', *args], capture_output=True, text=True, errors='replace', timeout=30)
+            options = {'env': {**os.environ, **environment}} if environment is not None else {}
+            result = subprocess.run(['docker', *args], capture_output=True, text=True, errors='replace', timeout=30, **options)
         except (OSError, subprocess.TimeoutExpired):
             raise Error('RuntimeUnavailable', 'Docker is unavailable or timed out', 503)
         if result.returncode:
@@ -159,6 +171,8 @@ class EC2:
                         raise Error('DryRunOperation', 'Request would have succeeded, but DryRun flag is set', 412)
                 return self.engine.tools.call('ec2', operation, principal, '*', check)
             args = {key: value for key, value in args.items() if key != 'DryRun'}
+        if operation in PROFILE_OPERATIONS:
+            return self.profiles.call(operation, args, principal)
         if operation in TEMPLATE_PARAMETERS:
             return self.templates.call(operation, args, principal)
         if operation == 'RunInstances' and isinstance(args, dict) and 'LaunchTemplate' in args:
@@ -173,7 +187,7 @@ class EC2:
             return self.infrastructure.resource_tags(operation, args, principal)
         selectors_allowed = {'InstanceIds', 'InstanceName', 'ContainerId', 'ContainerName', 'HostPort'}
         allowed = {
-            'RunInstances': {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name', 'ClientToken', 'TagSpecifications', 'UserData', 'SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'LaunchTemplate'},
+            'RunInstances': {'ImageId', 'InstanceType', 'MinCount', 'MaxCount', 'PortMappings', 'Name', 'ClientToken', 'TagSpecifications', 'UserData', 'SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'LaunchTemplate', 'IamInstanceProfile'},
             'DescribeImages': {'ImageIds', 'Filters', 'Owners', 'MaxResults', 'NextToken'},
             'CreateTags': {'Resources', 'Tags'}, 'DeleteTags': {'Resources', 'Tags'},
             'DescribeTags': {'Filters', 'MaxResults', 'NextToken'},
@@ -387,7 +401,7 @@ class EC2:
                                   MinCount=integer(args.get('MinCount', 1), 1, 10), MaxCount=integer(args.get('MaxCount', 1), 1, 10),
                                   PortMappings=args.get('PortMappings', []), TagSpecifications=args.get('TagSpecifications', []),
                                   UserData=args.get('UserData', ''))
-                normalized.update({k: v for k, v in args.items() if k in ('SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'LaunchTemplate')})
+                normalized.update({k: v for k, v in args.items() if k in ('SubnetId', 'SecurityGroupIds', 'PrivateIpAddress', 'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'LaunchTemplate', 'IamInstanceProfile')})
                 if 'Name' in args:
                     normalized['Name'] = args['Name']
                 fingerprint = hashlib.sha256(json.dumps(normalized, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
@@ -432,6 +446,10 @@ class EC2:
                 occupied = {p['HostPort'] for i in instances.values() if i['State']['Name'] != 'terminated' for p in i.get('PortMappings', [])}
                 if self.backend == 'docker' and any(p['HostPort'] in occupied for p in ports):
                     raise Error('InvalidParameterValue', 'A host port is already assigned to another instance; choose another port or terminate that instance')
+                profile = None
+                if 'IamInstanceProfile' in args:
+                    self.profiles.require_runtime()
+                    profile = self.profiles.profile(data, args['IamInstanceProfile'], principal)
                 created = []
                 reservation = 'r-' + uuid.uuid4().hex[:17]
                 for _ in range(count):
@@ -441,6 +459,8 @@ class EC2:
                             'Backend': self.backend, 'Owner': uuid.uuid4().hex,
                             'ReservationId': reservation, 'Tags': tags, 'ClientToken': token,
                             'LaunchFingerprint': fingerprint, 'UserData': user_data, 'AmiLaunchIndex': len(created)}
+                    if profile is not None:
+                        self.profiles.attach(data, item, profile)
                     if 'LaunchTemplate' in args:
                         item['LaunchTemplate'] = copy.deepcopy(args['LaunchTemplate'])
                     item.update(self.infrastructure.launch_network(data, args))
@@ -485,7 +505,15 @@ class EC2:
                                 published = json.loads(self.docker('inspect', '--format', '{{json .NetworkSettings.Ports}}', 'localcloud-' + identifier))
                                 for port in item['PortMappings']:
                                     port['HostPort'] = int(published[str(port['ContainerPort']) + '/tcp'][0]['HostPort'])
-                            self.runtime.start_imds(item)
+                            seed = None
+                            if item.get('IamInstanceProfile'):
+                                try:
+                                    seed = self.engine.identity.instance_credentials_from_state(data, item)
+                                except Error:
+                                    # Empty profiles and roles without EC2 trust
+                                    # can be attached but cannot issue credentials.
+                                    pass
+                            self.runtime.start_imds(item, seed=seed)
                             self.runtime.start_guest(item)
                             if decoded:
                                 try:
@@ -563,8 +591,8 @@ class EC2:
                             pass
                     if target == 'terminated':
                         runtime.lifecycle(item, 'terminate')
+                        self.profiles.terminate(data, item)
                         self.infrastructure.terminate(data, item)
-                        item['State'] = state('terminated')
                     elif previous['Name'] != target:
                         runtime.lifecycle(item, 'start' if target == 'running' else 'stop')
                     changes.append({'InstanceId': item['InstanceId'], 'PreviousState': previous, 'CurrentState': copy.deepcopy(item['State'])})
@@ -589,6 +617,7 @@ class EC2:
                         self.runtime.start_imds(item)
                         self.runtime.start_guest(item)
                 if target == 'terminated':
+                    self.profiles.terminate(data, item)
                     self.infrastructure.terminate(data, item)
                     if item['Backend'] == 'docker':
                         self.runtime.delete_root_image(item)
@@ -616,7 +645,7 @@ def validate_instances(instances):
     for key, item in instances.items():
         optional = {'Name', 'ReservationId', 'Tags', 'ClientToken', 'LaunchFingerprint', 'UserData', 'AmiLaunchIndex',
                     'VpcId', 'SubnetId', 'PrivateIpAddress', 'PrivateDnsName', 'PublicIpAddress', 'SecurityGroups', 'Placement',
-                    'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'NetworkInterfaces', 'ConsoleOutput', 'LaunchTemplate'}
+                    'KeyName', 'MetadataOptions', 'BlockDeviceMappings', 'NetworkInterfaces', 'ConsoleOutput', 'LaunchTemplate', 'IamInstanceProfile'}
         if (not isinstance(item, dict) or set(item) - required - optional or not required <= set(item) or key != item['InstanceId']
                 or not re.fullmatch(r'i-[0-9a-f]{17}', key)
                 or item['Backend'] != 'mock' or item['State'] not in [state(n) for n in ('running', 'stopped', 'terminated')]
@@ -629,6 +658,8 @@ def validate_instances(instances):
             validated_tags(item.get('Tags', []))
             if 'ConsoleOutput' in item and (not isinstance(item['ConsoleOutput'], str) or len(item['ConsoleOutput']) > 87384 or len(base64.b64decode(item['ConsoleOutput'], validate=True)) > 65536):
                 raise ValueError('Invalid console output')
+            if 'IamInstanceProfile' in item and (not isinstance(item['IamInstanceProfile'], dict) or set(item['IamInstanceProfile']) != {'Arn', 'Id'} or any(not isinstance(v, str) for v in item['IamInstanceProfile'].values())):
+                raise ValueError('Invalid instance profile')
             if 'MetadataOptions' in item:
                 metadata_options(item['MetadataOptions'])
             from .ec2_infrastructure import validate_instance_fields

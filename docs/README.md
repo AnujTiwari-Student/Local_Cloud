@@ -24,6 +24,10 @@ features, independent component contracts, acceptance tests and release criteria
 | EBS defaults, history and batch consistency          | [Storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md)       |
 | EC2 mock, Docker and Kubernetes executor evidence   | [Executor REA report](REA_EC2_EXECUTORS.md)           |
 | Run EC2 guests and persistent data in Kubernetes    | [EC2 Kubernetes guide](EC2_KUBERNETES.md)             |
+| EC2 role credential reference and live evidence | [Role REA report](REA_EC2_INSTANCE_ROLES.md) |
+| EC2 role credentials and automatic SDK authentication | [Instance roles](EC2_INSTANCE_ROLES.md) |
+| Metadata available during Kubernetes EC2 user data | [Bootstrap metadata audit](REA_EC2_KUBERNETES_BOOTSTRAP.md) |
+| Kubernetes EC2 provisioning recovery and repair     | [Recovery audit](REA_EC2_KUBERNETES_COMPLETION.md)    |
 | Template/version workflow                           | [Launch templates](EC2_TEMPLATES.md)                 |
 | Operator, persistent instances and Kubernetes Jobs  | [Kubernetes](KUBERNETES.md)                          |
 | Direct HTTP integration                             | [HTTP reference](HTTP_API.md)                        |

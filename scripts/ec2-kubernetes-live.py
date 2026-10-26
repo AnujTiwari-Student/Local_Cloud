@@ -172,6 +172,7 @@ print(op.open(urllib.request.Request(base+'meta-data/instance-id',headers={'X-aw
                 assert 'user-data-console-ok' in text,text
                 check('instance-console-contains-user-data-log')
                 call('StopInstances',InstanceIds=[instance])
+                wait(lambda:describe()['State']['Name']=='stopped',60)
                 wait(lambda:not json.loads(kubectl('get','pods','-n',namespace,'-o','json'))['items'],45)
                 assert describe()['State']['Name']=='stopped'
                 call('StartInstances',InstanceIds=[instance])
@@ -203,6 +204,7 @@ print(op.open(urllib.request.Request(base+'meta-data/instance-id',headers={'X-aw
                 check('backend-restart-reconciles-existing-owned-deployment')
                 for key in (bad,instance):
                     if key:call('TerminateInstances',InstanceIds=[key])
+                wait(lambda: all(call('DescribeInstances',InstanceIds=[key])['Reservations'][0]['Instances'][0]['State']['Name']=='terminated' for key in (bad,instance) if key),60)
                 wait(lambda:not json.loads(kubectl('get','pods','-n',namespace,'-o','json'))['items'],45)
                 remaining=json.loads(kubectl('get','deployments,services,configmaps,pvc','-n',namespace,'-o','json'))['items']
                 # Namespace-created kube-root-ca ConfigMap is system-owned.

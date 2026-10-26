@@ -129,6 +129,8 @@ class Tooling:
     def export_state(self):
         with self.engine.lock:
             state = json.loads(self.engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+        if state.get('identity') or state.get('ec2_iam_associations'):
+            raise Error('UnsupportedOperation', 'IAM roles and profiles are not portable; preserve the backend SQLite database', 409)
         if any(i.get('Backend') in ('docker', 'kubernetes') for i in state.get('instances', {}).values()):
             raise Error('UnsupportedOperation', 'Container EC2 instances cannot be exported as portable state', 409)
         body = json.dumps(state, sort_keys=True, separators=(',', ':'), allow_nan=False)
@@ -138,6 +140,10 @@ class Tooling:
                 'sha256': hashlib.sha256(body.encode()).hexdigest(), 'state': state}
 
     def import_state(self, bundle):
+        with self.engine.lock:
+            current = json.loads(self.engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+        if current.get('identity') or current.get('ec2_iam_associations'):
+            raise Error('UnsupportedOperation', 'State import cannot replace a backend containing IAM roles or profiles', 409)
         if self.engine.ec2.images:
             raise Error('UnsupportedOperation', 'State import is disabled in container EC2 mode', 409)
         # Validate everything before opening the replacement transaction.

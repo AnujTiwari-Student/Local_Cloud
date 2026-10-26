@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
 from .engine import Error
-from .providers import ProviderRegistry, ec2_provider, s3_provider, sqs_provider
+from .providers import ProviderRegistry, ec2_provider, s3_provider, sqs_provider, identity_provider
 
 UPSTREAM_COMMIT = '8b9a79f05846835cf4dff63ab7eefdde9df83783'
 
@@ -35,6 +35,8 @@ class Gateway:
         self.providers = ProviderRegistry()
         for name, factory in [('ec2', ec2_provider), ('s3', s3_provider), ('sqs', sqs_provider)]:
             self.providers.register(name, lambda factory=factory: factory(engine))
+        for service in ('iam', 'sts'):
+            self.providers.register(service, lambda service=service: identity_provider(engine, service))
         self.request_handlers = [self.validate_context, self.load_provider, self.dispatch_operation]
         self.response_handlers = []
         self.exception_handlers = []

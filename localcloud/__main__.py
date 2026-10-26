@@ -26,10 +26,15 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(len(body)))
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('X-Amzn-RequestId', self.request_id)
+        if '/instance-credentials/' in self.path or self.path.startswith('/_local/sts'):
+            self.send_header('Cache-Control', 'no-store')
         self.end_headers()
         self.wfile.write(body)
 
     def service_request(self, service, operation, arguments, principal, protocol='local-json'):
+        identity = getattr(self.server.engine.request_context, 'identity', None)
+        if identity and identity['signed_service'] != service:
+            raise Error('SignatureDoesNotMatch', 'Credential service scope does not match this request', 403)
         return self.server.engine.gateway.invoke(service, operation, arguments, principal, protocol, self.request_id)
 
     def handle_request(self):
@@ -40,6 +45,31 @@ class Handler(BaseHTTPRequestHandler):
             raise Error('RequestTooLarge', 'Maximum request size is 8 MiB', 413)
         body = self.rfile.read(size)
         principal = self.headers.get('X-Local-Principal', 'test')
+        if self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
+            versions = parse_qs(body.decode()).get('Version', [])
+            engine.request_context.identity_query = bool(versions and versions[0] in ('2010-05-08', '2011-06-15'))
+        if not path.startswith('/_local'):
+            from .identity_wire import verify_session
+            identity = verify_session(engine, self.command, self.path, self.headers, body)
+            engine.request_context.identity = identity
+            if identity:
+                principal = identity['principal']
+        if path.startswith('/_local/instance-credentials/'):
+            identifier = path.rsplit('/', 1)[-1]
+            if self.command != 'GET':
+                raise Error('InvalidRequest', 'Credential delivery requires GET', 405)
+            authorization = self.headers.get('Authorization', '')
+            token = authorization[7:] if authorization.startswith('Bearer ') else ''
+            # Docker user data may request credentials while its launch still
+            # owns the state transaction. Never leave an HTTP request queued
+            # behind that launch; its helper has a bounded bootstrap seed.
+            if not engine.lock.acquire(blocking=False):
+                raise Error('InstanceNotReady', 'Instance credential state is being updated', 503)
+            try:
+                result = engine.identity.broker_credentials(identifier, token)
+            finally:
+                engine.lock.release()
+            return self.send(200, result)
         if path in ('/_local/dashboard.js', '/_local/dashboard.css') and self.command == 'GET':
             filename = path.rsplit('/', 1)[1]
             kind = 'text/javascript' if filename.endswith('.js') else 'text/css'
@@ -85,14 +115,14 @@ class Handler(BaseHTTPRequestHandler):
                 overview = engine.overview()
                 executor = getattr(self.server, 'executor', None)
                 overview['instanceName'] = getattr(self.server, 'instance_name', 'localcloud')
-                overview['services'] = ['ec2', 's3', 'sqs']
+                overview['services'] = ['ec2', 's3', 'sqs', 'iam', 'sts']
                 overview['ec2Backend'] = engine.ec2.backend
                 overview['ec2Images'] = [{'ImageId': ami, 'DockerImage': image} for ami, image in sorted(engine.ec2.images.items())]
                 overview['executor'] = executor is not None
                 overview['workloadImages'] = sorted(executor.images) if executor is not None else []
                 return self.send(200, overview)
             if self.command == 'GET' and path == '/_local/health':
-                return self.send(200, {'status': 'running', 'services': ['sqs', 's3', 'ec2']})
+                return self.send(200, {'status': 'running', 'services': ['sqs', 's3', 'ec2', 'iam', 'sts']})
             if self.command == 'POST':
                 # Browser management mutations must be JSON, preventing simple cross-origin form posts.
                 if self.headers.get('Content-Type', '').split(';')[0] != 'application/json':
@@ -124,6 +154,9 @@ class Handler(BaseHTTPRequestHandler):
                     if isinstance(result, bytes):
                         result = {'ContentBase64': base64.b64encode(result).decode(), 'ContentLength': len(result)}
                     return self.send(200, result)
+                if path in ('/_local/iam', '/_local/sts'):
+                    operation = data.pop('Action')
+                    return self.send(200, self.service_request(path.rsplit('/', 1)[-1], operation, data, principal))
                 if path == '/_local/ec2':
                     operation = data.pop('Action')
                     return self.send(200, self.service_request('ec2', operation, data, principal))
@@ -147,11 +180,25 @@ class Handler(BaseHTTPRequestHandler):
             raise Error('NotFound', 'Unknown management route', 404)
         if self.command == 'POST' and self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
             from .ec2 import query_request, query_response
+            fields = parse_qs(body.decode(), keep_blank_values=True)
+            versions = fields.get('Version', [])
+            if versions and versions[0] in ('2010-05-08', '2011-06-15'):
+                engine.request_context.identity_query = True
+                from .identity_wire import query_request as identity_request, query_response as identity_response
+                service, operation, arguments = identity_request(body)
+                required = getattr(self.server, 'management_token', None)
+                identity = getattr(engine.request_context, 'identity', None)
+                bearer = required and hmac.compare_digest(self.headers.get('Authorization', '').encode(), ('Bearer ' + required).encode())
+                session = required and hmac.compare_digest(self.headers.get('X-Amz-Security-Token', '').encode(), required.encode())
+                if required and not (identity or bearer or session):
+                    raise Error('Unauthorized', 'IAM/STS management calls require the configured management token or a local role session', 401)
+                result = self.service_request(service, operation, arguments, principal, 'aws-query')
+                return self.send(200, identity_response(service, operation, result, self.request_id), 'application/xml')
             if engine.ec2.images:
                 required = getattr(self.server, 'management_token', None)
                 bearer = required and hmac.compare_digest(self.headers.get('Authorization', '').encode(), ('Bearer ' + required).encode())
                 session = required and hmac.compare_digest(self.headers.get('X-Amz-Security-Token', '').encode(), required.encode())
-                if not (bearer or session):
+                if not (bearer or session or getattr(engine.request_context, 'identity', None)):
                     raise Error('Unauthorized', 'Docker EC2 requires a management bearer token', 401)
             operation, arguments = query_request(body)
             result = self.service_request('ec2', operation, arguments, principal, 'ec2-query')
@@ -182,10 +229,15 @@ class Handler(BaseHTTPRequestHandler):
 
     def dispatch(self):
         self.request_id = str(uuid.uuid4())
+        self.server.engine.request_context.identity = None
+        self.server.engine.request_context.identity_query = False
         try:
             self.handle_request()
         except Error as e:
-            if self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
+            identity_query = getattr(self.server.engine.request_context, 'identity_query', False)
+            if self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded' and identity_query:
+                self.send(e.status, '<ErrorResponse><Error><Type>Sender</Type><Code>' + escape(e.code) + '</Code><Message>' + escape(e.message) + '</Message></Error><RequestId>' + self.request_id + '</RequestId></ErrorResponse>', 'application/xml')
+            elif self.headers.get('Content-Type', '').split(';')[0] == 'application/x-www-form-urlencoded':
                 self.send(e.status, '<Response><Errors><Error><Code>' + escape(e.code) + '</Code><Message>' + escape(e.message) + '</Message></Error></Errors><RequestID>' + self.request_id + '</RequestID></Response>', 'application/xml')
             elif self.headers.get('X-Amz-Target', '').startswith('AmazonSQS.') or self.path.startswith('/_local'):
                 self.send(e.status, {'__type': e.code, 'message': e.message})
@@ -193,6 +245,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.send(e.status, f'<Error><Code>{escape(e.code)}</Code><Message>{escape(e.message)}</Message></Error>', 'application/xml')
         except (ValueError, KeyError, TypeError, AttributeError):
             self.send(400, {'__type': 'InvalidRequest', 'message': 'Malformed request or missing required field'})
+        finally:
+            self.server.engine.request_context.identity = None
 
     do_GET = do_POST = do_PUT = do_DELETE = dispatch
 
