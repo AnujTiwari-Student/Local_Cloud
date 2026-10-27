@@ -1,0 +1,24 @@
+{
+  "unit_evidence": "ev_bcb9db4dc35e4c311a577aeebc466afc3c332c0ef3dce0fe7172c719f868da56",
+  "unit_tests": 336,
+  "live_evidence": "ev_793ee4cec0a34af02d1cccc7aa555d0f09ff88d64117ae6ee8cd08eefe1a433a",
+  "live_checks": 19,
+  "reference_index": "ec2-packet-reference-index.json",
+  "live_index": "ec2-packet-live-index.json",
+  "canonical_sha256": "d4d717117c1f9d70cf3e5a3716a3423cdba000aa2fc2dc13ed8f00c69d0fbac5",
+  "source_sha256": {
+    "localcloud/ec2_packet_policy.py": "a137f70b35a8b47eaee8f1474273d0a7a42f17c197bf922457641e75f062c062",
+    "localcloud/ec2_packet_runtime.py": "7c6340e670b4ff96d4dc8e5fac6296583c9a16c9a07b29f7987cca940c5c6596",
+    "localcloud/ec2_packet_helper.py": "c5c04549cf129048ea709fb4e9b7433dc75f96171b5b9610ece1bf25d022d4fe",
+    "localcloud/ec2.py": "2c030e22b6a02974491ed6897ac084ebf56906cc5a451bfd90b63527ee2f72c0",
+    "localcloud/ec2_runtime.py": "a3858bd732419acab5b389bf55d35cf891ccb4b064d141adef6ee557f2ab140b",
+    "localcloud/ec2_infrastructure.py": "9d0f45eec9289dd3bda8c74c6c0ee14be82ddb5d392761ef01391280d62ec9b7",
+    "localcloud/engine.py": "0697efca947a94e80fcddc064b09930cdb518e17ef3c2c32f86eb327a0170451",
+    "localcloud/__main__.py": "f1c3b8751bcccdc28657e09779be1ab25dd32be7a41c6f6802d38b4f694cb3ea",
+    "Dockerfile.network": "067f8bcc256a73b0f3cd6d00af044aa5ee71187ec716dc5ec532d754656d385c",
+    "tests/test_ec2_packet_policy.py": "a2ac7d2061e3ee8718c828987be05e34ee549fc608a1a4f8c6d617036a6ec8b8",
+    "tests/test_ec2_packet_runtime.py": "ef7d5d7dc2f778e1479cf59fbcf63ff63aafc023ab2129f9723d63cf9109aa5e",
+    "tests/test_ec2_packet_integration.py": "ef390f63b92a7cde211220756b4883e334d9844d3dc3b3add27385d6a8bd3376"
+  },
+  "scope": "Opt-in Docker primaryIPv4 packetenforcement+backendloopbackEIPTCP; notKubernetes/fullAWSNAT/fullLocalStackparity"
+}

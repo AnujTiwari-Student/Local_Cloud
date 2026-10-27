@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checks": [
+    "occupied-host-port-launch-fails-without-orphan-namespace-helper",
+    "default-security-group-ingress-denies-real-peer-tcp",
+    "cidr-ingress-permit-enables-real-peer-tcp",
+    "live-ingress-revoke-blocks-new-tcp-connections",
+    "security-group-peer-reference-controls-real-packets",
+    "udp-ingress-allow-and-revoke-affect-real-datagrams",
+    "empty-egress-rules-block-new-peer-connections",
+    "specific-egress-rule-restores-peer-access",
+    "local-only-subnet-route-blocks-owned-external-destination",
+    "attached-igw-default-route-enables-owned-external-destination",
+    "default-route-deletion-blocks-new-external-connections",
+    "elastic-ip-forwards-real-http-to-associated-instance",
+    "elastic-ip-forwarding-checks-original-client-security-group",
+    "elastic-ip-forwarding-requires-current-internet-gateway-route",
+    "elastic-ip-reassociation-changes-real-forwarding-target",
+    "stop-start-restores-owned-network-enforcement-and-eip",
+    "backend-restart-reconciles-existing-network-state",
+    "foreign-same-name-runtime-holder-is-not-adopted-or-deleted",
+    "elastic-ip-disassociation-removes-real-forwarding"
+  ],
+  "guest_image": "localcloud-packet-guest:rea-fcb65b4350",
+  "helper_image": "localcloud-packet-helper:rea-fcb65b4350",
+  "dependency_image": "localcloud-packet-deps:rea-b59365b9ea",
+  "app_port": 54079,
+  "scope": "Owned Docker namespace filters, TCP/UDP, owned external HTTP destination and loopback EIP proxy; no host firewall/routes",
+  "source_sha256": {
+    "localcloud/ec2_packet_runtime.py": "7c6340e670b4ff96d4dc8e5fac6296583c9a16c9a07b29f7987cca940c5c6596",
+    "localcloud/ec2_packet_policy.py": "a137f70b35a8b47eaee8f1474273d0a7a42f17c197bf922457641e75f062c062",
+    "localcloud/ec2_packet_helper.py": "c5c04549cf129048ea709fb4e9b7433dc75f96171b5b9610ece1bf25d022d4fe",
+    "localcloud/ec2.py": "2c030e22b6a02974491ed6897ac084ebf56906cc5a451bfd90b63527ee2f72c0",
+    "localcloud/engine.py": "0697efca947a94e80fcddc064b09930cdb518e17ef3c2c32f86eb327a0170451"
+  },
+  "helper_identity": "sha256:20cfc24386894af12cedf6e836d8840c91ed9f9e5fedd89d38fb2205ced90318",
+  "instances": [
+    {
+      "InstanceId": "i-af676fe0568643e69",
+      "PrivateIpAddress": "10.253.94.4"
+    },
+    {
+      "InstanceId": "i-4b896f8acbc141308",
+      "PrivateIpAddress": "10.253.94.5"
+    }
+  ],
+  "cleanup_errors": [],
+  "cleanup_completed": true,
+  "guest_containers_remaining": []
+}

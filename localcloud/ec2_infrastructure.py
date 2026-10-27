@@ -406,11 +406,13 @@ class Infrastructure(Networking):
                 groups = [g for g in r['groups'].values() if g['GroupName'] == args.get('GroupName')]
                 group = self.get(r, 'SecurityGroup', args.get('GroupId') or (groups[0]['GroupId'] if len(groups) == 1 else None))
                 if operation == 'DeleteSecurityGroup':
+                    if any(p.get('GroupId') == group['GroupId'] for g in r['groups'].values() if g['GroupId'] != group['GroupId'] for rules in ('IpPermissions', 'IpPermissionsEgress') for rule in g[rules] for p in rule.get('UserIdGroupPairs', [])):
+                        raise Error('DependencyViolation', 'Security group is referenced by another group')
                     if group['GroupName'] == 'default' or any(group['GroupId'] in [g['GroupId'] for g in i.get('SecurityGroups', [])] for i in self.active(data)) or any(group['GroupId'] in [g['GroupId'] for g in i.get('Groups', [])] for i in r['interfaces'].values()):
                         raise Error('DependencyViolation', 'Security group is in use or is the default')
                     del r['groups'][group['GroupId']]
                     return {}
-                return self.permissions(group, operation, args)
+                return self.permissions(group, operation, args, r)
             if operation == 'CreateInternetGateway':
                 item = {'InternetGatewayId': identifier('igw'), 'OwnerId': ACCOUNT, 'Attachments': [], 'Tags': tag_specs(args.get('TagSpecifications'), 'internet-gateway')}
                 r['gateways'][item['InternetGatewayId']] = item
@@ -484,7 +486,7 @@ class Infrastructure(Networking):
                     raise Error('InvalidGroup.NotFound', 'Security group does not exist')
             return paginated({key: copy.deepcopy(self.filter(values, args.get('Filters', [])))}, key, args)
 
-    def permissions(self, group, operation, args):
+    def permissions(self, group, operation, args, resources=None):
         key = 'IpPermissionsEgress' if operation.endswith('Egress') else 'IpPermissions'
         permissions = args.get('IpPermissions')
         if permissions is None:
@@ -497,15 +499,25 @@ class Infrastructure(Networking):
                 raise Error('InvalidParameterValue', 'Invalid permission fields')
             protocol = str(permission.get('IpProtocol'))
             protocol = {'6': 'tcp', '17': 'udp', '1': 'icmp'}.get(protocol, protocol)
-            if protocol not in ('tcp', 'udp', 'icmp', '-1') or any(permission.get(k) for k in ('Ipv6Ranges', 'UserIdGroupPairs', 'PrefixListIds')):
-                raise Error('UnsupportedOperation', 'Only IPv4 CIDR permissions are supported', 501)
+            if protocol not in ('tcp', 'udp', 'icmp', '-1') or any(permission.get(k) for k in ('Ipv6Ranges', 'PrefixListIds')):
+                raise Error('UnsupportedOperation', 'Only IPv4 CIDR and same-VPC security-group references are supported', 501)
             item = {'IpProtocol': protocol, 'IpRanges': [], 'Ipv6Ranges': [], 'UserIdGroupPairs': [], 'PrefixListIds': []}
             if protocol != '-1':
                 item.update(FromPort=integer(permission.get('FromPort'), -1 if protocol == 'icmp' else 0, 65535), ToPort=integer(permission.get('ToPort'), -1 if protocol == 'icmp' else 0, 65535))
                 if item['FromPort'] > item['ToPort']:
                     raise Error('InvalidParameterValue', 'Invalid port range')
-            ranges = permission.get('IpRanges', [{'CidrIp': '0.0.0.0/0'}])
-            if not isinstance(ranges, list) or not 1 <= len(ranges) <= 32:
+            peers = permission.get('UserIdGroupPairs', [])
+            if not isinstance(peers, list) or len(peers) > 32:
+                raise Error('InvalidParameterValue', 'Expected up to 32 group references')
+            for peer in peers:
+                if not isinstance(peer, dict) or set(peer) - {'GroupId', 'Description', 'UserId', 'VpcId'} or not peer.get('GroupId'):
+                    raise Error('InvalidParameterValue', 'Expected a security-group reference')
+                target = (resources or {}).get('groups', {}).get(peer['GroupId'])
+                if target is None or target['VpcId'] != group['VpcId'] or peer.get('VpcId', group['VpcId']) != group['VpcId'] or peer.get('UserId', ACCOUNT) != ACCOUNT:
+                    raise Error('InvalidGroup.NotFound', 'Referenced group must belong to the same VPC and account')
+                item['UserIdGroupPairs'].append({'GroupId': target['GroupId'], **({'Description': text(peer['Description'])} if 'Description' in peer else {})})
+            ranges = permission.get('IpRanges', [] if peers else [{'CidrIp': '0.0.0.0/0'}])
+            if not isinstance(ranges, list) or len(ranges) > 32 or not (ranges or peers):
                 raise Error('InvalidParameterValue', 'Expected IPv4 CIDR ranges')
             for block in ranges:
                 if not isinstance(block, dict) or set(block) - {'CidrIp', 'Description'}:
@@ -513,7 +525,7 @@ class Infrastructure(Networking):
                 item['IpRanges'].append({'CidrIp': str(cidr(block.get('CidrIp'))), **({'Description': text(block['Description'])} if 'Description' in block else {})})
             result.append(item)
         def identity(item):
-            return (item['IpProtocol'], item.get('FromPort'), item.get('ToPort'), tuple(sorted(b['CidrIp'] for b in item['IpRanges'])))
+            return (item['IpProtocol'], item.get('FromPort'), item.get('ToPort'), tuple(sorted(b['CidrIp'] for b in item['IpRanges'])), tuple(sorted(p['GroupId'] for p in item.get('UserIdGroupPairs', []))))
         existing = {identity(item): item for item in group[key]}
         seen = set()
         for item in result:

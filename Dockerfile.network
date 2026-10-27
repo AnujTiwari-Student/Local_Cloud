@@ -1,0 +1,7 @@
+# Optional packet-enforcement helper. Build the base LocalCloud image first.
+FROM localcloud:ec2-runtime
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends iptables \
+    && rm -rf /var/lib/apt/lists/*
+COPY localcloud /app/localcloud
+USER 10001:10001

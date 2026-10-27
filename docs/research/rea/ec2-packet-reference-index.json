@@ -1,0 +1,32 @@
+{
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "reference_version": "2026.10.0",
+  "reference_build": "738d58ee",
+  "evidence": {
+    "initial_two_guest_probe": "ev_99b7e2415203a1c2835c383c9a964d49bd46cd61414c2a87af519ebf3cc843b8",
+    "final_two_guest_kernel_route_probe": "ev_607242228e75f531c7ccbb1259267d38583632f7ba4731bd32c3960a414fffa0"
+  },
+  "canonical_sha256": "d056df16ee0d29619fd94574e727fe98b6858369b8e8b6c98a82de82900e2aab",
+  "source_sha256": {
+    "scripts/ec2-packet-reference.py": "7539d8001a24ec28597527ae0a460485aba3ad99b5e87e34e1b9ec46234dc023",
+    "docs/research/rea/ec2-packet-reference-report.json": "7671a07709d1b79c47db856891e1cc2980c2a32e03fc34ae506c59558f03a2a8"
+  },
+  "findings": {
+    "security_groups": "Fresh peer HTTP connections stayed200 on bothactualDocker IPs with ingress empty/allow/revoke and egress defaultremoved/portallow. SG API200 doesnotestablish packetfiltering.",
+    "routing": "RouteTable/IGW/default-route API200 changes didnotchange actualDocker network configuration or nonempty guest kernelroute tables. PeerHTTP remained200. External internet or interVPC routes notprobed.",
+    "elastic_ip": "Allocatedloopback EIP association to targetHTTP guest then reassociation tosource had noDocker/kernelroute changes; customhostTCPport connectionrefused bothcases. No general EIP forwarding established.",
+    "cleanup": "Bothguestcontainers and referencecontrollerremoved. APIresourcecleanupcompleted; retiredpriorEIPassociation NotFound400 afterreassociation expected. Preexisting sharedlinklocalnetworkpreserved."
+  },
+  "limits": [
+    "Two Linux Dockerguests, oneVPC, one random TCPport and one EIP. No UDP/ICMP/IPv6 dataplane comparison.",
+    "OnlyownprivateDocker addresses and ownallocatedloopback EIP probed; no externaltraffic or hostfirewall/routes changed.",
+    "Reference publishesSSH22 independently; it was notusedasproof genericEIPforwarding.",
+    "Emulated privateIP10.98.1.x differs actualDocker bridgeaddresses.",
+    "Guest ip utilityabsent; finalprobe reads nonempty /proc/net/route fallback.",
+    "Normal licensed API/runtimeobservations only; no encryptedsource or licensebypass.",
+    "Full AWS/LocalStack parity cannotbeinferred."
+  ],
+  "reproduce": [
+    "python3 scripts/ec2-packet-reference.py"
+  ]
+}

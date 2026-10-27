@@ -117,6 +117,7 @@ class Handler(BaseHTTPRequestHandler):
                 overview['instanceName'] = getattr(self.server, 'instance_name', 'localcloud')
                 overview['services'] = ['ec2', 's3', 'sqs', 'iam', 'sts']
                 overview['ec2Backend'] = engine.ec2.backend
+                overview['ec2Networking'] = 'enforce' if engine.ec2.packet_runtime.enabled else 'off'
                 overview['ec2Images'] = [{'ImageId': ami, 'DockerImage': image} for ami, image in sorted(engine.ec2.images.items())]
                 overview['executor'] = executor is not None
                 overview['workloadImages'] = sorted(executor.images) if executor is not None else []
@@ -272,6 +273,7 @@ def main(argv=None):
     parser.add_argument('--ec2-image', action='append', default=[], metavar='AMI=CONTAINER_IMAGE', help='Enable EC2 execution with an explicit image mapping; repeatable')
     parser.add_argument('--ec2-helper-image', help='LocalCloud image for Docker helpers or Kubernetes metadata sidecars')
     parser.add_argument('--ec2-imds', action='store_true', help='Enable per-instance metadata at 169.254.169.254 using the helper image')
+    parser.add_argument('--ec2-networking', choices=['off', 'enforce'], default='off', help='Opt in to Docker guest security-group/routing packet enforcement and loopback EIP TCP forwarding')
     parser.add_argument('--ec2-guest-mode', action='store_true', help='Opt in to root/writable EC2 guests; KeyName starts preinstalled OpenSSH in the image')
     args = parser.parse_args(argv)
     management_token = os.environ.get(args.management_token_env or 'LOCALCLOUD_MANAGEMENT_TOKEN')
@@ -289,6 +291,10 @@ def main(argv=None):
         parser.error('Kubernetes EC2 requires at least one --ec2-image mapping')
     if args.ec2_executor == 'kubernetes' and (args.ec2_imds or args.ec2_guest_mode):
         parser.error('Kubernetes EC2 does not support Docker --ec2-imds or --ec2-guest-mode')
+    if args.ec2_networking == 'enforce' and (args.ec2_executor != 'docker' or not ec2_images or not args.ec2_helper_image):
+        parser.error('--ec2-networking enforce requires Docker EC2 images and --ec2-helper-image built with iptables (Dockerfile.network)')
+    if args.ec2_networking == 'enforce' and args.ec2_guest_mode:
+        parser.error('Packet enforcement requires unprivileged guests; --ec2-guest-mode is incompatible')
     if args.ec2_imds and (not ec2_images or not args.ec2_helper_image):
         parser.error('--ec2-imds requires --ec2-image and --ec2-helper-image')
     if args.executor == 'kubernetes' and (not management_token or not args.workload_image):
@@ -311,6 +317,15 @@ def main(argv=None):
     engine.ec2.runtime.helper_image = args.ec2_helper_image
     engine.ec2.runtime.imds = args.ec2_imds
     engine.ec2.runtime.guest_mode = args.ec2_guest_mode
+    engine.ec2.packet_runtime.enabled = args.ec2_networking == 'enforce'
+    if args.ec2_networking == 'enforce':
+        try:
+            with engine.lock:
+                current = json.loads(engine.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+                engine.ec2.packet_runtime.sync_state(current)
+        except Error as error:
+            engine.close()
+            parser.error(str(error))
     if args.load_state:
         try:
             engine.tools.import_state(json.loads(Path(args.load_state).read_text()))

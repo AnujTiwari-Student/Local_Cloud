@@ -73,16 +73,22 @@ class Engine:
             try:
                 with self.db:
                     state = json.loads(self.db.execute('SELECT body FROM state WHERE id=1').fetchone()[0])
+                    before = copy.deepcopy(state)
                     try:
                         yield state
-                    except Error as error:
-                        if error.code == 'AccessDenied':
+                        self.ec2.packet_runtime.sync_state(state)
+                        self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
+                        if journal is not None:
+                            journal.mark_committed(txid)
+                    except BaseException as error:
+                        try:
+                            self.ec2.packet_runtime.sync_state(before)
+                        except Exception as recovery_error:
+                            error.add_note('Packet policy rollback failed: ' + str(recovery_error))
+                        if isinstance(error, Error) and error.code == 'AccessDenied':
                             self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
                             self.db.commit()
                         raise
-                    self.db.execute('UPDATE state SET body=? WHERE id=1', (json.dumps(state),))
-                    if journal is not None:
-                        journal.mark_committed(txid)
             finally:
                 self.request_context.state_transaction_depth = depth
                 # SQLite has settled before recovery inspects committed resource
@@ -93,6 +99,7 @@ class Engine:
                     journal.recover()
 
     def close(self):
+        self.ec2.packet_runtime.close()
         if self.ec2.kubernetes is not None:
             self.ec2.kubernetes.journal.close()
         self.ec2.runtime.storage_journal.close()

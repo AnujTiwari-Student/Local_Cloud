@@ -1,0 +1,37 @@
+{
+  "evidence": {
+    "helper_dependencies": "ev_204ba3c4ffc45d66bf3d78e7a69c34725512808ceba2ea771b7dcf87c09e37ed",
+    "preliminary_marker_reset_failure": "ev_db305020ab948638474884cd025ac0144ce7b94dbf8070b29a082ec3e45517c5",
+    "sixteen_check_pass": "ev_83f50c608d7e59b07481828e204500ae8b5c2bd5d49a7c0bd7a7c218bfccca90",
+    "eighteen_check_pass": "ev_d1f8aa421fd8fc21f49b0674ba06dc6b9951086d6253121a07ec45a710c6ea8d",
+    "cleanup": "ev_c9705cb006dab98465dbe07d23e369f0b2a85d300d79fe73190eebbb4747efeb",
+    "final_source_bound_eighteen_check_pass": "ev_033fd317fcdad0ade6784de3724bd8cea294f5539312a50013bb776a78f3debd",
+    "final_source_bound_nineteen_check_pass": "ev_793ee4cec0a34af02d1cccc7aa555d0f09ff88d64117ae6ee8cd08eefe1a433a"
+  },
+  "live_checks_passed": 19,
+  "canonical_sha256": "c8f5b01d122203a2c53479e27779ac57f056c9806d5348aaf33369834122e46e",
+  "source_sha256": {
+    "scripts/ec2-packet-live.py": "028925e5276446f3bb162eb2726e966784f0c249e787973b95bf8a3bdd4c16d3",
+    "docs/research/rea/ec2-packet-live-report.json": "705073ef06a7f238542a808625ad2ffb36cfcc00fb5b5abdf5a7d8e7e4f2b6a6",
+    "docs/research/rea/ec2-packet-cleanup-report.json": "e2caec2b0e410221937ac2b6e0627153f80f347fefbeb3be208dae05e52a230b",
+    "localcloud/ec2_packet_runtime.py": "7c6340e670b4ff96d4dc8e5fac6296583c9a16c9a07b29f7987cca940c5c6596",
+    "localcloud/ec2_packet_policy.py": "a137f70b35a8b47eaee8f1474273d0a7a42f17c197bf922457641e75f062c062",
+    "localcloud/ec2_packet_helper.py": "c5c04549cf129048ea709fb4e9b7433dc75f96171b5b9610ece1bf25d022d4fe",
+    "localcloud/ec2.py": "2c030e22b6a02974491ed6897ac084ebf56906cc5a451bfd90b63527ee2f72c0",
+    "localcloud/engine.py": "0697efca947a94e80fcddc064b09930cdb518e17ef3c2c32f86eb327a0170451"
+  },
+  "limits": [
+    "Docker packet backend only; no Kubernetes networkpolicy/CNI comparison.",
+    "TCP and UDP exercised; ICMP/IPv6 compilebounds testedelsewhere notlivehere.",
+    "Routefiltering exercisesfixturehost HTTPserver only, no externalinternet.",
+    "EIP bindsallocatedIPv4loopback onbackendhost and explicit guestContainerPort, notinternet publicIPorfullNAT.",
+    "Stop/start clearsguest/tmp byexistingcontract; fixtureidentitymarker isreseededafterstart beforeassertingEIPtargetcontent.",
+    "Preliminaryfailurewasfixture/tmpmarkerreset, notfailedpacketfilter.",
+    "Uniquehelperdependencies builtfromcachedruntime withaptiptables/iproute2; finalhelpercopiescurrentcode. Dependencyimage cleanedafterfinalrun.",
+    "Preexistingimages/resources preserved; allowncontainers/images/packetnetworksremoved."
+  ],
+  "reproduce": [
+    "docker build -t localcloud:ec2-network -f Dockerfile.network .",
+    "LOCALCLOUD_PACKET_DEPENDENCIES=localcloud:ec2-network python3 scripts/ec2-packet-live.py"
+  ]
+}

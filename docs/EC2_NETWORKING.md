@@ -230,3 +230,7 @@ licensed token file. The Docker smoke test needs `localcloud-ec2-web:dev` from t
 infrastructure guide. All use isolated state. Full AWS networking, packet-level
 security-group enforcement, actual additional guest NICs and EIP NAT remain
 outside this implementation; they were not demonstrated by the tested reference.
+
+## Later packet-enforcement implementation
+
+The [27 October packet networking guide](EC2_PACKET_NETWORKING.md) supersedes the LocalCloud metadata-only filtering/forwarding limits above for newly launched Docker instances using `--ec2-networking enforce`. The historical LocalStack observations remain bounded reference evidence. The new implementation is an independently tested local extension, not a claim that the reference performed the same filtering. See [the follow-up audit](REA_EC2_PACKET_NETWORKING.md).

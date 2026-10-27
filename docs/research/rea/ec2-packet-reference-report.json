@@ -1,0 +1,1707 @@
+{
+  "baseline_linklocal_networks": [
+    "d68d24cb4217"
+  ],
+  "reference_image": "localstack/localstack@sha256:aa5632e041ca54ff61a0a25e17b1c898b09a1eb7f611bfc05f73ef53b7266872",
+  "container": "localcloud-rea-packet-ref-825343c66f",
+  "probe_port": 44845,
+  "scope": [
+    "Two owned Docker guests in one emulated VPC",
+    "Only private Docker IPs and allocated loopback EIPs probed",
+    "No host firewall/routes changed; no external destinations contacted"
+  ],
+  "records": [
+    {
+      "case": "create-vpc",
+      "operation": "create_vpc",
+      "parameters": {
+        "CidrBlock": "10.98.0.0/16"
+      },
+      "status": 200,
+      "result": {
+        "Vpc": {
+          "OwnerId": "000000000000",
+          "InstanceTenancy": "default",
+          "Ipv6CidrBlockAssociationSet": [],
+          "CidrBlockAssociationSet": [
+            {
+              "AssociationId": "vpc-cidr-assoc-b54cae66689ab1593",
+              "CidrBlock": "10.98.0.0/16",
+              "CidrBlockState": {
+                "State": "associated"
+              }
+            }
+          ],
+          "IsDefault": false,
+          "Tags": [],
+          "VpcId": "vpc-5c32808a4e72d656b",
+          "State": "available",
+          "CidrBlock": "10.98.0.0/16",
+          "DhcpOptionsId": "default"
+        }
+      }
+    },
+    {
+      "case": "create-subnet",
+      "operation": "create_subnet",
+      "parameters": {
+        "VpcId": "vpc-5c32808a4e72d656b",
+        "CidrBlock": "10.98.1.0/24"
+      },
+      "status": 200,
+      "result": {
+        "Subnet": {
+          "AvailabilityZoneId": "use1-az6",
+          "OwnerId": "000000000000",
+          "AssignIpv6AddressOnCreation": false,
+          "Ipv6CidrBlockAssociationSet": [],
+          "Tags": [],
+          "SubnetArn": "arn:aws:ec2:us-east-1:000000000000:subnet/subnet-08cf01b94c753e18f",
+          "Ipv6Native": false,
+          "PrivateDnsNameOptionsOnLaunch": {
+            "HostnameType": "ip-name",
+            "EnableResourceNameDnsARecord": false,
+            "EnableResourceNameDnsAAAARecord": false
+          },
+          "SubnetId": "subnet-08cf01b94c753e18f",
+          "State": "available",
+          "VpcId": "vpc-5c32808a4e72d656b",
+          "CidrBlock": "10.98.1.0/24",
+          "AvailableIpAddressCount": 251,
+          "AvailabilityZone": "us-east-1a",
+          "DefaultForAz": false,
+          "MapPublicIpOnLaunch": false
+        }
+      }
+    },
+    {
+      "case": "create-security-group",
+      "operation": "create_security_group",
+      "parameters": {
+        "VpcId": "vpc-5c32808a4e72d656b",
+        "GroupName": "packet-vpc-5c32808a4e72d656b",
+        "Description": "Own packet reference"
+      },
+      "status": 200,
+      "result": {
+        "GroupId": "sg-a762d1b1c3deae926",
+        "SecurityGroupArn": "arn:aws:ec2:us-east-1:000000000000:security-group/sg-a762d1b1c3deae926"
+      }
+    },
+    {
+      "case": "run-0",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "SubnetId": "subnet-08cf01b94c753e18f",
+        "SecurityGroupIds": [
+          "sg-a762d1b1c3deae926"
+        ],
+        "InstanceType": "t3.micro"
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-acaa1a58a16f49b65",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-27 15:41:30+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-9e81e7b99c47e3619"
+                }
+              }
+            ],
+            "ClientToken": "e8d12bf7-7ea2-4473-b2a5-a1cd4bd7954d",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {},
+                "Attachment": {
+                  "AttachTime": "2026-10-27 15:41:30+00:00",
+                  "AttachmentId": "eni-attach-49c5be11b002c11e0",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-a762d1b1c3deae926",
+                    "GroupName": "packet-vpc-5c32808a4e72d656b"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:6302x:15902x:13502x",
+                "NetworkInterfaceId": "eni-ece3f0f5a95d0ac35",
+                "OwnerId": "000000000000",
+                "PrivateIpAddress": "10.98.1.4",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.98.1.4"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-08cf01b94c753e18f",
+                "VpcId": "vpc-5c32808a4e72d656b",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-a762d1b1c3deae926",
+                "GroupName": "packet-vpc-5c32808a4e72d656b"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-b399ce6599cd36c33",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-98-1-4.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-3.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-27 15:41:30+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-08cf01b94c753e18f",
+            "VpcId": "vpc-5c32808a4e72d656b",
+            "PrivateIpAddress": "10.98.1.4",
+            "PublicIpAddress": "172.17.0.3"
+          }
+        ]
+      }
+    },
+    {
+      "case": "guest-0",
+      "instance_id": "i-b399ce6599cd36c33",
+      "container_id": "7653fdcbbf201b9a737ce0dc1214ca9bcbec1da642767823c532bb1c996e59f5",
+      "container_name": "localstack-ec2.i-b399ce6599cd36c33",
+      "api_private_ip": "10.98.1.4",
+      "actual": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "run-1",
+      "operation": "run_instances",
+      "parameters": {
+        "ImageId": "ami-61ad6e59d7b0",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "SubnetId": "subnet-08cf01b94c753e18f",
+        "SecurityGroupIds": [
+          "sg-a762d1b1c3deae926"
+        ],
+        "InstanceType": "t3.micro"
+      },
+      "status": 200,
+      "result": {
+        "ReservationId": "r-d09067dfe8ca693fb",
+        "OwnerId": "000000000000",
+        "Groups": [],
+        "Instances": [
+          {
+            "Architecture": "amd64",
+            "BlockDeviceMappings": [
+              {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                  "AttachTime": "2026-10-27 15:41:31+00:00",
+                  "DeleteOnTermination": true,
+                  "Status": "attached",
+                  "VolumeId": "vol-ee84d12361d37f43f"
+                }
+              }
+            ],
+            "ClientToken": "b4f4e663-5e1d-4e70-b6e2-3a85d3de3948",
+            "EbsOptimized": false,
+            "Hypervisor": "xen",
+            "NetworkInterfaces": [
+              {
+                "Association": {},
+                "Attachment": {
+                  "AttachTime": "2026-10-27 15:41:31+00:00",
+                  "AttachmentId": "eni-attach-c4c196fb7ed958bff",
+                  "DeleteOnTermination": false,
+                  "DeviceIndex": 0,
+                  "Status": "attached",
+                  "NetworkCardIndex": 0
+                },
+                "Description": "Primary network interface",
+                "Groups": [
+                  {
+                    "GroupId": "sg-a762d1b1c3deae926",
+                    "GroupName": "packet-vpc-5c32808a4e72d656b"
+                  }
+                ],
+                "Ipv6Addresses": [],
+                "MacAddress": "02:00:00:1402x:24602x:3302x",
+                "NetworkInterfaceId": "eni-182536e939e56888b",
+                "OwnerId": "000000000000",
+                "PrivateIpAddress": "10.98.1.5",
+                "PrivateIpAddresses": [
+                  {
+                    "Primary": true,
+                    "PrivateIpAddress": "10.98.1.5"
+                  }
+                ],
+                "SourceDestCheck": true,
+                "Status": "in-use",
+                "SubnetId": "subnet-08cf01b94c753e18f",
+                "VpcId": "vpc-5c32808a4e72d656b",
+                "InterfaceType": "interface"
+              }
+            ],
+            "RootDeviceName": "/dev/sda1",
+            "RootDeviceType": "ebs",
+            "SecurityGroups": [
+              {
+                "GroupId": "sg-a762d1b1c3deae926",
+                "GroupName": "packet-vpc-5c32808a4e72d656b"
+              }
+            ],
+            "SourceDestCheck": true,
+            "SriovNetSupport": "simple",
+            "StateReason": {
+              "Code": "",
+              "Message": ""
+            },
+            "VirtualizationType": "hvm",
+            "HibernationOptions": {},
+            "MetadataOptions": {
+              "State": "applied",
+              "HttpTokens": "optional",
+              "HttpPutResponseHopLimit": 1,
+              "HttpEndpoint": "enabled",
+              "HttpProtocolIpv6": "disabled",
+              "InstanceMetadataTags": "disabled"
+            },
+            "InstanceId": "i-4be810f586d67d6d3",
+            "ImageId": "ami-61ad6e59d7b0",
+            "State": {
+              "Code": 0,
+              "Name": "pending"
+            },
+            "PrivateDnsName": "ip-10-98-1-5.ec2.internal",
+            "PublicDnsName": "ec2-172-17-0-4.localhost.localstack.cloud",
+            "StateTransitionReason": "",
+            "AmiLaunchIndex": 0,
+            "ProductCodes": [],
+            "InstanceType": "t3.micro",
+            "LaunchTime": "2026-10-27 15:41:31+00:00",
+            "Placement": {
+              "GroupName": "",
+              "Tenancy": "default",
+              "AvailabilityZone": "us-east-1a"
+            },
+            "Monitoring": {
+              "State": "disabled"
+            },
+            "SubnetId": "subnet-08cf01b94c753e18f",
+            "VpcId": "vpc-5c32808a4e72d656b",
+            "PrivateIpAddress": "10.98.1.5",
+            "PublicIpAddress": "172.17.0.4"
+          }
+        ]
+      }
+    },
+    {
+      "case": "guest-1",
+      "instance_id": "i-4be810f586d67d6d3",
+      "container_id": "87bd73918b59c5a62395fbeb588d2dcf624c09b5441f0864f09eb7f6fa9bcdb2",
+      "container_name": "localstack-ec2.i-4be810f586d67d6d3",
+      "api_private_ip": "10.98.1.5",
+      "actual": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "start-http",
+      "result": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "case": "sg-closed",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "sg-ingress-allow",
+      "operation": "authorize_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-a762d1b1c3deae926",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 44845,
+            "ToPort": 44845,
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true,
+        "SecurityGroupRules": [
+          {
+            "SecurityGroupRuleId": "sgr-afc458354404a9b01",
+            "GroupId": "sg-a762d1b1c3deae926",
+            "GroupOwnerId": "000000000000",
+            "IsEgress": false,
+            "IpProtocol": "tcp",
+            "FromPort": 44845,
+            "ToPort": 44845,
+            "CidrIpv4": "0.0.0.0/0",
+            "SecurityGroupRuleArn": "arn:aws:ec2:us-east-1:000000000000:security-group-rule/sgr-afc458354404a9b01"
+          }
+        ]
+      }
+    },
+    {
+      "case": "sg-open",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "sg-ingress-revoke",
+      "operation": "revoke_security_group_ingress",
+      "parameters": {
+        "GroupId": "sg-a762d1b1c3deae926",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 44845,
+            "ToPort": 44845,
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "sg-revoked",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "sg-egress-revoke-default",
+      "operation": "revoke_security_group_egress",
+      "parameters": {
+        "GroupId": "sg-a762d1b1c3deae926",
+        "IpPermissions": [
+          {
+            "IpProtocol": "-1",
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "sg-egress-empty",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "sg-egress-allow-port",
+      "operation": "authorize_security_group_egress",
+      "parameters": {
+        "GroupId": "sg-a762d1b1c3deae926",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 44845,
+            "ToPort": 44845,
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ]
+          }
+        ]
+      },
+      "status": 200,
+      "result": {
+        "Return": true,
+        "SecurityGroupRules": [
+          {
+            "SecurityGroupRuleId": "sgr-bd88f7f55fa528d94",
+            "GroupId": "sg-a762d1b1c3deae926",
+            "GroupOwnerId": "000000000000",
+            "IsEgress": true,
+            "IpProtocol": "tcp",
+            "FromPort": 44845,
+            "ToPort": 44845,
+            "CidrIpv4": "0.0.0.0/0",
+            "SecurityGroupRuleArn": "arn:aws:ec2:us-east-1:000000000000:security-group-rule/sgr-bd88f7f55fa528d94"
+          }
+        ]
+      }
+    },
+    {
+      "case": "sg-egress-port-allowed",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "create-route-table",
+      "operation": "create_route_table",
+      "parameters": {
+        "VpcId": "vpc-5c32808a4e72d656b"
+      },
+      "status": 200,
+      "result": {
+        "RouteTable": {
+          "Associations": [],
+          "RouteTableId": "rtb-1397dd7a4f5131bfa",
+          "Routes": [
+            {
+              "DestinationCidrBlock": "10.98.0.0/16",
+              "GatewayId": "local",
+              "State": "active"
+            }
+          ],
+          "Tags": [],
+          "VpcId": "vpc-5c32808a4e72d656b",
+          "OwnerId": "000000000000"
+        }
+      }
+    },
+    {
+      "case": "associate-route-table",
+      "operation": "associate_route_table",
+      "parameters": {
+        "RouteTableId": "rtb-1397dd7a4f5131bfa",
+        "SubnetId": "subnet-08cf01b94c753e18f"
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "rtbassoc-6a36d5dc8a6944867"
+      }
+    },
+    {
+      "case": "route-local-only",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "create-igw",
+      "operation": "create_internet_gateway",
+      "parameters": {},
+      "status": 200,
+      "result": {
+        "InternetGateway": {
+          "Attachments": [],
+          "InternetGatewayId": "igw-27c4f7211c259735e",
+          "OwnerId": "000000000000",
+          "Tags": []
+        }
+      }
+    },
+    {
+      "case": "attach-igw",
+      "operation": "attach_internet_gateway",
+      "parameters": {
+        "InternetGatewayId": "igw-27c4f7211c259735e",
+        "VpcId": "vpc-5c32808a4e72d656b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "create-default-route",
+      "operation": "create_route",
+      "parameters": {
+        "RouteTableId": "rtb-1397dd7a4f5131bfa",
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": "igw-27c4f7211c259735e"
+      },
+      "status": 200,
+      "result": {
+        "Return": true
+      }
+    },
+    {
+      "case": "route-igw-default",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "delete-default-route",
+      "operation": "delete_route",
+      "parameters": {
+        "RouteTableId": "rtb-1397dd7a4f5131bfa",
+        "DestinationCidrBlock": "0.0.0.0/0"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "route-default-deleted",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "allocate-eip",
+      "operation": "allocate_address",
+      "parameters": {
+        "Domain": "vpc"
+      },
+      "status": 200,
+      "result": {
+        "AllocationId": "eipalloc-9c7f0f65492fa78bc",
+        "Domain": "vpc",
+        "PublicIp": "127.225.68.236"
+      }
+    },
+    {
+      "case": "associate-eip-1",
+      "operation": "associate_address",
+      "parameters": {
+        "AllocationId": "eipalloc-9c7f0f65492fa78bc",
+        "InstanceId": "i-4be810f586d67d6d3",
+        "AllowReassociation": true
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "eipassoc-83a91500d0136c04b"
+      }
+    },
+    {
+      "case": "eip-associated-1",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "allocated-loopback-address",
+      "public_ip": "127.225.68.236",
+      "target_instance": "i-4be810f586d67d6d3"
+    },
+    {
+      "case": "eip-host-probe-1",
+      "result": {
+        "reachable": false,
+        "error": "URLError: <urlopen error [Errno 111] Connection refused>"
+      }
+    },
+    {
+      "case": "associate-eip-0",
+      "operation": "associate_address",
+      "parameters": {
+        "AllocationId": "eipalloc-9c7f0f65492fa78bc",
+        "InstanceId": "i-b399ce6599cd36c33",
+        "AllowReassociation": true
+      },
+      "status": 200,
+      "result": {
+        "AssociationId": "eipassoc-7a092f63c1c912134"
+      }
+    },
+    {
+      "case": "eip-associated-0",
+      "probes": [
+        {
+          "target_docker_ip": "172.17.0.4",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        },
+        {
+          "target_docker_ip": "172.18.0.3",
+          "from_peer": {
+            "exit": 0,
+            "output": "{\"reachable\": true, \"status\": 200, \"body\": \"own-packet-server\"}\n"
+          }
+        }
+      ],
+      "target_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.4",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "a6:52:f8:b1:29:7c"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.3",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "82:90:38:d0:7e:fe"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "19231"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "19231"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      },
+      "source_network": {
+        "networks": {
+          "bridge": {
+            "IPAddress": "172.17.0.3",
+            "Gateway": "172.17.0.1",
+            "MacAddress": "6e:65:71:13:3d:59"
+          },
+          "localstack-ec2-link-local": {
+            "IPAddress": "172.18.0.2",
+            "Gateway": "172.18.0.1",
+            "MacAddress": "2e:03:2c:2c:c4:27"
+          }
+        },
+        "ports": {
+          "22/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "22"
+            },
+            {
+              "HostIp": "::",
+              "HostPort": "22"
+            }
+          ]
+        },
+        "routes": {
+          "exit": 0,
+          "output": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                                                               \neth1\t0000FEA9\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \neth1\t000012AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                                                               \n"
+        }
+      }
+    },
+    {
+      "case": "allocated-loopback-address",
+      "public_ip": "127.225.68.236",
+      "target_instance": "i-b399ce6599cd36c33"
+    },
+    {
+      "case": "eip-host-probe-0",
+      "result": {
+        "reachable": false,
+        "error": "URLError: <urlopen error [Errno 111] Connection refused>"
+      }
+    },
+    {
+      "case": "describe-route-table",
+      "operation": "describe_route_tables",
+      "parameters": {
+        "RouteTableIds": [
+          "rtb-1397dd7a4f5131bfa"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "RouteTables": [
+          {
+            "Associations": [
+              {
+                "Main": false,
+                "RouteTableAssociationId": "rtbassoc-6a36d5dc8a6944867",
+                "RouteTableId": "rtb-1397dd7a4f5131bfa",
+                "SubnetId": "subnet-08cf01b94c753e18f",
+                "AssociationState": {
+                  "State": "associated"
+                }
+              }
+            ],
+            "RouteTableId": "rtb-1397dd7a4f5131bfa",
+            "Routes": [
+              {
+                "DestinationCidrBlock": "10.98.0.0/16",
+                "GatewayId": "local",
+                "Origin": "CreateRouteTable",
+                "State": "active"
+              }
+            ],
+            "Tags": [],
+            "VpcId": "vpc-5c32808a4e72d656b",
+            "OwnerId": "000000000000"
+          }
+        ]
+      }
+    },
+    {
+      "case": "describe-security-group",
+      "operation": "describe_security_groups",
+      "parameters": {
+        "GroupIds": [
+          "sg-a762d1b1c3deae926"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "SecurityGroups": [
+          {
+            "GroupId": "sg-a762d1b1c3deae926",
+            "IpPermissionsEgress": [
+              {
+                "IpProtocol": "tcp",
+                "FromPort": 44845,
+                "ToPort": 44845,
+                "UserIdGroupPairs": [],
+                "IpRanges": [
+                  {
+                    "CidrIp": "0.0.0.0/0"
+                  }
+                ],
+                "Ipv6Ranges": [],
+                "PrefixListIds": []
+              }
+            ],
+            "VpcId": "vpc-5c32808a4e72d656b",
+            "SecurityGroupArn": "arn:aws:ec2:us-east-1:000000000000:security-group/sg-a762d1b1c3deae926",
+            "OwnerId": "000000000000",
+            "GroupName": "packet-vpc-5c32808a4e72d656b",
+            "Description": "Own packet reference",
+            "IpPermissions": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-disassociate_address",
+      "operation": "disassociate_address",
+      "parameters": {
+        "AssociationId": "eipassoc-7a092f63c1c912134"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-disassociate_address",
+      "operation": "disassociate_address",
+      "status": 400,
+      "error": {
+        "Code": "InvalidAssociationID.NotFound",
+        "Message": "Association ID '['eipassoc-83a91500d0136c04b']' not found."
+      }
+    },
+    {
+      "case": "cleanup-release_address",
+      "operation": "release_address",
+      "parameters": {
+        "AllocationId": "eipalloc-9c7f0f65492fa78bc"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-detach_internet_gateway",
+      "operation": "detach_internet_gateway",
+      "parameters": {
+        "InternetGatewayId": "igw-27c4f7211c259735e",
+        "VpcId": "vpc-5c32808a4e72d656b"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_internet_gateway",
+      "operation": "delete_internet_gateway",
+      "parameters": {
+        "InternetGatewayId": "igw-27c4f7211c259735e"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-disassociate_route_table",
+      "operation": "disassociate_route_table",
+      "parameters": {
+        "AssociationId": "rtbassoc-6a36d5dc8a6944867"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_route_table",
+      "operation": "delete_route_table",
+      "parameters": {
+        "RouteTableId": "rtb-1397dd7a4f5131bfa"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-4be810f586d67d6d3"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-4be810f586d67d6d3",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-terminate_instances",
+      "operation": "terminate_instances",
+      "parameters": {
+        "InstanceIds": [
+          "i-b399ce6599cd36c33"
+        ]
+      },
+      "status": 200,
+      "result": {
+        "TerminatingInstances": [
+          {
+            "InstanceId": "i-b399ce6599cd36c33",
+            "CurrentState": {
+              "Code": 48,
+              "Name": "terminated"
+            },
+            "PreviousState": {
+              "Code": 16,
+              "Name": "running"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "cleanup-delete_security_group",
+      "operation": "delete_security_group",
+      "parameters": {
+        "GroupId": "sg-a762d1b1c3deae926"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_subnet",
+      "operation": "delete_subnet",
+      "parameters": {
+        "SubnetId": "subnet-08cf01b94c753e18f"
+      },
+      "status": 200,
+      "result": {}
+    },
+    {
+      "case": "cleanup-delete_vpc",
+      "operation": "delete_vpc",
+      "parameters": {
+        "VpcId": "vpc-5c32808a4e72d656b"
+      },
+      "status": 200,
+      "result": {}
+    }
+  ],
+  "exit": 0,
+  "stderr": "",
+  "reference_container_removed": true,
+  "guest_containers_remaining": [],
+  "network_comparisons": {
+    "sg-open": true,
+    "sg-revoked": true,
+    "sg-egress-empty": true,
+    "sg-egress-port-allowed": true,
+    "route-local-only": true,
+    "route-igw-default": true,
+    "route-default-deleted": true,
+    "eip-associated-1": true,
+    "eip-associated-0": true
+  },
+  "shared_linklocal_network": "preexisting preserved"
+}

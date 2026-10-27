@@ -54,6 +54,8 @@ class Runtime:
         return name
 
     def delete_network(self, vpc):
+        if self.ec2.packet_runtime.enabled:
+            self.ec2.packet_runtime.delete_network(vpc)
         if self.ec2.kubernetes is not None:
             return
         if not self.ec2.images:

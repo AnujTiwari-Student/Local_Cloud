@@ -165,3 +165,7 @@ The [24 October storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md) adds three EBS e
 ## Instance-role follow-up
 
 The [instance-role guide](EC2_INSTANCE_ROLES.md) adds IAM roles/profiles, inline policies, EC2 profile associations, STS sessions and automatic IMDS credential delivery for Docker and Kubernetes guests. See the [REA report](REA_EC2_INSTANCE_ROLES.md) for observed LocalStack behavior and deliberate differences. Earlier exclusions of IAM instance profiles in this release checkpoint are superseded for the documented subset.
+
+## Docker packet-enforcement follow-up
+
+[Opt-in packet networking](EC2_PACKET_NETWORKING.md) now implements primary IPv4 SG filtering, route reachability gates and local EIP TCP forwarding for explicit published ports. Historical exclusions of all SG filtering/EIP forwarding are superseded for this Docker subset. Broader routing/NAT, secondary interfaces, IPv6 and Kubernetes packet enforcement remain outside it.

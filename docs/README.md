@@ -19,6 +19,7 @@ features, independent component contracts, acceptance tests and release criteria
 | Full runnable Node.js application                   | [Node integration tutorial](NODEJS_LOCAL_CI.md)      |
 | Current EC2 implementation and limits               | [EC2 release checkpoint](EC2_RELEASE.md)             |
 | EC2 networking, storage, SSH and metadata           | [Infrastructure](EC2_INFRASTRUCTURE.md)              |
+| Real Docker SG filtering, route gates and local EIP TCP forwarding | [Packet networking](EC2_PACKET_NETWORKING.md) |
 | Actual networking observations and differences      | [Networking REA report](EC2_NETWORKING.md)           |
 | Actual Docker storage observations and differences | [Storage REA report](REA_EC2_STORAGE.md)             |
 | EBS defaults, history and batch consistency          | [Storage follow-up](REA_EC2_STORAGE_FOLLOWUP.md)       |

@@ -102,6 +102,8 @@ class EC2:
         self.templates = TemplateManager(self)
         self.image_lifecycle = ImageLifecycle(self.infrastructure)
         self.profiles = Profiles(self)
+        from .ec2_packet_runtime import PacketRuntime
+        self.packet_runtime = PacketRuntime(self)
         if kubernetes is not None:
             if not self.images:
                 raise ValueError('Kubernetes EC2 requires configured AMI image mappings')
@@ -120,7 +122,13 @@ class EC2:
     def container_args(self, item, mappings=None):
         ports = item.get('PortMappings', [])
         publish = [part for p in ports for part in ('--publish', f"127.0.0.1:{p['HostPort']}:{p['ContainerPort']}/tcp")]
-        network = self.runtime.network(item['VpcId']) if item.get('DockerVpcNetwork') else 'bridge' if ports or item.get('IamInstanceProfile') else 'none'
+        if item.get('PacketNetworking'):
+            if not self.packet_runtime.enabled:
+                raise Error('RuntimeUnavailable', 'Restart with --ec2-networking enforce for this instance', 503)
+            network = 'container:' + self.packet_runtime.holder(item)
+            publish = []
+        else:
+            network = self.runtime.network(item['VpcId']) if item.get('DockerVpcNetwork') else 'bridge' if ports or item.get('IamInstanceProfile') else 'none'
         if network == 'none' and self.runtime.imds:
             from .ec2_profiles import transport_origin
             try:
@@ -500,9 +508,11 @@ class EC2:
                     elif self.images:
                         publish = [part for p in ports for part in ('--publish', f"127.0.0.1:{p['HostPort']}:{p['ContainerPort']}/tcp")]
                         try:
+                            if self.packet_runtime.enabled:
+                                self.packet_runtime.prepare(data, item)
                             item['ContainerId'] = self.docker('run', '-d', *self.container_args(item))
                             if any(p['HostPort'] == 0 for p in item.get('PortMappings', [])):
-                                published = json.loads(self.docker('inspect', '--format', '{{json .NetworkSettings.Ports}}', 'localcloud-' + identifier))
+                                published = json.loads(self.docker('inspect', '--format', '{{json .NetworkSettings.Ports}}', self.packet_runtime.holder(item) if item.get('PacketNetworking') else 'localcloud-' + identifier))
                                 for port in item['PortMappings']:
                                     port['HostPort'] = int(published[str(port['ContainerPort']) + '/tcp'][0]['HostPort'])
                             seed = None
@@ -526,6 +536,11 @@ class EC2:
                             # Docker can create a stopped container before a port-bind error.
                             # Remove it only after verifying our unique ownership label.
                             failure = error if isinstance(error, Error) else Error('RuntimeFailure', 'Docker returned invalid runtime metadata', 503)
+                            if item.get('PacketNetworking'):
+                                try:
+                                    self.packet_runtime.remove(item)
+                                except Error as cleanup_error:
+                                    failure.add_note('Packet namespace cleanup failed: ' + str(cleanup_error))
                             try:
                                 self.runtime.imds_action(item, 'rm')
                             except (Error, ValueError, TypeError) as cleanup_error:
@@ -611,8 +626,12 @@ class EC2:
                         except Error:
                             pass
                     self.runtime.imds_action(item, 'rm' if target == 'terminated' else 'stop')
+                    if item.get('PacketNetworking') and target == 'running':
+                        self.packet_runtime.start(data, item)
                     self.docker(*({'running': ['start', name], 'stopped': ['stop', '-t', '5', name],
                                   'terminated': ['rm', '-f', name]}[target]))
+                    if item.get('PacketNetworking') and target == 'stopped':
+                        self.packet_runtime.stop(item)
                     if target == 'running':
                         self.runtime.start_imds(item)
                         self.runtime.start_guest(item)
@@ -620,6 +639,8 @@ class EC2:
                     self.profiles.terminate(data, item)
                     self.infrastructure.terminate(data, item)
                     if item['Backend'] == 'docker':
+                        if item.get('PacketNetworking'):
+                            self.packet_runtime.remove(item)
                         self.runtime.delete_root_image(item)
                         item.pop('RootImage', None)
                 item['State'] = state(target)
